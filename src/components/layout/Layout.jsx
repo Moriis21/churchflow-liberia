@@ -53,7 +53,7 @@ function LoadingScreen() {
 
 // ─── Layout Component ─────────────────────────────────────
 export default function Layout() {
-  const { user, loading } = useAuth()
+  const { user, loading, isSuperAdmin } = useAuth()
   const location = useLocation()
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
@@ -88,6 +88,11 @@ export default function Layout() {
         state={{ from: location }}
       />
     )
+  }
+
+  // ── Redirect super admin away from regular dashboard ──
+  if (isSuperAdmin && location.pathname === '/app/dashboard') {
+    return <Navigate to="/app/super-admin" replace />
   }
 
   // ── Authenticated layout ──────────────────────────────

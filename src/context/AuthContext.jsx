@@ -95,6 +95,7 @@ const AuthContext = createContext({
   loading: true,
   churchData: null,
   churchId: null,
+  isSuperAdmin: false,
   pendingVerificationEmail: null,
   login: async () => {},
   register: async () => {},
@@ -152,7 +153,12 @@ export function AuthProvider({ children }) {
         .maybeSingle()
 
       if (data) {
-        if (data.churches) setChurchData(data.churches)
+        // Super admin has no church — skip setting church data
+        if (data.role === 'super_admin') {
+          setChurchData(null)
+        } else if (data.churches) {
+          setChurchData(data.churches)
+        }
         setUser((prev) => ({
           ...prev,
           profile: data,
@@ -369,6 +375,10 @@ export function AuthProvider({ children }) {
   // ── Derived churchId ──────────────────────────────────────
   const churchId = user?.churchId || user?.profile?.church_id || null
 
+  // ── Derived isSuperAdmin ───────────────────────────────────
+  const isSuperAdmin =
+    user?.role === 'super_admin' || user?.profile?.role === 'super_admin'
+
   // ─────────────────────────────────────────────────────────
   return (
     <AuthContext.Provider
@@ -377,6 +387,7 @@ export function AuthProvider({ children }) {
         loading,
         churchData,
         churchId,
+        isSuperAdmin,
         pendingVerificationEmail,
         login,
         register,

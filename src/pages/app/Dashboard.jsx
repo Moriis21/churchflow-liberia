@@ -1,7 +1,7 @@
 // ============================================================
 // ChurchFlow Liberia — Main App Dashboard
 // ============================================================
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Navigate } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import {
   Users,
@@ -42,14 +42,7 @@ import {
 import { useAuth } from '../../context/AuthContext'
 import { useChurch } from '../../context/ChurchContext'
 import { StatsCard, Card, Badge, Avatar } from '../../components/ui'
-import {
-  STATS,
-  MEMBERS,
-  EVENTS,
-  PRAYER_REQUESTS,
-  ATTENDANCE_RECORDS,
-  OFFERINGS,
-} from '../../data/dummyData'
+import { STATS } from '../../data/dummyData'
 import { formatCurrency, formatDate, getGreeting } from '../../utils/helpers'
 import { insforge } from '../../lib/insforge'
 
@@ -63,7 +56,7 @@ const CHART_COLORS = {
   rose: '#F43F5E',
 }
 
-// ─── Attendance area-chart data (initial from dummy data) ─────
+// ─── Attendance area-chart data builder ──────────────────────
 function buildAttendanceChartData(records) {
   return records
     .filter((r) => (r.serviceType || r.service_type || '').includes('Sunday'))
@@ -80,60 +73,33 @@ function buildAttendanceChartData(records) {
     }))
 }
 
-const attendanceChartData = buildAttendanceChartData(ATTENDANCE_RECORDS)
-
-// ─── Offering pie-chart data ──────────────────────────────────
-const pieData = [
-  { name: 'Tithe', value: 32500 },
-  { name: 'Offering', value: 47750 },
-  { name: 'Thanksgiving', value: 18000 },
-  { name: 'Building Fund', value: 27500 },
-]
 const PIE_COLORS = [CHART_COLORS.purple, CHART_COLORS.gold, CHART_COLORS.green, CHART_COLORS.blue]
 
-// ─── Monthly member growth bar-chart data ────────────────────
-const growthData = [
-  { month: 'Dec', members: 220 },
-  { month: 'Jan', members: 228 },
-  { month: 'Feb', members: 232 },
-  { month: 'Mar', members: 237 },
-  { month: 'Apr', members: 241 },
-  { month: 'May', members: 248 },
-]
+// ─── Build offering pie data from real DB records ─────────────
+function buildPieData(offeringsList) {
+  const grouped = {}
+  ;(offeringsList || []).forEach((o) => {
+    const key = o.type || 'Other'
+    grouped[key] = (grouped[key] || 0) + Number(o.amount || 0)
+  })
+  return Object.entries(grouped).map(([name, value]) => ({ name, value }))
+}
 
-// ─── Recent activities ────────────────────────────────────────
-const ACTIVITIES = [
-  {
-    icon: UserPlus,
-    color: 'bg-purple-100 text-purple-600',
-    text: 'Agnes Worjlah joined Youth Ministry',
-    time: '2 hours ago',
-  },
-  {
-    icon: DollarSign,
-    color: 'bg-green-100 text-green-600',
-    text: 'Offering recorded: LRD 8,750 – Sunday Service',
-    time: '3 hours ago',
-  },
-  {
-    icon: UserCheck,
-    color: 'bg-blue-100 text-blue-600',
-    text: 'Attendance marked: 186 present (Mother\'s Day)',
-    time: '5 hours ago',
-  },
-  {
-    icon: MessageSquare,
-    color: 'bg-amber-100 text-amber-600',
-    text: 'SMS blast sent to 248 members – Prayer Week',
-    time: '1 day ago',
-  },
-  {
-    icon: Calendar,
-    color: 'bg-rose-100 text-rose-600',
-    text: 'New event created: Annual Convention 2026',
-    time: '2 days ago',
-  },
-]
+// ─── Build member growth data from real DB records ────────────
+function buildGrowthData(membersList) {
+  const months = {}
+  ;(membersList || []).forEach((m) => {
+    if (!m.created_at) return
+    const d = new Date(m.created_at)
+    const key = d.toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
+    months[key] = (months[key] || 0) + 1
+  })
+  // Return last 6 months
+  const result = Object.entries(months)
+    .map(([label, count]) => ({ month: label.split(' ')[0], members: count }))
+    .slice(-6)
+  return result
+}
 
 // ─── Birthday members helper ──────────────────────────────────
 function getBirthdayMembers(membersList) {
@@ -226,19 +192,19 @@ function SectionHeader({ title, action, actionLabel = 'View All' }) {
 
 // ─── Dashboard ────────────────────────────────────────────────
 export default function Dashboard() {
-  const { user } = useAuth()
+  const { user, isSuperAdmin } = useAuth()
   const { church } = useChurch()
   const navigate = useNavigate()
 
-  // ── Live data state (starts with dummy fallbacks) ──────────
+  // ── Live data state (empty — populated from InsForge on mount) ──
   const [stats, setStats] = useState(STATS)
-  const [members, setMembers] = useState(MEMBERS)
-  const [events, setEvents] = useState(EVENTS)
-  const [offerings, setOfferings] = useState(OFFERINGS)
-  const [attendance, setAttendance] = useState(ATTENDANCE_RECORDS)
-  const [prayerReqs, setPrayerReqs] = useState(PRAYER_REQUESTS)
+  const [members, setMembers] = useState([])
+  const [events, setEvents] = useState([])
+  const [offerings, setOfferings] = useState([])
+  const [attendance, setAttendance] = useState([])
+  const [prayerReqs, setPrayerReqs] = useState([])
   const [dataLoading, setDataLoading] = useState(true)
-  const [chartData, setChartData] = useState(attendanceChartData)
+  const [chartData, setChartData] = useState([])
 
   useEffect(() => {
     async function loadDashboardData() {
@@ -251,30 +217,40 @@ export default function Dashboard() {
           insforge.database.from('prayer_requests').select('*').order('submitted_at', { ascending: false }).limit(5),
         ])
 
-        if (membersRes.data?.length) {
-          setMembers(membersRes.data)
-          const now = new Date()
-          const thisMonth = membersRes.data.filter((m) => {
-            const d = new Date(m.created_at)
-            return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear()
-          })
-          const totalOfferings = offeringsRes.data?.reduce((sum, o) => sum + Number(o.amount || 0), 0) || 0
-          const todayAtt = attendanceRes.data?.[0]
-          setStats((prev) => ({
-            ...prev,
-            totalMembers: membersRes.data.length,
-            newThisMonth: thisMonth.length,
-            todayAttendance: todayAtt?.present_count || prev.todayAttendance,
-            totalOfferings,
-          }))
-        }
-        if (eventsRes.data?.length) setEvents(eventsRes.data)
-        if (offeringsRes.data?.length) setOfferings(offeringsRes.data)
-        if (attendanceRes.data?.length) {
-          setAttendance(attendanceRes.data)
-          setChartData(buildAttendanceChartData(attendanceRes.data))
-        }
-        if (prayerRes.data?.length) setPrayerReqs(prayerRes.data)
+        // Members
+        const memberData = membersRes.data || []
+        setMembers(memberData)
+        const now = new Date()
+        const thisMonth = memberData.filter((m) => {
+          const d = new Date(m.created_at)
+          return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear()
+        })
+        const totalOfferings = (offeringsRes.data || []).reduce(
+          (sum, o) => sum + Number(o.amount || 0), 0
+        )
+        const todayAtt = (attendanceRes.data || [])[0]
+        setStats((prev) => ({
+          ...prev,
+          totalMembers: memberData.length,
+          newThisMonth: thisMonth.length,
+          todayAttendance: todayAtt?.present_count ?? 0,
+          totalOfferings,
+          firstTimeVisitors: prev.firstTimeVisitors ?? 0,
+        }))
+
+        // Events
+        setEvents(eventsRes.data || [])
+
+        // Offerings
+        setOfferings(offeringsRes.data || [])
+
+        // Attendance + chart
+        const attData = attendanceRes.data || []
+        setAttendance(attData)
+        setChartData(buildAttendanceChartData(attData))
+
+        // Prayer requests
+        setPrayerReqs(prayerRes.data || [])
       } catch (err) {
         console.error('Dashboard load error:', err)
       } finally {
@@ -285,10 +261,18 @@ export default function Dashboard() {
     loadDashboardData()
   }, [])
 
+  // Super admin safety guard — Layout redirects them, but belt-and-suspenders
+  // Placed after all hooks to satisfy React Rules of Hooks
+  if (isSuperAdmin) {
+    return <Navigate to="/app/super-admin" replace />
+  }
+
   // ── Derived display values ─────────────────────────────────
   const displayBirthdays = getBirthdayMembers(members)
   const openPrayers = getOpenPrayers(prayerReqs)
   const upcomingEvents = getUpcomingEvents(events)
+  const pieData = buildPieData(offerings)
+  const growthData = buildGrowthData(members)
 
   const displayName =
     user?.profile?.full_name || user?.user_metadata?.name || user?.name || 'Pastor'
@@ -375,8 +359,16 @@ export default function Dashboard() {
 
           {/* Attendance area chart */}
           <div className="lg:col-span-3 bg-white rounded-2xl border border-slate-100 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07)] p-6">
-            <SectionHeader title="Attendance Overview" actionLabel="Full Report" action={() => {}} />
+            <SectionHeader title="Attendance Overview" actionLabel="Full Report" action={() => navigate('/app/attendance')} />
             <p className="text-xs text-slate-400 mb-5">Last 7 Sunday services</p>
+            {chartData.length === 0 && !dataLoading && (
+              <div className="py-10 text-center">
+                <UserCheck className="w-10 h-10 text-slate-200 mx-auto mb-2" />
+                <p className="text-sm text-slate-400 font-medium">No attendance records yet</p>
+                <p className="text-xs text-slate-300 mt-0.5">Mark attendance to see your chart</p>
+              </div>
+            )}
+            {chartData.length > 0 && (
             <ResponsiveContainer width="100%" height={220}>
               <AreaChart data={chartData} margin={{ top: 5, right: 5, left: -20, bottom: 0 }}>
                 <defs>
@@ -423,112 +415,147 @@ export default function Dashboard() {
                 />
               </AreaChart>
             </ResponsiveContainer>
+            )}
           </div>
 
           {/* Offering pie chart */}
           <div className="lg:col-span-2 bg-white rounded-2xl border border-slate-100 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07)] p-6">
-            <SectionHeader title="Offering Breakdown" actionLabel="Finance" action={() => {}} />
-            <p className="text-xs text-slate-400 mb-4">May 2026</p>
-            <div className="flex justify-center">
-              <ResponsiveContainer width="100%" height={190}>
-                <PieChart>
-                  <Pie
-                    data={pieData}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={55}
-                    outerRadius={85}
-                    paddingAngle={3}
-                    dataKey="value"
-                    labelLine={false}
-                    label={renderPieLabel}
-                  >
-                    {pieData.map((entry, index) => (
-                      <Cell key={entry.name} fill={PIE_COLORS[index % PIE_COLORS.length]} />
-                    ))}
-                  </Pie>
-                  <Tooltip
-                    formatter={(value) => formatCurrency(value, 'LRD')}
-                    contentStyle={{ borderRadius: 12, border: '1px solid #f1f5f9', boxShadow: '0 10px 30px -5px rgba(0,0,0,0.1)' }}
-                  />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
-            <div className="grid grid-cols-2 gap-2 mt-2">
-              {pieData.map((item, i) => (
-                <div key={item.name} className="flex items-center gap-2">
-                  <span
-                    className="w-2.5 h-2.5 rounded-sm flex-shrink-0"
-                    style={{ backgroundColor: PIE_COLORS[i] }}
-                  />
-                  <span className="text-xs text-slate-500 truncate">{item.name}</span>
+            <SectionHeader title="Offering Breakdown" actionLabel="Finance" action={() => navigate('/app/finance')} />
+            <p className="text-xs text-slate-400 mb-4">By offering type</p>
+            {pieData.length === 0 && !dataLoading ? (
+              <div className="py-10 text-center">
+                <DollarSign className="w-10 h-10 text-slate-200 mx-auto mb-2" />
+                <p className="text-sm text-slate-400 font-medium">No offerings recorded yet</p>
+                <p className="text-xs text-slate-300 mt-0.5">Record your first offering to see the breakdown</p>
+              </div>
+            ) : (
+              <>
+                <div className="flex justify-center">
+                  <ResponsiveContainer width="100%" height={190}>
+                    <PieChart>
+                      <Pie
+                        data={pieData}
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={55}
+                        outerRadius={85}
+                        paddingAngle={3}
+                        dataKey="value"
+                        labelLine={false}
+                        label={renderPieLabel}
+                      >
+                        {pieData.map((entry, index) => (
+                          <Cell key={entry.name} fill={PIE_COLORS[index % PIE_COLORS.length]} />
+                        ))}
+                      </Pie>
+                      <Tooltip
+                        formatter={(value) => formatCurrency(value, 'LRD')}
+                        contentStyle={{ borderRadius: 12, border: '1px solid #f1f5f9', boxShadow: '0 10px 30px -5px rgba(0,0,0,0.1)' }}
+                      />
+                    </PieChart>
+                  </ResponsiveContainer>
                 </div>
-              ))}
-            </div>
+                <div className="grid grid-cols-2 gap-2 mt-2">
+                  {pieData.map((item, i) => (
+                    <div key={item.name} className="flex items-center gap-2">
+                      <span
+                        className="w-2.5 h-2.5 rounded-sm flex-shrink-0"
+                        style={{ backgroundColor: PIE_COLORS[i] }}
+                      />
+                      <span className="text-xs text-slate-500 truncate">{item.name}</span>
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
           </div>
         </div>
 
         {/* ── ROW 3 – Activities + Growth chart + Events ── */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
 
-          {/* Recent activities */}
+          {/* Recent member activity */}
           <div className="bg-white rounded-2xl border border-slate-100 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07)] p-6">
-            <SectionHeader title="Recent Activity" action={() => {}} />
+            <SectionHeader title="Recent Members" action={() => navigate('/app/members')} actionLabel="View All" />
+            {members.length === 0 && !dataLoading && (
+              <div className="py-8 text-center">
+                <Users className="w-10 h-10 text-slate-200 mx-auto mb-2" />
+                <p className="text-sm text-slate-400 font-medium">No members yet</p>
+                <p className="text-xs text-slate-300 mt-0.5">Add your first member to get started</p>
+              </div>
+            )}
             <div className="space-y-4">
-              {ACTIVITIES.map((act, i) => {
-                const Icon = act.icon
-                return (
-                  <div key={i} className="flex items-start gap-3">
-                    <div className={`flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center ${act.color}`}>
-                      <Icon className="w-4 h-4" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm text-slate-700 leading-snug">{act.text}</p>
-                      <p className="text-xs text-slate-400 mt-0.5 flex items-center gap-1">
-                        <Clock className="w-3 h-3" />
-                        {act.time}
-                      </p>
-                    </div>
+              {members.slice(0, 5).map((m) => (
+                <div key={m.id} className="flex items-start gap-3">
+                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-br from-violet-400 to-purple-500 flex items-center justify-center">
+                    <span className="text-white text-xs font-bold uppercase">
+                      {(m.full_name || 'M').charAt(0)}
+                    </span>
                   </div>
-                )
-              })}
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm text-slate-700 leading-snug font-medium truncate">
+                      {m.full_name || '—'}
+                    </p>
+                    <p className="text-xs text-slate-400 mt-0.5 flex items-center gap-1">
+                      <Clock className="w-3 h-3" />
+                      {m.created_at
+                        ? new Date(m.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+                        : '—'}
+                    </p>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
 
           {/* Church growth bar chart */}
           <div className="bg-white rounded-2xl border border-slate-100 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07)] p-6">
-            <SectionHeader title="Church Growth" action={() => {}} />
-            <p className="text-xs text-slate-400 mb-5">Monthly member count (last 6 months)</p>
-            <ResponsiveContainer width="100%" height={220}>
-              <BarChart data={growthData} margin={{ top: 5, right: 5, left: -25, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
-                <XAxis
-                  dataKey="month"
-                  tick={{ fontSize: 11, fill: '#94a3b8' }}
-                  axisLine={false}
-                  tickLine={false}
-                />
-                <YAxis
-                  tick={{ fontSize: 11, fill: '#94a3b8' }}
-                  axisLine={false}
-                  tickLine={false}
-                  domain={[200, 260]}
-                />
-                <Tooltip content={<CustomTooltip />} cursor={{ fill: '#f8f5ff' }} />
-                <Bar
-                  dataKey="members"
-                  name="Members"
-                  fill={CHART_COLORS.purple}
-                  radius={[6, 6, 0, 0]}
-                  maxBarSize={40}
-                />
-              </BarChart>
-            </ResponsiveContainer>
+            <SectionHeader title="Church Growth" action={() => navigate('/app/members')} />
+            <p className="text-xs text-slate-400 mb-5">New members by month</p>
+            {growthData.length === 0 && !dataLoading ? (
+              <div className="py-10 text-center">
+                <TrendingUp className="w-10 h-10 text-slate-200 mx-auto mb-2" />
+                <p className="text-sm text-slate-400 font-medium">No growth data yet</p>
+                <p className="text-xs text-slate-300 mt-0.5">Add members to see your church growth</p>
+              </div>
+            ) : (
+              <ResponsiveContainer width="100%" height={220}>
+                <BarChart data={growthData} margin={{ top: 5, right: 5, left: -25, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
+                  <XAxis
+                    dataKey="month"
+                    tick={{ fontSize: 11, fill: '#94a3b8' }}
+                    axisLine={false}
+                    tickLine={false}
+                  />
+                  <YAxis
+                    tick={{ fontSize: 11, fill: '#94a3b8' }}
+                    axisLine={false}
+                    tickLine={false}
+                  />
+                  <Tooltip content={<CustomTooltip />} cursor={{ fill: '#f8f5ff' }} />
+                  <Bar
+                    dataKey="members"
+                    name="Members"
+                    fill={CHART_COLORS.purple}
+                    radius={[6, 6, 0, 0]}
+                    maxBarSize={40}
+                  />
+                </BarChart>
+              </ResponsiveContainer>
+            )}
           </div>
 
           {/* Upcoming events */}
           <div className="bg-white rounded-2xl border border-slate-100 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07)] p-6">
-            <SectionHeader title="Upcoming Events" action={() => {}} />
+            <SectionHeader title="Upcoming Events" action={() => navigate('/app/events')} />
+            {upcomingEvents.length === 0 && !dataLoading && (
+              <div className="py-8 text-center">
+                <Calendar className="w-10 h-10 text-slate-200 mx-auto mb-2" />
+                <p className="text-sm text-slate-400 font-medium">No upcoming events</p>
+                <p className="text-xs text-slate-300 mt-0.5">Create your first event to get started</p>
+              </div>
+            )}
             <div className="space-y-4">
               {upcomingEvents.map((evt) => {
                 const evtDate = evt.date || evt.event_date || ''
@@ -568,6 +595,11 @@ export default function Dashboard() {
           <div className="bg-white rounded-2xl border border-slate-100 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07)] p-6">
             <SectionHeader title="Birthday Reminders" actionLabel="Send Wishes" action={() => {}} />
             <p className="text-xs text-slate-400 mb-5">Members with birthdays this week</p>
+            {displayBirthdays.length === 0 && !dataLoading && (
+              <div className="py-6 text-center">
+                <p className="text-sm text-slate-400">No birthdays this week</p>
+              </div>
+            )}
             <div className="space-y-4">
               {displayBirthdays.map((member) => {
                 const dob = member.dateOfBirth || member.date_of_birth
@@ -601,8 +633,13 @@ export default function Dashboard() {
 
           {/* Prayer requests */}
           <div className="bg-white rounded-2xl border border-slate-100 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07)] p-6">
-            <SectionHeader title="Prayer Requests" action={() => {}} />
+            <SectionHeader title="Prayer Requests" action={() => navigate('/app/prayer-requests')} />
             <p className="text-xs text-slate-400 mb-5">Recent open requests from members</p>
+            {openPrayers.length === 0 && !dataLoading && (
+              <div className="py-6 text-center">
+                <p className="text-sm text-slate-400">No open prayer requests</p>
+              </div>
+            )}
             <div className="space-y-4">
               {openPrayers.map((req) => {
                 const reqMemberName = req.memberName || req.member_name || 'Anonymous'

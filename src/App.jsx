@@ -27,6 +27,8 @@ const Branches       = React.lazy(() => import('./pages/app/Branches'))
 const Settings       = React.lazy(() => import('./pages/app/Settings'))
 const UserManagement = React.lazy(() => import('./pages/app/UserManagement'))
 
+const SuperAdminDashboard = React.lazy(() => import('./pages/app/SuperAdminDashboard'))
+
 const JoinChurchPage  = React.lazy(() => import('./pages/public/JoinChurchPage'))
 
 // ─── Public pages ─────────────────────────────────────────────
@@ -143,6 +145,7 @@ function AppRoutes() {
           <Route index element={<Navigate to="/app/dashboard" replace />} />
 
           <Route path="dashboard"      element={<Dashboard />} />
+          <Route path="super-admin"   element={<SuperAdminDashboard />} />
           <Route path="members"        element={<Members />} />
           <Route path="members/:id"    element={<MemberProfile />} />
           <Route path="attendance"     element={<Attendance />} />

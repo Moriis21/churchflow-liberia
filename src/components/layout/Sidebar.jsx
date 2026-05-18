@@ -21,13 +21,14 @@ import {
   ChevronDown,
   Check,
   X,
+  Building2,
 } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { useChurch } from '../../context/ChurchContext'
 import Avatar from '../ui/Avatar'
 
-// ─── Navigation structure ─────────────────────────────────
-const NAV_SECTIONS = [
+// ─── Church navigation (for pastors, admins, staff) ──────────
+const CHURCH_NAV_SECTIONS = [
   {
     label: 'OVERVIEW',
     items: [
@@ -69,6 +70,38 @@ const NAV_SECTIONS = [
       { to: '/app/branches', icon: GitBranch, label: 'Branches' },
       { to: '/app/settings', icon: Settings, label: 'Settings' },
       { to: '/app/users', icon: ShieldCheck, label: 'User Management' },
+    ],
+  },
+]
+
+// ─── Super admin navigation (platform owner) ─────────────────
+const SUPER_ADMIN_NAV_SECTIONS = [
+  {
+    label: 'PLATFORM OVERVIEW',
+    items: [
+      { to: '/app/super-admin', icon: LayoutDashboard, label: 'Platform Dashboard' },
+    ],
+  },
+  {
+    label: 'CHURCH MANAGEMENT',
+    items: [
+      { to: '/app/super-admin', icon: Building2, label: 'All Churches' },
+      { to: '/app/members', icon: Users, label: 'All Members' },
+      { to: '/app/finance', icon: Wallet, label: 'All Finances' },
+    ],
+  },
+  {
+    label: 'CONTENT',
+    items: [
+      { to: '/app/sermons', icon: PlaySquare, label: 'Sermons' },
+      { to: '/app/reports', icon: BarChart3, label: 'Reports' },
+    ],
+  },
+  {
+    label: 'SYSTEM',
+    items: [
+      { to: '/app/users', icon: ShieldCheck, label: 'User Management' },
+      { to: '/app/settings', icon: Settings, label: 'Settings' },
     ],
   },
 ]
@@ -190,13 +223,16 @@ function NavItem({ to, icon: Icon, label, onClick }) {
 
 // ─── Sidebar Component ────────────────────────────────────
 export default function Sidebar({ isOpen, onClose }) {
-  const { user, logout } = useAuth()
+  const { user, logout, isSuperAdmin } = useAuth()
   const { church, branches, currentBranch, switchBranch } = useChurch()
   const navigate = useNavigate()
 
-  const userName = user?.name ?? user?.user_metadata?.name ?? 'User'
-  const userRole = user?.user_metadata?.role ?? ''
+  const userName = user?.profile?.full_name ?? user?.name ?? user?.user_metadata?.name ?? 'User'
+  const userRole = user?.role ?? user?.profile?.role ?? user?.user_metadata?.role ?? ''
   const userEmail = user?.email ?? ''
+
+  // Pick the correct nav structure
+  const navSections = isSuperAdmin ? SUPER_ADMIN_NAV_SECTIONS : CHURCH_NAV_SECTIONS
 
   async function handleLogout() {
     await logout()
@@ -236,28 +272,45 @@ export default function Sidebar({ isOpen, onClose }) {
         </button>
       </div>
 
-      {/* ── Church name + branch selector ────────────────── */}
-      <div className="px-4 pb-4 flex-shrink-0 border-b border-white/10">
-        <div className="mb-2.5 px-1">
-          <p className="text-[10px] font-semibold tracking-widest text-white/35 uppercase mb-0.5">
-            Church
-          </p>
-          <p className="text-sm font-bold text-white truncate leading-tight">
-            {church?.name ?? 'Grace Community Church'}
-          </p>
-          <p className="text-xs text-white/45 truncate">{church?.location ?? 'Monrovia, Liberia'}</p>
+      {/* ── Church name + branch selector (church users only) ── */}
+      {!isSuperAdmin && (
+        <div className="px-4 pb-4 flex-shrink-0 border-b border-white/10">
+          <div className="mb-2.5 px-1">
+            <p className="text-[10px] font-semibold tracking-widest text-white/35 uppercase mb-0.5">
+              Church
+            </p>
+            <p className="text-sm font-bold text-white truncate leading-tight">
+              {church?.name ?? 'My Church'}
+            </p>
+            <p className="text-xs text-white/45 truncate">{church?.location ?? ''}</p>
+          </div>
+          <BranchSelector
+            branches={branches}
+            currentBranch={currentBranch}
+            onSwitch={switchBranch}
+          />
         </div>
-        <BranchSelector
-          branches={branches}
-          currentBranch={currentBranch}
-          onSwitch={switchBranch}
-        />
-      </div>
+      )}
+
+      {/* ── Platform label (super admin only) ────────────── */}
+      {isSuperAdmin && (
+        <div className="px-4 pb-4 flex-shrink-0 border-b border-white/10">
+          <div className="px-1">
+            <p className="text-[10px] font-semibold tracking-widest text-white/35 uppercase mb-0.5">
+              Platform
+            </p>
+            <p className="text-sm font-bold text-white truncate leading-tight">
+              ChurchFlow Liberia
+            </p>
+            <p className="text-xs text-white/45">All churches &amp; data</p>
+          </div>
+        </div>
+      )}
 
       {/* ── Navigation ───────────────────────────────────── */}
       <nav className="flex-1 overflow-y-auto overscroll-contain px-3 pt-3 pb-4 space-y-4
         scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
-        {NAV_SECTIONS.map((section) => (
+        {navSections.map((section) => (
           <div key={section.label}>
             <p className="px-3 mb-1.5 text-[10px] font-bold tracking-widest text-white/30 uppercase select-none">
               {section.label}
@@ -265,7 +318,7 @@ export default function Sidebar({ isOpen, onClose }) {
             <div className="space-y-0.5">
               {section.items.map((item) => (
                 <NavItem
-                  key={item.to}
+                  key={`${item.to}-${item.label}`}
                   to={item.to}
                   icon={item.icon}
                   label={item.label}
@@ -282,7 +335,15 @@ export default function Sidebar({ isOpen, onClose }) {
         <div className="flex items-center gap-3">
           <Avatar name={userName} size="sm" />
           <div className="min-w-0 flex-1">
-            <p className="text-sm font-semibold text-white truncate leading-tight">{userName}</p>
+            <div className="flex items-center gap-2 flex-wrap">
+              <p className="text-sm font-semibold text-white truncate leading-tight">{userName}</p>
+              {isSuperAdmin && (
+                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold
+                  bg-amber-400/20 text-amber-300 border border-amber-400/30 whitespace-nowrap">
+                  Super Admin
+                </span>
+              )}
+            </div>
             <p className="text-xs text-white/45 truncate">
               {userRole ? formatRole(userRole) : userEmail}
             </p>
