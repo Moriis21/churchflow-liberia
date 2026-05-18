@@ -1,9 +1,10 @@
 // ============================================================
 // ChurchFlow Liberia — Public Landing / Marketing Page
 // ============================================================
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import React from 'react'
+import { insforge } from '../../lib/insforge'
 import {
   Users,
   CheckSquare,
@@ -299,9 +300,9 @@ function Hero() {
             style={{ animation: 'fadeInUp 0.9s ease 0.5s both' }}
           >
             {[
-              { icon: Users, label: '500+ Churches' },
-              { icon: TrendingUp, label: '25,000+ Members Tracked' },
-              { icon: Shield, label: '99.9% Uptime' },
+              { icon: Users, label: 'Built for Liberian Churches' },
+              { icon: TrendingUp, label: 'Members, Attendance & Finance' },
+              { icon: Shield, label: '99.9% Uptime Guaranteed' },
             ].map(({ icon: Icon, label }) => (
               <div
                 key={label}
@@ -488,15 +489,40 @@ function Features() {
   )
 }
 
-// ─── Stats Bar ────────────────────────────────────────────────
+// ─── Stats Bar (real data from InsForge) ──────────────────────
 function StatsBar() {
   const [ref, visible] = useInView(0.2)
+  const [counts, setCounts] = useState({ churches: null, members: null })
+
+  useEffect(() => {
+    async function fetchCounts() {
+      try {
+        const [churchRes, memberRes] = await Promise.all([
+          insforge.database.from('churches').select('id', { count: 'exact' }),
+          insforge.database.from('members').select('id', { count: 'exact' }),
+        ])
+        setCounts({
+          churches: churchRes.count ?? churchRes.data?.length ?? 0,
+          members: memberRes.count ?? memberRes.data?.length ?? 0,
+        })
+      } catch {
+        // silently fail — keep showing null (handled below)
+      }
+    }
+    fetchCounts()
+  }, [])
+
+  // Format number nicely: 0 → "0", 1234 → "1,234"
+  function fmt(n) {
+    if (n === null) return '—'
+    return n.toLocaleString()
+  }
 
   const stats = [
-    { value: '500+', label: 'Churches' },
-    { value: '25,000+', label: 'Members Managed' },
-    { value: '99.9%', label: 'Uptime' },
-    { value: '24/7', label: 'Support' },
+    { value: fmt(counts.churches), label: 'Churches on Platform' },
+    { value: fmt(counts.members),  label: 'Members Managed' },
+    { value: '99.9%',              label: 'Uptime Guaranteed' },
+    { value: '24/7',               label: 'Support Available' },
   ]
 
   return (
@@ -992,7 +1018,7 @@ function CTABanner() {
           Ready to transform your ministry?
         </h2>
         <p className="text-lg text-amber-800 mb-8">
-          Join 500+ churches already using ChurchFlow Liberia to grow smarter and minister better.
+          Join ChurchFlow Liberia — the smart way to manage your ministry, members, and finances.
         </p>
         <Link
           to="/register"
