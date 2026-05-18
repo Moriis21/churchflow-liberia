@@ -1,4 +1,4 @@
-// ============================================================
+﻿// ============================================================
 // ChurchFlow Liberia — Super Admin Platform Settings (Full Rewrite)
 // Platform owner's full control center
 // ============================================================
@@ -16,6 +16,7 @@ import { useAuth } from '../../context/AuthContext'
 import { insforge } from '../../lib/insforge'
 import { Input, Button } from '../../components/ui'
 import toast from 'react-hot-toast'
+import { AreaChart, Area, BarChart, Bar, LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts'
 
 // ─── Section Registry ────────────────────────────────────────
 const SECTIONS = [
@@ -32,6 +33,7 @@ const SECTIONS = [
   { id: 'notifications', label: 'Notifications',    icon: Bell },
   { id: 'branding',      label: 'Branding',         icon: Palette },
   { id: 'legal',         label: 'Legal',            icon: Scale },
+  { id: 'members',       label: 'Members',          icon: Users },
   { id: 'api',           label: 'API Keys',         icon: Code2 },
 ]
 
@@ -291,11 +293,1023 @@ function PlatformSection() {
 // ═══════════════════════════════════════════════════════════════
 // SECTION 2: CHURCH MANAGEMENT
 // ═══════════════════════════════════════════════════════════════
+
+// ─── Church Avatar ─────────────────────────────────────────────
+function ChurchAvatar({ name, size = 'md' }) {
+  const colors = [
+    'bg-purple-100 text-purple-700',
+    'bg-blue-100 text-blue-700',
+    'bg-amber-100 text-amber-700',
+    'bg-green-100 text-green-700',
+    'bg-rose-100 text-rose-700',
+    'bg-indigo-100 text-indigo-700',
+  ]
+  const idx = (name?.charCodeAt(0) || 0) % colors.length
+  const sz = size === 'lg' ? 'w-14 h-14 text-xl' : size === 'sm' ? 'w-7 h-7 text-xs' : 'w-9 h-9 text-sm'
+  return (
+    <div className={`rounded-full flex items-center justify-center font-bold flex-shrink-0 ${sz} ${colors[idx]}`}>
+      {name?.charAt(0)?.toUpperCase() || 'C'}
+    </div>
+  )
+}
+
+// ─── Extended Status Badge ─────────────────────────────────────
+function ChurchStatusBadge({ status }) {
+  const map = {
+    active:    'bg-green-100 text-green-700',
+    suspended: 'bg-red-100 text-red-700',
+    trial:     'bg-amber-100 text-amber-700',
+    expired:   'bg-orange-100 text-orange-700',
+    pending:   'bg-yellow-100 text-yellow-700',
+  }
+  return (
+    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold capitalize ${map[status] || 'bg-slate-100 text-slate-600'}`}>
+      {status}
+    </span>
+  )
+}
+
+// ─── Spinning Loader ───────────────────────────────────────────
+function Spinner() {
+  return <div className="w-6 h-6 border-2 border-purple-500 border-t-transparent rounded-full animate-spin" />
+}
+
+// ─── Modal Overlay ─────────────────────────────────────────────
+function ModalOverlay({ children, onClose, maxWidth = 'max-w-2xl' }) {
+  return (
+    <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4 overflow-y-auto">
+      <div className={`bg-white rounded-2xl shadow-2xl w-full ${maxWidth} my-4`} onClick={e => e.stopPropagation()}>
+        {children}
+      </div>
+    </div>
+  )
+}
+
+// ─── Modal Header ──────────────────────────────────────────────
+function ModalHeader({ title, subtitle, onClose }) {
+  return (
+    <div className="flex items-start justify-between px-6 pt-5 pb-4 border-b border-slate-100">
+      <div>
+        <h3 className="font-bold text-[#1E1B4B] text-lg">{title}</h3>
+        {subtitle && <p className="text-xs text-slate-500 mt-0.5">{subtitle}</p>}
+      </div>
+      <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 ml-4 flex-shrink-0">
+        <XCircle size={18} />
+      </button>
+    </div>
+  )
+}
+
+// ─── Field Label ───────────────────────────────────────────────
+function FieldLabel({ children, required }) {
+  return (
+    <label className="block text-xs font-semibold text-slate-600 mb-1.5">
+      {children}{required && <span className="text-red-500 ml-0.5">*</span>}
+    </label>
+  )
+}
+
+// ─── Text Input ────────────────────────────────────────────────
+function TInput({ value, onChange, placeholder, type = 'text', disabled }) {
+  return (
+    <input
+      type={type}
+      value={value}
+      onChange={e => onChange(e.target.value)}
+      placeholder={placeholder}
+      disabled={disabled}
+      className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-400 disabled:bg-slate-50 disabled:text-slate-400"
+    />
+  )
+}
+
+// ─── Select ────────────────────────────────────────────────────
+function TSelect({ value, onChange, children, disabled }) {
+  return (
+    <select
+      value={value}
+      onChange={e => onChange(e.target.value)}
+      disabled={disabled}
+      className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-400 bg-white disabled:bg-slate-50"
+    >
+      {children}
+    </select>
+  )
+}
+
+// ─── Create Church Modal ────────────────────────────────────────
+function CreateChurchModal({ onClose, onCreated }) {
+  const [form, setForm] = useState({
+    name: '', email: '', phone: '', address: '', city: '',
+    country: 'Liberia', pastor_name: '', plan: 'starter',
+    trial_days: '14', currency: 'LRD', max_branches: 1, max_users: 50,
+  })
+  const [saving, setSaving] = useState(false)
+
+  function set(k) { return v => setForm(f => ({ ...f, [k]: v })) }
+
+  async function handleSave(createAdmin = false) {
+    if (!form.name.trim() || !form.email.trim() || !form.pastor_name.trim()) {
+      toast.error('Church Name, Email and Pastor Name are required.')
+      return
+    }
+    setSaving(true)
+    try {
+      const { data, error } = await insforge.database
+        .from('churches')
+        .insert({
+          name: form.name.trim(),
+          email: form.email.trim(),
+          phone: form.phone.trim() || null,
+          address: form.address.trim() || null,
+          city: form.city.trim() || null,
+          country: form.country,
+          admin_name: form.pastor_name.trim(),
+          plan: form.plan,
+          currency: form.currency,
+          max_branches: Number(form.max_branches),
+          max_users: Number(form.max_users),
+          is_active: true,
+        })
+        .select()
+        .single()
+      if (error) throw error
+      toast.success(createAdmin ? 'Church created. Admin account setup coming soon.' : 'Church created successfully.')
+      onCreated(data)
+      onClose()
+    } catch (e) {
+      toast.error(e.message || 'Failed to create church.')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  return (
+    <ModalOverlay onClose={onClose} maxWidth="max-w-2xl">
+      <ModalHeader title="Add New Church" subtitle="Register a new church on the platform." onClose={onClose} />
+      <div className="p-6 space-y-5 max-h-[75vh] overflow-y-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="md:col-span-2">
+            <FieldLabel required>Church Name</FieldLabel>
+            <TInput value={form.name} onChange={set('name')} placeholder="Grace Community Church" />
+          </div>
+          <div>
+            <FieldLabel required>Church Email</FieldLabel>
+            <TInput type="email" value={form.email} onChange={set('email')} placeholder="info@church.org" />
+          </div>
+          <div>
+            <FieldLabel>Phone</FieldLabel>
+            <TInput value={form.phone} onChange={set('phone')} placeholder="+231 555 000 000" />
+          </div>
+          <div className="md:col-span-2">
+            <FieldLabel>Address</FieldLabel>
+            <TInput value={form.address} onChange={set('address')} placeholder="123 Main Street" />
+          </div>
+          <div>
+            <FieldLabel>City</FieldLabel>
+            <TInput value={form.city} onChange={set('city')} placeholder="Monrovia" />
+          </div>
+          <div>
+            <FieldLabel>Country</FieldLabel>
+            <TInput value={form.country} onChange={set('country')} placeholder="Liberia" />
+          </div>
+          <div className="md:col-span-2 border-t border-slate-100 pt-4">
+            <FieldLabel required>Main Pastor / Admin Name</FieldLabel>
+            <TInput value={form.pastor_name} onChange={set('pastor_name')} placeholder="Rev. John Doe" />
+          </div>
+          <div>
+            <FieldLabel>Subscription Plan</FieldLabel>
+            <TSelect value={form.plan} onChange={set('plan')}>
+              <option value="starter">Starter</option>
+              <option value="growth">Growth</option>
+              <option value="pro">Pro</option>
+              <option value="enterprise">Enterprise</option>
+            </TSelect>
+          </div>
+          <div>
+            <FieldLabel>Trial Period</FieldLabel>
+            <TSelect value={form.trial_days} onChange={set('trial_days')}>
+              <option value="0">No Trial</option>
+              <option value="7">7 Days</option>
+              <option value="14">14 Days</option>
+              <option value="30">30 Days</option>
+            </TSelect>
+          </div>
+          <div>
+            <FieldLabel>Default Currency</FieldLabel>
+            <TSelect value={form.currency} onChange={set('currency')}>
+              <option value="LRD">LRD (Liberian Dollar)</option>
+              <option value="USD">USD (US Dollar)</option>
+            </TSelect>
+          </div>
+          <div>
+            <FieldLabel>Max Branches</FieldLabel>
+            <TInput type="number" value={form.max_branches} onChange={set('max_branches')} placeholder="1" />
+          </div>
+          <div>
+            <FieldLabel>Max Users</FieldLabel>
+            <TInput type="number" value={form.max_users} onChange={set('max_users')} placeholder="50" />
+          </div>
+        </div>
+      </div>
+      <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-slate-100 bg-slate-50/50 rounded-b-2xl">
+        <button onClick={onClose} className="px-4 py-2 text-sm font-semibold text-slate-600 border border-slate-200 rounded-xl hover:bg-slate-100">
+          Cancel
+        </button>
+        <button
+          onClick={() => handleSave(false)}
+          disabled={saving}
+          className="px-4 py-2 text-sm font-semibold bg-purple-600 hover:bg-purple-700 text-white rounded-xl disabled:opacity-60"
+        >
+          {saving ? 'Saving...' : 'Save Church'}
+        </button>
+        <button
+          onClick={() => handleSave(true)}
+          disabled={saving}
+          className="px-4 py-2 text-sm font-semibold bg-[#1E1B4B] hover:bg-[#16134a] text-white rounded-xl disabled:opacity-60"
+        >
+          Save & Create Admin
+        </button>
+      </div>
+    </ModalOverlay>
+  )
+}
+
+// ─── Edit Church Modal ──────────────────────────────────────────
+function EditChurchModal({ church, onClose, onUpdated }) {
+  const [form, setForm] = useState({
+    name: church.name || '',
+    email: church.email || '',
+    phone: church.phone || '',
+    address: church.address || '',
+    city: church.city || '',
+    country: church.country || 'Liberia',
+    admin_name: church.admin_name || '',
+    plan: church.plan || 'starter',
+    currency: church.currency || 'LRD',
+    max_branches: church.max_branches || 1,
+    max_users: church.max_users || 50,
+  })
+  const [saving, setSaving] = useState(false)
+
+  function set(k) { return v => setForm(f => ({ ...f, [k]: v })) }
+
+  async function handleSave() {
+    if (!form.name.trim()) { toast.error('Church name is required.'); return }
+    setSaving(true)
+    try {
+      const { data, error } = await insforge.database
+        .from('churches')
+        .update({
+          name: form.name.trim(),
+          email: form.email.trim(),
+          phone: form.phone.trim() || null,
+          address: form.address.trim() || null,
+          city: form.city.trim() || null,
+          country: form.country,
+          admin_name: form.admin_name.trim() || null,
+          plan: form.plan,
+          currency: form.currency,
+          max_branches: Number(form.max_branches),
+          max_users: Number(form.max_users),
+        })
+        .eq('id', church.id)
+        .select()
+        .single()
+      if (error) throw error
+      toast.success('Church updated successfully.')
+      onUpdated(data)
+      onClose()
+    } catch (e) {
+      toast.error(e.message || 'Failed to update church.')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  return (
+    <ModalOverlay onClose={onClose} maxWidth="max-w-2xl">
+      <ModalHeader title="Edit Church" subtitle={`Editing: ${church.name}`} onClose={onClose} />
+      <div className="p-6 space-y-5 max-h-[75vh] overflow-y-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="md:col-span-2">
+            <FieldLabel required>Church Name</FieldLabel>
+            <TInput value={form.name} onChange={set('name')} placeholder="Grace Community Church" />
+          </div>
+          <div>
+            <FieldLabel>Email</FieldLabel>
+            <TInput type="email" value={form.email} onChange={set('email')} placeholder="info@church.org" />
+          </div>
+          <div>
+            <FieldLabel>Phone</FieldLabel>
+            <TInput value={form.phone} onChange={set('phone')} placeholder="+231 555 000 000" />
+          </div>
+          <div className="md:col-span-2">
+            <FieldLabel>Address</FieldLabel>
+            <TInput value={form.address} onChange={set('address')} placeholder="123 Main Street" />
+          </div>
+          <div>
+            <FieldLabel>City</FieldLabel>
+            <TInput value={form.city} onChange={set('city')} />
+          </div>
+          <div>
+            <FieldLabel>Country</FieldLabel>
+            <TInput value={form.country} onChange={set('country')} />
+          </div>
+          <div className="md:col-span-2">
+            <FieldLabel>Main Pastor / Admin Name</FieldLabel>
+            <TInput value={form.admin_name} onChange={set('admin_name')} />
+          </div>
+          <div>
+            <FieldLabel>Plan</FieldLabel>
+            <TSelect value={form.plan} onChange={set('plan')}>
+              <option value="starter">Starter</option>
+              <option value="growth">Growth</option>
+              <option value="pro">Pro</option>
+              <option value="enterprise">Enterprise</option>
+            </TSelect>
+          </div>
+          <div>
+            <FieldLabel>Currency</FieldLabel>
+            <TSelect value={form.currency} onChange={set('currency')}>
+              <option value="LRD">LRD</option>
+              <option value="USD">USD</option>
+            </TSelect>
+          </div>
+          <div>
+            <FieldLabel>Max Branches</FieldLabel>
+            <TInput type="number" value={form.max_branches} onChange={set('max_branches')} />
+          </div>
+          <div>
+            <FieldLabel>Max Users</FieldLabel>
+            <TInput type="number" value={form.max_users} onChange={set('max_users')} />
+          </div>
+        </div>
+      </div>
+      <div className="flex justify-end gap-3 px-6 py-4 border-t border-slate-100 bg-slate-50/50 rounded-b-2xl">
+        <button onClick={onClose} className="px-4 py-2 text-sm font-semibold text-slate-600 border border-slate-200 rounded-xl hover:bg-slate-100">Cancel</button>
+        <button onClick={handleSave} disabled={saving} className="px-4 py-2 text-sm font-semibold bg-purple-600 hover:bg-purple-700 text-white rounded-xl disabled:opacity-60">
+          {saving ? 'Saving...' : 'Save Changes'}
+        </button>
+      </div>
+    </ModalOverlay>
+  )
+}
+
+// ─── Change Plan Modal ──────────────────────────────────────────
+function ChangePlanModal({ church, onClose, onUpdated }) {
+  const [selected, setSelected] = useState(church.plan || 'starter')
+  const [saving, setSaving] = useState(false)
+
+  const plans = [
+    { id: 'starter',    name: 'Starter',    desc: 'Up to 100 members, 1 branch',   color: 'border-slate-200 bg-slate-50' },
+    { id: 'growth',     name: 'Growth',     desc: 'Up to 500 members, 3 branches',  color: 'border-purple-200 bg-purple-50' },
+    { id: 'pro',        name: 'Pro',        desc: 'Up to 2000 members, 10 branches', color: 'border-amber-200 bg-amber-50' },
+    { id: 'enterprise', name: 'Enterprise', desc: 'Unlimited members and branches', color: 'border-blue-200 bg-blue-50' },
+  ]
+
+  async function handleSave() {
+    setSaving(true)
+    try {
+      const { data, error } = await insforge.database
+        .from('churches')
+        .update({ plan: selected })
+        .eq('id', church.id)
+        .select()
+        .single()
+      if (error) throw error
+      toast.success(`Plan updated to ${selected}.`)
+      onUpdated(data)
+      onClose()
+    } catch (e) {
+      toast.error(e.message || 'Failed to update plan.')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  return (
+    <ModalOverlay onClose={onClose} maxWidth="max-w-md">
+      <ModalHeader title="Change Subscription Plan" subtitle={church.name} onClose={onClose} />
+      <div className="p-6 space-y-3">
+        {plans.map(p => (
+          <button
+            key={p.id}
+            onClick={() => setSelected(p.id)}
+            className={`w-full text-left px-4 py-3.5 rounded-xl border-2 transition-all ${selected === p.id ? 'border-purple-500 bg-purple-50' : `${p.color} hover:border-slate-300`}`}
+          >
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="font-bold text-slate-800 text-sm">{p.name}</p>
+                <p className="text-xs text-slate-500 mt-0.5">{p.desc}</p>
+              </div>
+              <div className={`w-4 h-4 rounded-full border-2 flex-shrink-0 ${selected === p.id ? 'border-purple-500 bg-purple-500' : 'border-slate-300'}`} />
+            </div>
+          </button>
+        ))}
+      </div>
+      <div className="flex justify-end gap-3 px-6 py-4 border-t border-slate-100 bg-slate-50/50 rounded-b-2xl">
+        <button onClick={onClose} className="px-4 py-2 text-sm font-semibold text-slate-600 border border-slate-200 rounded-xl hover:bg-slate-100">Cancel</button>
+        <button onClick={handleSave} disabled={saving} className="px-4 py-2 text-sm font-semibold bg-purple-600 hover:bg-purple-700 text-white rounded-xl disabled:opacity-60">
+          {saving ? 'Saving...' : 'Confirm Plan'}
+        </button>
+      </div>
+    </ModalOverlay>
+  )
+}
+
+// ─── Delete Confirm Modal ──────────────────────────────────────
+function DeleteConfirmModal({ church, onClose, onDeleted }) {
+  const [deleting, setDeleting] = useState(false)
+
+  async function handleDelete() {
+    setDeleting(true)
+    try {
+      const { error } = await insforge.database.from('churches').delete().eq('id', church.id)
+      if (error) throw error
+      toast.success('Church deleted permanently.')
+      onDeleted(church.id)
+      onClose()
+    } catch (e) {
+      toast.error(e.message || 'Failed to delete church.')
+    } finally {
+      setDeleting(false)
+    }
+  }
+
+  return (
+    <ModalOverlay onClose={onClose} maxWidth="max-w-sm">
+      <div className="p-6">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="w-11 h-11 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0">
+            <Trash2 size={20} className="text-red-500" />
+          </div>
+          <div>
+            <p className="font-bold text-slate-800">Delete Church?</p>
+            <p className="text-xs text-slate-500">This action cannot be undone.</p>
+          </div>
+        </div>
+        <p className="text-sm text-slate-600 mb-6">
+          You are about to permanently delete <strong>{church.name}</strong> and all its data including members, attendance, and financial records.
+        </p>
+        <div className="flex gap-3">
+          <button onClick={onClose} className="flex-1 border border-slate-200 rounded-xl py-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-50">Cancel</button>
+          <button onClick={handleDelete} disabled={deleting} className="flex-1 bg-red-500 hover:bg-red-600 text-white rounded-xl py-2.5 text-sm font-semibold disabled:opacity-60">
+            {deleting ? 'Deleting...' : 'Delete'}
+          </button>
+        </div>
+      </div>
+    </ModalOverlay>
+  )
+}
+
+// ─── Analytics Modal ───────────────────────────────────────────
+function AnalyticsModal({ church, onClose }) {
+  const [stats, setStats] = useState({ members: 0, attendance: 0, offerings: 0, activeUsers: 0 })
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    async function load() {
+      try {
+        const [{ count: memberCount }, { count: attCount }, { count: userCount }] = await Promise.all([
+          insforge.database.from('members').select('id', { count: 'exact', head: true }).eq('church_id', church.id),
+          insforge.database.from('attendance').select('id', { count: 'exact', head: true }).eq('church_id', church.id),
+          insforge.database.from('user_profiles').select('id', { count: 'exact', head: true }).eq('church_id', church.id),
+        ])
+        setStats({ members: memberCount || 0, attendance: attCount || 0, offerings: 0, activeUsers: userCount || 0 })
+      } catch (_) {}
+      setLoading(false)
+    }
+    load()
+  }, [church.id])
+
+  const memberData = [
+    { month: 'Jan', count: 0 }, { month: 'Feb', count: 0 }, { month: 'Mar', count: 0 },
+    { month: 'Apr', count: 0 }, { month: 'May', count: stats.members },
+  ]
+  const attData = [
+    { month: 'Jan', count: 0 }, { month: 'Feb', count: 0 }, { month: 'Mar', count: 0 },
+    { month: 'Apr', count: 0 }, { month: 'May', count: stats.attendance },
+  ]
+
+  return (
+    <ModalOverlay onClose={onClose} maxWidth="max-w-3xl">
+      <ModalHeader title="Church Analytics" subtitle={church.name} onClose={onClose} />
+      <div className="p-6 max-h-[78vh] overflow-y-auto space-y-6">
+        {loading ? (
+          <div className="flex justify-center py-10"><Spinner /></div>
+        ) : (
+          <>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {[
+                { label: 'Total Members', value: stats.members, color: 'text-purple-600' },
+                { label: 'Attendance Records', value: stats.attendance, color: 'text-blue-600' },
+                { label: 'Monthly Offerings', value: 'LRD 0', color: 'text-amber-600' },
+                { label: 'Active Users', value: stats.activeUsers, color: 'text-green-600' },
+              ].map(s => (
+                <div key={s.label} className="bg-slate-50 rounded-xl p-4">
+                  <p className="text-xs text-slate-500 font-medium">{s.label}</p>
+                  <p className={`text-2xl font-bold mt-1 ${s.color}`}>{s.value}</p>
+                </div>
+              ))}
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="bg-slate-50 rounded-xl p-4">
+                <p className="text-xs font-semibold text-slate-600 mb-3">Members Over Time</p>
+                <ResponsiveContainer width="100%" height={140}>
+                  <AreaChart data={memberData}>
+                    <XAxis dataKey="month" tick={{ fontSize: 11 }} />
+                    <YAxis tick={{ fontSize: 11 }} />
+                    <Tooltip />
+                    <Area type="monotone" dataKey="count" stroke="#7C3AED" fill="#ede9fe" strokeWidth={2} />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </div>
+              <div className="bg-slate-50 rounded-xl p-4">
+                <p className="text-xs font-semibold text-slate-600 mb-3">Attendance Trend</p>
+                <ResponsiveContainer width="100%" height={140}>
+                  <BarChart data={attData}>
+                    <XAxis dataKey="month" tick={{ fontSize: 11 }} />
+                    <YAxis tick={{ fontSize: 11 }} />
+                    <Tooltip />
+                    <Bar dataKey="count" fill="#7C3AED" radius={[4, 4, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+              <div className="bg-slate-50 rounded-xl p-4">
+                <p className="text-xs font-semibold text-slate-600 mb-3">Offering Trend (LRD)</p>
+                <ResponsiveContainer width="100%" height={140}>
+                  <LineChart data={memberData}>
+                    <XAxis dataKey="month" tick={{ fontSize: 11 }} />
+                    <YAxis tick={{ fontSize: 11 }} />
+                    <Tooltip />
+                    <Line type="monotone" dataKey="count" stroke="#d97706" strokeWidth={2} dot={false} />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+              <div className="bg-slate-50 rounded-xl p-4">
+                <p className="text-xs font-semibold text-slate-600 mb-3">Quick Stats</p>
+                <div className="space-y-2">
+                  {[
+                    { label: 'Avg. Attendance Rate', value: '—' },
+                    { label: 'Branches Active', value: church.branches?.length || 0 },
+                    { label: 'Plan', value: church.plan || 'Starter' },
+                    { label: 'Registered', value: church.created_at ? new Date(church.created_at).toLocaleDateString() : '—' },
+                  ].map(r => (
+                    <div key={r.label} className="flex justify-between text-sm">
+                      <span className="text-slate-500">{r.label}</span>
+                      <span className="font-semibold text-slate-700 capitalize">{r.value}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </>
+        )}
+      </div>
+    </ModalOverlay>
+  )
+}
+
+// ─── Church Profile Modal ──────────────────────────────────────
+function ChurchProfileModal({ church: initialChurch, onClose, onUpdated }) {
+  const [church, setChurch] = useState(initialChurch)
+  const [activeTab, setActiveTab] = useState('info')
+  const [branches, setBranches] = useState([])
+  const [churchUsers, setChurchUsers] = useState([])
+  const [loadingBranches, setLoadingBranches] = useState(false)
+  const [loadingUsers, setLoadingUsers] = useState(false)
+  const [stats, setStats] = useState({ members: 0, attendance: 0, offerings: 0, activeUsers: 0 })
+  const [loadingStats, setLoadingStats] = useState(false)
+  const [copiedId, setCopiedId] = useState(false)
+
+  const FEATURES = [
+    'Members', 'Attendance', 'Finance', 'Events',
+    'Prayer', 'SMS', 'Live Streaming', 'Reports',
+    'Multi-Branch', 'AI Tools', 'PWA', 'Mobile Money',
+  ]
+  const featureKey = f => f.toLowerCase().replace(/[\s-]/g, '_')
+  const [featureToggles, setFeatureToggles] = useState(() => {
+    const obj = {}
+    FEATURES.forEach(f => { obj[featureKey(f)] = church[`feature_${featureKey(f)}`] !== false })
+    return obj
+  })
+
+  const tabs = [
+    { id: 'info',         label: 'Church Info' },
+    { id: 'subscription', label: 'Subscription' },
+    { id: 'features',     label: 'Features' },
+    { id: 'usage',        label: 'Usage Stats' },
+    { id: 'branches',     label: 'Branches' },
+    { id: 'users',        label: 'Users' },
+    { id: 'activity',     label: 'Activity' },
+  ]
+
+  useEffect(() => {
+    if (activeTab === 'branches' && branches.length === 0) loadBranches()
+    if (activeTab === 'users' && churchUsers.length === 0) loadUsers()
+    if (activeTab === 'usage') loadStats()
+  }, [activeTab])
+
+  async function loadBranches() {
+    setLoadingBranches(true)
+    try {
+      const { data } = await insforge.database.from('branches').select('*').eq('church_id', church.id)
+      setBranches(data || [])
+    } catch (_) {}
+    setLoadingBranches(false)
+  }
+
+  async function loadUsers() {
+    setLoadingUsers(true)
+    try {
+      const { data } = await insforge.database.from('user_profiles').select('*').eq('church_id', church.id).order('created_at', { ascending: false })
+      setChurchUsers(data || [])
+    } catch (_) {}
+    setLoadingUsers(false)
+  }
+
+  async function loadStats() {
+    setLoadingStats(true)
+    try {
+      const [{ count: m }, { count: a }, { count: u }] = await Promise.all([
+        insforge.database.from('members').select('id', { count: 'exact', head: true }).eq('church_id', church.id),
+        insforge.database.from('attendance').select('id', { count: 'exact', head: true }).eq('church_id', church.id),
+        insforge.database.from('user_profiles').select('id', { count: 'exact', head: true }).eq('church_id', church.id),
+      ])
+      setStats({ members: m || 0, attendance: a || 0, offerings: 0, activeUsers: u || 0 })
+    } catch (_) {}
+    setLoadingStats(false)
+  }
+
+  function copyId() {
+    navigator.clipboard.writeText(church.id).then(() => {
+      setCopiedId(true)
+      setTimeout(() => setCopiedId(false), 1500)
+    })
+  }
+
+  async function saveFeatures() {
+    const updates = {}
+    Object.entries(featureToggles).forEach(([k, v]) => { updates[`feature_${k}`] = v })
+    const { error } = await insforge.database.from('churches').update(updates).eq('id', church.id)
+    if (error) { toast.error('Failed to save features.'); return }
+    toast.success('Feature access updated.')
+  }
+
+  return (
+    <ModalOverlay onClose={onClose} maxWidth="max-w-4xl">
+      <div className="flex items-center gap-4 px-6 pt-5 pb-4 border-b border-slate-100">
+        <ChurchAvatar name={church.name} size="lg" />
+        <div className="flex-1 min-w-0">
+          <h3 className="font-bold text-[#1E1B4B] text-lg truncate">{church.name}</h3>
+          <div className="flex items-center gap-2 mt-0.5 flex-wrap">
+            <ChurchStatusBadge status={church.is_active === false ? 'suspended' : 'active'} />
+            <PlanBadge plan={church.plan || 'starter'} />
+            {church.city && <span className="text-xs text-slate-400">{church.city}, {church.country}</span>}
+          </div>
+        </div>
+        <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 flex-shrink-0">
+          <XCircle size={20} />
+        </button>
+      </div>
+
+      <div className="border-b border-slate-100 px-6 overflow-x-auto">
+        <div className="flex gap-0.5 min-w-max">
+          {tabs.map(t => (
+            <button
+              key={t.id}
+              onClick={() => setActiveTab(t.id)}
+              className={`px-4 py-3 text-xs font-semibold border-b-2 transition-colors whitespace-nowrap ${activeTab === t.id ? 'border-purple-500 text-purple-700' : 'border-transparent text-slate-500 hover:text-slate-700'}`}
+            >
+              {t.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="p-6 max-h-[60vh] overflow-y-auto">
+        {/* Tab: Church Info */}
+        {activeTab === 'info' && (
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {[
+                { label: 'Church ID', value: church.id, copy: true },
+                { label: 'Registration Date', value: church.created_at ? new Date(church.created_at).toLocaleDateString() : '—' },
+                { label: 'Email', value: church.email || '—' },
+                { label: 'Phone', value: church.phone || '—' },
+                { label: 'Main Pastor', value: church.admin_name || '—' },
+                { label: 'City / Country', value: [church.city, church.country].filter(Boolean).join(', ') || '—' },
+                { label: 'Address', value: church.address || '—' },
+                { label: 'Currency', value: church.currency || 'LRD' },
+              ].map(item => (
+                <div key={item.label} className="bg-slate-50 rounded-xl p-3.5">
+                  <p className="text-xs text-slate-400 font-medium mb-1">{item.label}</p>
+                  <div className="flex items-center gap-2">
+                    <p className="text-sm font-semibold text-slate-700 truncate flex-1">{item.value}</p>
+                    {item.copy && (
+                      <button onClick={copyId} className="text-xs text-purple-600 hover:text-purple-800 font-medium flex-shrink-0">
+                        {copiedId ? 'Copied!' : 'Copy'}
+                      </button>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Tab: Subscription */}
+        {activeTab === 'subscription' && (
+          <div className="space-y-5">
+            <div className="bg-gradient-to-r from-[#1E1B4B] to-[#7C3AED] rounded-2xl p-5 text-white">
+              <p className="text-xs font-medium text-purple-200 mb-1">Current Plan</p>
+              <p className="text-2xl font-bold capitalize">{church.plan || 'Starter'}</p>
+              <div className="flex gap-4 mt-3">
+                <div>
+                  <p className="text-xs text-purple-200">Billing Cycle</p>
+                  <p className="text-sm font-semibold">Monthly</p>
+                </div>
+                <div>
+                  <p className="text-xs text-purple-200">Expiry</p>
+                  <p className="text-sm font-semibold">—</p>
+                </div>
+                <div>
+                  <p className="text-xs text-purple-200">Trial Remaining</p>
+                  <p className="text-sm font-semibold">—</p>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <p className="text-sm font-bold text-slate-700 mb-3">Payment History</p>
+              <div className="rounded-xl border border-slate-100 overflow-hidden">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="bg-slate-50 border-b border-slate-100">
+                      <th className="text-left px-4 py-2.5 text-xs font-semibold text-slate-500">Date</th>
+                      <th className="text-left px-4 py-2.5 text-xs font-semibold text-slate-500">Amount</th>
+                      <th className="text-left px-4 py-2.5 text-xs font-semibold text-slate-500">Method</th>
+                      <th className="text-left px-4 py-2.5 text-xs font-semibold text-slate-500">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td colSpan={4} className="text-center py-8 text-slate-400 text-sm">No payment history yet.</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div className="flex gap-3">
+              <button className="px-4 py-2 text-sm font-semibold bg-purple-600 hover:bg-purple-700 text-white rounded-xl">
+                Upgrade Plan
+              </button>
+              <button className="px-4 py-2 text-sm font-semibold border border-red-200 text-red-600 hover:bg-red-50 rounded-xl">
+                Suspend Subscription
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Tab: Features */}
+        {activeTab === 'features' && (
+          <div className="space-y-4">
+            <p className="text-sm text-slate-500">Control which features this church can access.</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {FEATURES.map(f => {
+                const k = featureKey(f)
+                return (
+                  <div key={f} className="flex items-center justify-between bg-slate-50 rounded-xl px-4 py-3">
+                    <span className="text-sm font-medium text-slate-700">{f}</span>
+                    <Toggle enabled={featureToggles[k]} onChange={v => setFeatureToggles(prev => ({ ...prev, [k]: v }))} size="sm" />
+                  </div>
+                )
+              })}
+            </div>
+            <div className="pt-2">
+              <button onClick={saveFeatures} className="px-5 py-2 text-sm font-semibold bg-purple-600 hover:bg-purple-700 text-white rounded-xl">
+                Save Feature Access
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Tab: Usage Stats */}
+        {activeTab === 'usage' && (
+          <div>
+            {loadingStats ? (
+              <div className="flex justify-center py-10"><Spinner /></div>
+            ) : (
+              <div className="grid grid-cols-2 gap-4">
+                {[
+                  { label: 'Total Members', value: stats.members, color: 'text-purple-600', bg: 'bg-purple-50' },
+                  { label: 'Attendance Records', value: stats.attendance, color: 'text-blue-600', bg: 'bg-blue-50' },
+                  { label: 'Monthly Offerings', value: 'LRD 0', color: 'text-amber-600', bg: 'bg-amber-50' },
+                  { label: 'Active Users', value: stats.activeUsers, color: 'text-green-600', bg: 'bg-green-50' },
+                ].map(s => (
+                  <div key={s.label} className={`${s.bg} rounded-xl p-5`}>
+                    <p className="text-xs text-slate-500 font-medium">{s.label}</p>
+                    <p className={`text-3xl font-bold mt-1 ${s.color}`}>{s.value}</p>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Tab: Branches */}
+        {activeTab === 'branches' && (
+          <div>
+            <div className="flex items-center justify-between mb-4">
+              <p className="text-sm font-bold text-slate-700">Branches ({branches.length})</p>
+              <button className="px-3 py-1.5 text-xs font-semibold bg-purple-600 hover:bg-purple-700 text-white rounded-lg flex items-center gap-1.5">
+                <Plus size={13} /> Add Branch
+              </button>
+            </div>
+            {loadingBranches ? (
+              <div className="flex justify-center py-8"><Spinner /></div>
+            ) : branches.length === 0 ? (
+              <EmptyState icon={Building2} title="No branches yet" description="Branches for this church will appear here." />
+            ) : (
+              <div className="rounded-xl border border-slate-100 overflow-hidden">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="bg-slate-50 border-b border-slate-100">
+                      <th className="text-left px-4 py-2.5 text-xs font-semibold text-slate-500">Branch Name</th>
+                      <th className="text-left px-4 py-2.5 text-xs font-semibold text-slate-500">Location</th>
+                      <th className="text-left px-4 py-2.5 text-xs font-semibold text-slate-500">Pastor</th>
+                      <th className="text-left px-4 py-2.5 text-xs font-semibold text-slate-500">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-50">
+                    {branches.map(b => (
+                      <tr key={b.id} className="hover:bg-slate-50/50">
+                        <td className="px-4 py-3 font-medium text-slate-800">{b.name || '—'}</td>
+                        <td className="px-4 py-3 text-slate-500">{b.location || b.city || '—'}</td>
+                        <td className="px-4 py-3 text-slate-500">{b.pastor_name || '—'}</td>
+                        <td className="px-4 py-3">
+                          <div className="flex gap-1">
+                            <button className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400"><Edit2 size={13} /></button>
+                            <button className="p-1.5 rounded-lg hover:bg-red-50 text-red-400"><Trash2 size={13} /></button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Tab: Users */}
+        {activeTab === 'users' && (
+          <div>
+            <div className="flex items-center justify-between mb-4">
+              <p className="text-sm font-bold text-slate-700">Church Users ({churchUsers.length})</p>
+            </div>
+            {loadingUsers ? (
+              <div className="flex justify-center py-8"><Spinner /></div>
+            ) : churchUsers.length === 0 ? (
+              <EmptyState icon={Users} title="No users found" description="User accounts for this church will appear here." />
+            ) : (
+              <div className="rounded-xl border border-slate-100 overflow-hidden overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="bg-slate-50 border-b border-slate-100">
+                      <th className="text-left px-4 py-2.5 text-xs font-semibold text-slate-500">Name</th>
+                      <th className="text-left px-4 py-2.5 text-xs font-semibold text-slate-500">Role</th>
+                      <th className="text-left px-4 py-2.5 text-xs font-semibold text-slate-500">Email</th>
+                      <th className="text-left px-4 py-2.5 text-xs font-semibold text-slate-500">Status</th>
+                      <th className="text-left px-4 py-2.5 text-xs font-semibold text-slate-500">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-50">
+                    {churchUsers.map(u => (
+                      <tr key={u.id} className="hover:bg-slate-50/50">
+                        <td className="px-4 py-3">
+                          <div className="flex items-center gap-2">
+                            <ChurchAvatar name={u.full_name} size="sm" />
+                            <span className="font-medium text-slate-800">{u.full_name || '—'}</span>
+                          </div>
+                        </td>
+                        <td className="px-4 py-3 text-slate-500 capitalize">{u.role || '—'}</td>
+                        <td className="px-4 py-3 text-slate-500 text-xs">{u.email || '—'}</td>
+                        <td className="px-4 py-3">
+                          <StatusBadge status={u.is_active === false ? 'suspended' : 'active'} />
+                        </td>
+                        <td className="px-4 py-3">
+                          <button className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400"><Eye size={13} /></button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Tab: Activity */}
+        {activeTab === 'activity' && (
+          <div>
+            <div className="rounded-xl border border-slate-100 overflow-hidden">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="bg-slate-50 border-b border-slate-100">
+                    <th className="text-left px-4 py-2.5 text-xs font-semibold text-slate-500">Timestamp</th>
+                    <th className="text-left px-4 py-2.5 text-xs font-semibold text-slate-500">User</th>
+                    <th className="text-left px-4 py-2.5 text-xs font-semibold text-slate-500">Action</th>
+                    <th className="text-left px-4 py-2.5 text-xs font-semibold text-slate-500">Details</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td colSpan={4} className="text-center py-10 text-slate-400 text-sm">Activity logging coming soon.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+      </div>
+    </ModalOverlay>
+  )
+}
+
+// ─── Actions Dropdown ─────────────────────────────────────────
+function ActionsDropdown({ church, onView, onEdit, onChangePlan, onToggleStatus, onAnalytics, onDelete }) {
+  const [open, setOpen] = useState(false)
+  const ref = useRef(null)
+
+  useEffect(() => {
+    function handler(e) { if (ref.current && !ref.current.contains(e.target)) setOpen(false) }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [])
+
+  function action(fn) { return () => { setOpen(false); fn() } }
+
+  const isActive = church.is_active !== false
+
+  return (
+    <div className="relative" ref={ref}>
+      <button
+        onClick={() => setOpen(o => !o)}
+        className="px-3 py-1.5 text-xs font-semibold border border-slate-200 rounded-lg hover:bg-slate-50 text-slate-600 flex items-center gap-1"
+      >
+        Actions <ChevronRight size={12} className={`transition-transform ${open ? 'rotate-90' : ''}`} />
+      </button>
+      {open && (
+        <div className="absolute right-0 top-full mt-1 w-52 bg-white rounded-xl shadow-xl border border-slate-100 z-30 py-1 overflow-hidden">
+          <button onClick={action(onView)} className="w-full text-left px-4 py-2.5 text-sm flex items-center gap-3 hover:bg-slate-50 text-slate-700">
+            <Eye size={14} className="text-slate-400" /> View Details
+          </button>
+          <button onClick={action(onEdit)} className="w-full text-left px-4 py-2.5 text-sm flex items-center gap-3 hover:bg-slate-50 text-slate-700">
+            <Edit2 size={14} className="text-slate-400" /> Edit Church
+          </button>
+          <button onClick={action(onChangePlan)} className="w-full text-left px-4 py-2.5 text-sm flex items-center gap-3 hover:bg-slate-50 text-slate-700">
+            <CreditCard size={14} className="text-slate-400" /> Change Plan
+          </button>
+          <button onClick={action(onToggleStatus)} className={`w-full text-left px-4 py-2.5 text-sm flex items-center gap-3 hover:bg-slate-50 ${isActive ? 'text-orange-600' : 'text-green-600'}`}>
+            <Ban size={14} /> {isActive ? 'Suspend' : 'Activate'}
+          </button>
+          <button onClick={action(() => toast('Impersonation coming soon.'))} className="w-full text-left px-4 py-2.5 text-sm flex items-center gap-3 hover:bg-slate-50 text-amber-600">
+            <LogIn size={14} /> Login as Church Admin
+          </button>
+          <button onClick={action(onAnalytics)} className="w-full text-left px-4 py-2.5 text-sm flex items-center gap-3 hover:bg-slate-50 text-slate-700">
+            <BarChart3 size={14} className="text-slate-400" /> View Analytics
+          </button>
+          <div className="border-t border-slate-100 my-1" />
+          <button onClick={action(onDelete)} className="w-full text-left px-4 py-2.5 text-sm flex items-center gap-3 hover:bg-red-50 text-red-500">
+            <Trash2 size={14} /> Delete Church
+          </button>
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ─── Main Churches Section ─────────────────────────────────────
 function ChurchesSection() {
   const [churches, setChurches] = useState([])
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
-  const [deleteTarget, setDeleteTarget] = useState(null)
+  const [statusFilter, setStatusFilter] = useState('all')
+  const [planFilter, setPlanFilter] = useState('all')
+  const [sortBy, setSortBy] = useState('newest')
+  const [viewMode, setViewMode] = useState('table')
+
+  // Modal state
+  const [profileModal, setProfileModal] = useState(null)
+  const [editModal, setEditModal] = useState(null)
+  const [createModal, setCreateModal] = useState(false)
+  const [changePlanModal, setChangePlanModal] = useState(null)
+  const [deleteModal, setDeleteModal] = useState(null)
+  const [analyticsModal, setAnalyticsModal] = useState(null)
 
   useEffect(() => { fetchChurches() }, [])
 
@@ -304,7 +1318,7 @@ function ChurchesSection() {
     try {
       const { data, error } = await insforge.database
         .from('churches')
-        .select('*, user_profiles(full_name, role)')
+        .select('*, user_profiles(id, role), branches(id)')
         .order('created_at', { ascending: false })
       if (error) throw error
       setChurches(data || [])
@@ -326,81 +1340,222 @@ function ChurchesSection() {
     setChurches(prev => prev.map(c => c.id === church.id ? { ...c, is_active: newStatus } : c))
   }
 
-  async function deleteChurch(id) {
-    const { error } = await insforge.database.from('churches').delete().eq('id', id)
-    if (error) { toast.error('Failed to delete church.'); return }
-    toast.success('Church deleted.')
-    setChurches(prev => prev.filter(c => c.id !== id))
-    setDeleteTarget(null)
+  function handleCreated(church) {
+    setChurches(prev => [church, ...prev])
   }
 
-  const filtered = churches.filter(c =>
-    c.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    c.location?.toLowerCase().includes(searchTerm.toLowerCase())
-  )
+  function handleUpdated(updated) {
+    setChurches(prev => prev.map(c => c.id === updated.id ? { ...c, ...updated } : c))
+  }
+
+  function handleDeleted(id) {
+    setChurches(prev => prev.filter(c => c.id !== id))
+  }
+
+  // Derived stats
+  const totalChurches = churches.length
+  const activeChurches = churches.filter(c => c.is_active !== false).length
+  const suspendedChurches = churches.filter(c => c.is_active === false).length
+
+  const statCards = [
+    { label: 'Total Churches',   value: totalChurches,   icon: Building2,     color: 'text-purple-600',  bg: 'bg-purple-50',  border: 'border-purple-100' },
+    { label: 'Active Churches',  value: activeChurches,  icon: CheckCircle,   color: 'text-green-600',   bg: 'bg-green-50',   border: 'border-green-100'  },
+    { label: 'Suspended',        value: suspendedChurches, icon: Ban,         color: 'text-red-600',     bg: 'bg-red-50',     border: 'border-red-100'    },
+    { label: 'Trial Churches',   value: 0,               icon: Clock,         color: 'text-amber-600',   bg: 'bg-amber-50',   border: 'border-amber-100'  },
+    { label: 'Expired',          value: 0,               icon: AlertTriangle, color: 'text-orange-600',  bg: 'bg-orange-50',  border: 'border-orange-100' },
+    { label: 'Monthly Revenue',  value: 'LRD 0',         icon: DollarSign,    color: 'text-yellow-600',  bg: 'bg-yellow-50',  border: 'border-yellow-100' },
+  ]
+
+  // Filter + sort
+  const filtered = churches
+    .filter(c => {
+      const q = searchTerm.toLowerCase()
+      const matchSearch = !q ||
+        c.name?.toLowerCase().includes(q) ||
+        c.admin_name?.toLowerCase().includes(q) ||
+        c.email?.toLowerCase().includes(q)
+      const matchStatus = statusFilter === 'all' ||
+        (statusFilter === 'active' && c.is_active !== false) ||
+        (statusFilter === 'suspended' && c.is_active === false)
+      const matchPlan = planFilter === 'all' || (c.plan || 'starter') === planFilter
+      return matchSearch && matchStatus && matchPlan
+    })
+    .sort((a, b) => {
+      if (sortBy === 'newest') return new Date(b.created_at) - new Date(a.created_at)
+      if (sortBy === 'oldest') return new Date(a.created_at) - new Date(b.created_at)
+      if (sortBy === 'az') return (a.name || '').localeCompare(b.name || '')
+      if (sortBy === 'members') {
+        const am = Array.isArray(a.user_profiles) ? a.user_profiles.length : 0
+        const bm = Array.isArray(b.user_profiles) ? b.user_profiles.length : 0
+        return bm - am
+      }
+      return 0
+    })
+
+  function getPastor(church) {
+    if (church.admin_name) return church.admin_name
+    if (Array.isArray(church.user_profiles)) {
+      const admin = church.user_profiles.find(u => u.role === 'church_admin' || u.role === 'pastor')
+      if (admin?.full_name) return admin.full_name
+    }
+    return '—'
+  }
+
+  function getBranchCount(church) {
+    return Array.isArray(church.branches) ? church.branches.length : 0
+  }
+
+  function getMemberCount(church) {
+    return Array.isArray(church.user_profiles) ? church.user_profiles.length : 0
+  }
+
+  function getStatus(church) {
+    return church.is_active === false ? 'suspended' : 'active'
+  }
 
   return (
-    <div className="space-y-5">
-      {deleteTarget && (
-        <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center">
-                <Trash2 size={18} className="text-red-500" />
-              </div>
-              <div>
-                <p className="font-bold text-slate-800">Delete Church?</p>
-                <p className="text-xs text-slate-500">This action cannot be undone.</p>
-              </div>
-            </div>
-            <p className="text-sm text-slate-600 mb-5">
-              You are about to permanently delete <strong>{deleteTarget.name}</strong> and all its data.
-            </p>
-            <div className="flex gap-3">
-              <button onClick={() => setDeleteTarget(null)} className="flex-1 border border-slate-200 rounded-xl py-2 text-sm font-semibold text-slate-600 hover:bg-slate-50">Cancel</button>
-              <button onClick={() => deleteChurch(deleteTarget.id)} className="flex-1 bg-red-500 hover:bg-red-600 text-white rounded-xl py-2 text-sm font-semibold">Delete</button>
-            </div>
-          </div>
-        </div>
+    <div className="space-y-6">
+      {/* Modals */}
+      {createModal && (
+        <CreateChurchModal onClose={() => setCreateModal(false)} onCreated={handleCreated} />
+      )}
+      {editModal && (
+        <EditChurchModal church={editModal} onClose={() => setEditModal(null)} onUpdated={c => { handleUpdated(c); setEditModal(null) }} />
+      )}
+      {profileModal && (
+        <ChurchProfileModal church={profileModal} onClose={() => setProfileModal(null)} onUpdated={handleUpdated} />
+      )}
+      {changePlanModal && (
+        <ChangePlanModal church={changePlanModal} onClose={() => setChangePlanModal(null)} onUpdated={c => { handleUpdated(c); setChangePlanModal(null) }} />
+      )}
+      {deleteModal && (
+        <DeleteConfirmModal church={deleteModal} onClose={() => setDeleteModal(null)} onDeleted={id => { handleDeleted(id); setDeleteModal(null) }} />
+      )}
+      {analyticsModal && (
+        <AnalyticsModal church={analyticsModal} onClose={() => setAnalyticsModal(null)} />
       )}
 
-      <div className="flex items-center justify-between gap-4">
-        <div className="relative flex-1 max-w-xs">
-          <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-          <input
-            value={searchTerm}
-            onChange={e => setSearchTerm(e.target.value)}
-            placeholder="Search churches..."
-            className="w-full pl-9 pr-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-purple-400"
-          />
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="text-xs text-slate-500 font-medium">Total:</span>
-          <span className="bg-purple-100 text-purple-700 px-3 py-1 rounded-full text-xs font-bold">{churches.length} churches</span>
-        </div>
-        <button onClick={fetchChurches} className="p-2 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-500">
-          <RefreshCw size={15} />
-        </button>
+      {/* Stat Cards */}
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+        {statCards.map(s => {
+          const Icon = s.icon
+          return (
+            <div key={s.label} className={`bg-white rounded-2xl border ${s.border} p-4 flex items-center gap-4 shadow-sm`}>
+              <div className={`w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 ${s.bg}`}>
+                <Icon size={20} className={s.color} />
+              </div>
+              <div>
+                <p className="text-xs text-slate-500 font-medium leading-tight">{s.label}</p>
+                <p className={`text-2xl font-bold ${s.color}`}>{s.value}</p>
+              </div>
+            </div>
+          )
+        })}
       </div>
 
-      <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
-        {loading ? (
-          <div className="flex items-center justify-center py-16">
-            <div className="w-8 h-8 border-2 border-purple-500 border-t-transparent rounded-full animate-spin" />
+      {/* Toolbar */}
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 flex-1 w-full">
+          {/* Search */}
+          <div className="relative flex-1 min-w-0 w-full sm:max-w-xs">
+            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+            <input
+              value={searchTerm}
+              onChange={e => setSearchTerm(e.target.value)}
+              placeholder="Search by name, pastor, email..."
+              className="w-full pl-9 pr-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-purple-400"
+            />
           </div>
-        ) : filtered.length === 0 ? (
-          <EmptyState icon={Building2} title="No churches found" description="Churches registered on the platform will appear here." />
-        ) : (
+          {/* Status */}
+          <select
+            value={statusFilter}
+            onChange={e => setStatusFilter(e.target.value)}
+            className="border border-slate-200 rounded-xl px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-purple-400"
+          >
+            <option value="all">All Status</option>
+            <option value="active">Active</option>
+            <option value="suspended">Suspended</option>
+            <option value="trial">Trial</option>
+            <option value="expired">Expired</option>
+            <option value="pending">Pending</option>
+          </select>
+          {/* Plan */}
+          <select
+            value={planFilter}
+            onChange={e => setPlanFilter(e.target.value)}
+            className="border border-slate-200 rounded-xl px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-purple-400"
+          >
+            <option value="all">All Plans</option>
+            <option value="starter">Starter</option>
+            <option value="growth">Growth</option>
+            <option value="pro">Pro</option>
+            <option value="enterprise">Enterprise</option>
+          </select>
+          {/* Sort */}
+          <select
+            value={sortBy}
+            onChange={e => setSortBy(e.target.value)}
+            className="border border-slate-200 rounded-xl px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-purple-400"
+          >
+            <option value="newest">Newest</option>
+            <option value="oldest">Oldest</option>
+            <option value="az">A-Z</option>
+            <option value="members">Members</option>
+          </select>
+        </div>
+
+        <div className="flex items-center gap-2 flex-shrink-0">
+          {/* View Toggle */}
+          <div className="flex items-center border border-slate-200 rounded-xl overflow-hidden">
+            <button
+              onClick={() => setViewMode('table')}
+              className={`px-3 py-2 text-xs font-semibold transition-colors ${viewMode === 'table' ? 'bg-purple-600 text-white' : 'bg-white text-slate-500 hover:bg-slate-50'}`}
+            >
+              Table
+            </button>
+            <button
+              onClick={() => setViewMode('card')}
+              className={`px-3 py-2 text-xs font-semibold transition-colors ${viewMode === 'card' ? 'bg-purple-600 text-white' : 'bg-white text-slate-500 hover:bg-slate-50'}`}
+            >
+              Cards
+            </button>
+          </div>
+          <button onClick={fetchChurches} className="p-2 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-500" title="Refresh">
+            <RefreshCw size={14} />
+          </button>
+          <button
+            onClick={() => setCreateModal(true)}
+            className="flex items-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white text-sm font-semibold rounded-xl"
+          >
+            <Plus size={14} /> Add Church
+          </button>
+        </div>
+      </div>
+
+      {/* Content */}
+      {loading ? (
+        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm flex items-center justify-center py-20">
+          <div className="w-8 h-8 border-2 border-purple-500 border-t-transparent rounded-full animate-spin" />
+        </div>
+      ) : filtered.length === 0 ? (
+        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm">
+          <EmptyState icon={Building2} title="No churches found" description="Adjust your filters or add a new church." />
+        </div>
+      ) : viewMode === 'table' ? (
+        /* TABLE VIEW */
+        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-slate-100 bg-slate-50">
-                  <th className="text-left px-5 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">Church Name</th>
-                  <th className="text-left px-5 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">Admin</th>
-                  <th className="text-left px-5 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">Location</th>
-                  <th className="text-left px-5 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">Status</th>
+                  <th className="text-left px-5 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">Church</th>
+                  <th className="text-left px-5 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">Pastor</th>
+                  <th className="text-left px-5 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">Email</th>
                   <th className="text-left px-5 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">Plan</th>
-                  <th className="text-left px-5 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">Joined</th>
+                  <th className="text-left px-5 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">Status</th>
+                  <th className="text-left px-5 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">Branches</th>
+                  <th className="text-left px-5 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">Members</th>
+                  <th className="text-left px-5 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">Registered</th>
                   <th className="text-left px-5 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">Actions</th>
                 </tr>
               </thead>
@@ -409,56 +1564,93 @@ function ChurchesSection() {
                   <tr key={church.id} className="hover:bg-slate-50/50 transition-colors">
                     <td className="px-5 py-3.5">
                       <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-lg bg-purple-100 flex items-center justify-center text-purple-700 font-bold text-sm flex-shrink-0">
-                          {church.name?.charAt(0) || 'C'}
+                        <ChurchAvatar name={church.name} size="sm" />
+                        <div>
+                          <p className="font-semibold text-slate-800 text-sm leading-tight">{church.name || 'Unnamed'}</p>
+                          {church.city && <p className="text-xs text-slate-400 mt-0.5">{church.city}</p>}
                         </div>
-                        <span className="font-semibold text-slate-800">{church.name || 'Unnamed'}</span>
                       </div>
                     </td>
-                    <td className="px-5 py-3.5 text-slate-600">
-                      {church.user_profiles?.full_name || church.admin_name || '—'}
-                    </td>
-                    <td className="px-5 py-3.5 text-slate-600">{church.location || church.city || '—'}</td>
-                    <td className="px-5 py-3.5">
-                      <StatusBadge status={church.is_active === false ? 'suspended' : 'active'} />
-                    </td>
-                    <td className="px-5 py-3.5">
-                      <PlanBadge plan={church.plan || 'starter'} />
-                    </td>
-                    <td className="px-5 py-3.5 text-slate-500 text-xs">
+                    <td className="px-5 py-3.5 text-slate-600 text-sm">{getPastor(church)}</td>
+                    <td className="px-5 py-3.5 text-slate-500 text-xs max-w-[160px] truncate">{church.email || '—'}</td>
+                    <td className="px-5 py-3.5"><PlanBadge plan={church.plan || 'starter'} /></td>
+                    <td className="px-5 py-3.5"><ChurchStatusBadge status={getStatus(church)} /></td>
+                    <td className="px-5 py-3.5 text-center text-slate-600 font-medium">{getBranchCount(church)}</td>
+                    <td className="px-5 py-3.5 text-center text-slate-600 font-medium">{getMemberCount(church)}</td>
+                    <td className="px-5 py-3.5 text-slate-400 text-xs whitespace-nowrap">
                       {church.created_at ? new Date(church.created_at).toLocaleDateString() : '—'}
                     </td>
                     <td className="px-5 py-3.5">
-                      <div className="flex items-center gap-1.5">
-                        <button title="View" className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-500">
-                          <Eye size={14} />
-                        </button>
-                        <button
-                          title={church.is_active === false ? 'Activate' : 'Suspend'}
-                          onClick={() => toggleStatus(church)}
-                          className={`p-1.5 rounded-lg text-white text-xs font-semibold px-2.5 ${church.is_active === false ? 'bg-green-500 hover:bg-green-600' : 'bg-orange-500 hover:bg-orange-600'}`}
-                        >
-                          {church.is_active === false ? 'Activate' : 'Suspend'}
-                        </button>
-                        <button
-                          title="Delete"
-                          onClick={() => setDeleteTarget(church)}
-                          className="p-1.5 rounded-lg hover:bg-red-50 text-red-400"
-                        >
-                          <Trash2 size={14} />
-                        </button>
-                      </div>
+                      <ActionsDropdown
+                        church={church}
+                        onView={() => setProfileModal(church)}
+                        onEdit={() => setEditModal(church)}
+                        onChangePlan={() => setChangePlanModal(church)}
+                        onToggleStatus={() => toggleStatus(church)}
+                        onAnalytics={() => setAnalyticsModal(church)}
+                        onDelete={() => setDeleteModal(church)}
+                      />
                     </td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
-        )}
-      </div>
+        </div>
+      ) : (
+        /* CARD VIEW */
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {filtered.map(church => (
+            <div key={church.id} className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 flex flex-col gap-4 hover:shadow-md transition-shadow">
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex items-center gap-3 min-w-0">
+                  <ChurchAvatar name={church.name} size="md" />
+                  <div className="min-w-0">
+                    <p className="font-bold text-slate-800 text-sm truncate">{church.name || 'Unnamed'}</p>
+                    {church.city && <p className="text-xs text-slate-400 mt-0.5 truncate">{church.city}, {church.country}</p>}
+                  </div>
+                </div>
+                <ChurchStatusBadge status={getStatus(church)} />
+              </div>
+
+              <div className="space-y-1.5 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-slate-400 text-xs">Pastor</span>
+                  <span className="text-slate-700 font-medium text-xs truncate max-w-[130px]">{getPastor(church)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-400 text-xs">Plan</span>
+                  <PlanBadge plan={church.plan || 'starter'} />
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-400 text-xs">Members</span>
+                  <span className="text-slate-700 font-semibold text-xs">{getMemberCount(church)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-400 text-xs">Branches</span>
+                  <span className="text-slate-700 font-semibold text-xs">{getBranchCount(church)}</span>
+                </div>
+              </div>
+
+              <div className="pt-1 border-t border-slate-50 flex items-center justify-between gap-2">
+                <span className="text-xs text-slate-400">
+                  {church.created_at ? new Date(church.created_at).toLocaleDateString() : '—'}
+                </span>
+                <button
+                  onClick={() => setProfileModal(church)}
+                  className="px-3 py-1.5 text-xs font-semibold bg-purple-600 hover:bg-purple-700 text-white rounded-lg"
+                >
+                  View Details
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   )
 }
+// === END CHURCHES SECTION ===
 
 // ═══════════════════════════════════════════════════════════════
 // SECTION 3: PLANS & BILLING
@@ -1724,6 +2916,7 @@ function SectionContent({ active }) {
     case 'notifications': return <NotificationsSection />
     case 'branding':      return <BrandingSection />
     case 'legal':         return <LegalSection />
+    case 'members':       return <MembersSection />
     case 'api':           return <ApiSection />
     default:              return <PlatformSection />
   }
