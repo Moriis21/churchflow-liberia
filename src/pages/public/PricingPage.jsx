@@ -176,10 +176,10 @@ export default function PricingPage() {
 
                   <div className="mb-6">
                     <div className="flex items-baseline gap-1">
-                      <span className="text-3xl font-black text-[#1E1B4B]">LRD {plan.lrd}</span>
+                      <span className="text-3xl font-black text-[#1E1B4B]">${plan.usd}</span>
                       <span className="text-slate-400 text-sm font-medium">/month</span>
                     </div>
-                    <p className="text-slate-400 text-sm mt-1">~USD {plan.usd}/month</p>
+                    <p className="text-slate-400 text-sm mt-1">approx. LRD {plan.lrd}/month</p>
                   </div>
 
                   <Link

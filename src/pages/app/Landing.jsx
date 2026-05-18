@@ -861,14 +861,14 @@ function Pricing() {
               <div className="mb-8">
                 <div className="flex items-end gap-2">
                   <span className={`text-4xl font-extrabold ${plan.popular ? 'text-white' : 'text-slate-900'}`}>
-                    {plan.lrd}
+                    {plan.usd}
                   </span>
                   <span className={`text-sm font-semibold mb-1 ${plan.popular ? 'text-white/60' : 'text-slate-400'}`}>
                     {plan.period}
                   </span>
                 </div>
                 <p className={`text-sm mt-1 ${plan.popular ? 'text-yellow-300/80' : 'text-slate-400'}`}>
-                  approx. {plan.usd}/mo
+                  approx. {plan.lrd}/mo
                 </p>
               </div>
 
