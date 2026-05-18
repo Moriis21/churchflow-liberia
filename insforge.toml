@@ -1,0 +1,9 @@
+[auth]
+allowed_redirect_urls = [
+  "https://nihu7zi9.insforge.site/app/dashboard",
+  "https://nihu7zi9.insforge.site",
+  "https://churchflowliberia.insforge.site/app/dashboard",
+  "https://churchflowliberia.insforge.site",
+  "http://localhost:3000/app/dashboard",
+  "http://localhost:3000"
+]
