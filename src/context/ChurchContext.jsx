@@ -8,11 +8,19 @@ import { createContext, useContext, useState, useEffect } from 'react'
 import { useAuth } from './AuthContext'
 import { insforge } from '../lib/insforge'
 
+// ─── Exchange rates (LRD base) ────────────────────────────────
+const EXCHANGE_RATES = { LRD: 1, USD: 194, EUR: 212, GBP: 248, NGN: 0.13 }
+const CURRENCY_SYMBOLS = { LRD: 'LRD', USD: '$', EUR: '€', GBP: '£', NGN: '₦' }
+
 // ─── Context ─────────────────────────────────────────────────
 const ChurchContext = createContext({
   church: null,
   branches: [],
   currentBranch: null,
+  displayCurrency: 'LRD',
+  setDisplayCurrency: () => {},
+  formatMoney: (n) => `LRD ${n}`,
+  convertAmount: (n) => n,
   setCurrentBranch: () => {},
   updateChurch: () => {},
   switchBranch: () => {},
@@ -27,6 +35,27 @@ export function ChurchProvider({ children }) {
   const [branches, setBranches] = useState([])
   const [currentBranch, setCurrentBranch] = useState(null)
   const [loadingChurch, setLoadingChurch] = useState(false)
+  const [displayCurrency, setDisplayCurrency] = useState('LRD')
+
+  // Sync display currency to church's preferred currency
+  useEffect(() => {
+    if (church?.currency) setDisplayCurrency(church.currency)
+  }, [church?.currency])
+
+  /** Convert amount FROM its stored currency TO the currently displayed currency */
+  function convertAmount(amount, fromCurrency = 'LRD') {
+    if (!amount) return 0
+    const inLRD = Number(amount) * (EXCHANGE_RATES[fromCurrency] || 1)
+    return inLRD / (EXCHANGE_RATES[displayCurrency] || 1)
+  }
+
+  /** Format amount with currency symbol */
+  function formatMoney(amount, fromCurrency = 'LRD') {
+    const val = convertAmount(amount, fromCurrency)
+    const sym = CURRENCY_SYMBOLS[displayCurrency] || displayCurrency
+    const fmt = val.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 })
+    return displayCurrency === 'LRD' ? `LRD ${fmt}` : `${sym}${fmt}`
+  }
 
   // ── When churchData arrives from AuthContext, set it ─────
   useEffect(() => {
@@ -88,6 +117,10 @@ export function ChurchProvider({ children }) {
         church,
         branches,
         currentBranch,
+        displayCurrency,
+        setDisplayCurrency,
+        formatMoney,
+        convertAmount,
         setCurrentBranch,
         updateChurch,
         switchBranch,

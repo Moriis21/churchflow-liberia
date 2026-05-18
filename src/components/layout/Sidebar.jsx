@@ -101,7 +101,7 @@ const SUPER_ADMIN_NAV_SECTIONS = [
     label: 'SYSTEM',
     items: [
       { to: '/app/users', icon: ShieldCheck, label: 'User Management' },
-      { to: '/app/settings', icon: Settings, label: 'Settings' },
+      { to: '/app/super-admin-settings', icon: Settings, label: 'Platform Settings' },
     ],
   },
 ]

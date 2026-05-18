@@ -92,7 +92,11 @@ export default function Layout() {
 
   // ── Super admin: keep on /app/super-admin, redirect away from
   //    regular church pages (dashboard, members, etc.) ──────────
-  const SUPER_ADMIN_ROUTES = ['/app/super-admin', '/app/users', '/app/settings', '/app/reports', '/app/sermons', '/app/finance', '/app/members', '/app/branches']
+  const SUPER_ADMIN_ROUTES = [
+    '/app/super-admin', '/app/users', '/app/settings',
+    '/app/reports', '/app/sermons', '/app/finance',
+    '/app/members', '/app/branches', '/app/profile',
+  ]
   if (isSuperAdmin && !SUPER_ADMIN_ROUTES.some(r => location.pathname.startsWith(r))) {
     return <Navigate to="/app/super-admin" replace />
   }
