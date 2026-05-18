@@ -162,8 +162,76 @@ function Navbar() {
   )
 }
 
+// ─── Demo Video Modal ─────────────────────────────────────────
+function DemoModal({ isOpen, onClose }) {
+  if (!isOpen) return null
+  return (
+    <div
+      className="fixed inset-0 z-[999] flex items-center justify-center p-4"
+      onClick={onClose}
+    >
+      {/* Backdrop */}
+      <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" />
+
+      {/* Modal */}
+      <div
+        className="relative w-full max-w-4xl rounded-2xl overflow-hidden shadow-2xl"
+        style={{ animation: 'fadeInUp 0.3s ease both' }}
+        onClick={e => e.stopPropagation()}
+      >
+        {/* Close button */}
+        <button
+          onClick={onClose}
+          className="absolute top-3 right-3 z-10 w-9 h-9 rounded-full bg-black/60 hover:bg-black/80 flex items-center justify-center text-white transition-colors"
+          aria-label="Close demo video"
+        >
+          <X className="w-5 h-5" />
+        </button>
+
+        {/* Video header */}
+        <div className="bg-[#1E1B4B] px-6 py-4 flex items-center gap-3">
+          <div className="w-8 h-8 rounded-lg bg-[#1E1B4B] overflow-hidden flex-shrink-0">
+            <img src="/logo.png" alt="ChurchFlow" className="w-full h-full object-contain" />
+          </div>
+          <div>
+            <p className="text-white font-bold text-sm leading-tight">ChurchFlow Liberia</p>
+            <p className="text-amber-400 text-xs">Full Platform Demo</p>
+          </div>
+        </div>
+
+        {/* YouTube embed — 16:9 */}
+        <div className="relative w-full bg-black" style={{ paddingBottom: '56.25%' }}>
+          <iframe
+            className="absolute inset-0 w-full h-full"
+            src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1&rel=0&modestbranding=1"
+            title="ChurchFlow Liberia Demo"
+            frameBorder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+          />
+        </div>
+
+        {/* Footer note */}
+        <div className="bg-[#1E1B4B] px-6 py-3 flex items-center justify-between">
+          <p className="text-white/60 text-xs">
+            See how ChurchFlow manages members, attendance, finance and more.
+          </p>
+          <a
+            href="/register"
+            className="text-xs font-semibold text-amber-400 hover:text-amber-300 transition-colors"
+          >
+            Get Started Free →
+          </a>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 // ─── Hero ─────────────────────────────────────────────────────
 function Hero() {
+  const [demoOpen, setDemoOpen] = React.useState(false)
+
   return (
     <section className="relative overflow-hidden bg-gradient-to-br from-[#1E1B4B] via-[#2D1F6E] to-[#4C1D95] pt-24 pb-20">
       {/* Decorative blobs */}
@@ -216,7 +284,10 @@ function Hero() {
               Get Started Free
               <ArrowRight className="w-5 h-5" />
             </Link>
-            <button className="w-full sm:w-auto inline-flex items-center justify-center gap-2 text-base font-semibold text-white border-2 border-white/30 px-8 py-4 rounded-2xl hover:bg-white/10 hover:border-white/50 transition-all backdrop-blur-sm">
+            <button
+              onClick={() => setDemoOpen(true)}
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 text-base font-semibold text-white border-2 border-white/30 px-8 py-4 rounded-2xl hover:bg-white/10 hover:border-white/50 transition-all backdrop-blur-sm"
+            >
               <Video className="w-5 h-5 text-white/80" />
               Watch Demo
             </button>
@@ -309,6 +380,9 @@ function Hero() {
           </div>
         </div>
       </div>
+
+      {/* Demo video modal */}
+      <DemoModal isOpen={demoOpen} onClose={() => setDemoOpen(false)} />
     </section>
   )
 }
