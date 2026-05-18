@@ -1035,12 +1035,28 @@ function Footer() {
         </div>
 
         {/* Bottom row */}
-        <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="text-sm text-white/40 text-center sm:text-left">
-            Built for Liberia. Designed for Churches. Powered by Growth.
-          </p>
-          <p className="text-sm text-white/35">
-            &copy; {new Date().getFullYear()} ChurchFlow Liberia. All rights reserved.
+        <div className="border-t border-white/10 mt-10 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-400">
+          <p>© 2026 ChurchFlow Liberia. All rights reserved.</p>
+          <p className="flex items-center gap-1.5">
+            Built by{' '}
+            <a
+              href="https://wa.me/231770787020"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-semibold text-amber-400 hover:text-amber-300 transition-colors underline underline-offset-2"
+            >
+              Morris L. Dorley Jr
+            </a>
+            {' '}·{' '}
+            <a
+              href="https://wa.me/231770787020"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-slate-400 hover:text-amber-400 transition-colors flex items-center gap-1"
+            >
+              <MessageSquare className="w-3 h-3" />
+              +231 77 078 7020
+            </a>
           </p>
         </div>
       </div>

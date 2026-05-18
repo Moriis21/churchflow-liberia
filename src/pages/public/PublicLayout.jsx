@@ -196,12 +196,27 @@ function PublicFooter() {
           </div>
         </div>
 
-        <div className="border-t border-white/10 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <p className="text-sm text-slate-500">
-            &copy; {new Date().getFullYear()} ChurchFlow Liberia. All rights reserved.
-          </p>
-          <p className="text-sm text-slate-500">
-            Built with care in Monrovia, Liberia.
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-400 border-t border-slate-100 pt-4 mt-4">
+          <p>© 2026 ChurchFlow Liberia. All rights reserved.</p>
+          <p className="flex items-center gap-1.5">
+            Built by{' '}
+            <a
+              href="https://wa.me/231770787020"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-semibold text-purple-600 hover:text-purple-800 transition-colors"
+            >
+              Morris L. Dorley Jr
+            </a>
+            {' '}·{' '}
+            <a
+              href="https://wa.me/231770787020"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-slate-400 hover:text-purple-600 transition-colors"
+            >
+              +231 77 078 7020
+            </a>
           </p>
         </div>
       </div>

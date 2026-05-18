@@ -183,7 +183,7 @@ export function AuthProvider({ children }) {
   }
 
   // ── Register ──────────────────────────────────────────────
-  async function register(email, password, name, churchName, role = ROLES.CHURCH_ADMIN) {
+  async function register(email, password, name, churchName, role = ROLES.CHURCH_ADMIN, existingChurchId = null) {
     setLoading(true)
     try {
       const { data, error } = await insforge.auth.signUp({
@@ -198,13 +198,13 @@ export function AuthProvider({ children }) {
       if (data?.requireEmailVerification) {
         // Code-based verification: show 6-digit OTP input on the same page
         setPendingVerificationEmail(email)
-        setPendingRegData({ name, churchName, role })
+        setPendingRegData({ name, churchName, role, existingChurchId })
         return { data: { ...data, requireEmailVerification: true }, error: null }
       }
 
       // No verification needed — user is already signed in
       if (data?.user) {
-        await _createChurchAndProfile(data.user, name, churchName, role)
+        await _createChurchAndProfile(data.user, name, churchName, role, existingChurchId)
         setUser(data.user)
       }
 
@@ -232,8 +232,8 @@ export function AuthProvider({ children }) {
 
       // verifyEmail auto-signs in on success
       if (data?.user) {
-        const { name, churchName, role } = pendingRegData || {}
-        await _createChurchAndProfile(data.user, name, churchName, role)
+        const { name, churchName, role, existingChurchId } = pendingRegData || {}
+        await _createChurchAndProfile(data.user, name, churchName, role, existingChurchId)
         setUser(data.user)
         setPendingVerificationEmail(null)
         setPendingRegData(null)
@@ -257,36 +257,40 @@ export function AuthProvider({ children }) {
   }
 
   // ── Internal: create church + user_profile after sign-up ─
-  async function _createChurchAndProfile(authedUser, name, churchName, role) {
+  async function _createChurchAndProfile(authedUser, name, churchName, role, existingChurchId = null) {
     try {
-      // 1. Create the church record
-      const { data: churchData, error: churchErr } = await insforge.database
-        .from('churches')
-        .insert([{
-          name: churchName || 'My Church',
-          owner_id: authedUser.id,
-          currency: 'LRD',
-        }])
-        .select()
-        .single()
+      let churchId = existingChurchId
 
-      if (churchErr) throw churchErr
+      if (!existingChurchId) {
+        // Admin flow: create a new church record
+        const { data: newChurch, error: churchErr } = await insforge.database
+          .from('churches')
+          .insert([{
+            name: churchName || 'My Church',
+            owner_id: authedUser.id,
+            currency: 'LRD',
+          }])
+          .select()
+          .single()
 
-      // 2. Create the user_profile record
+        if (churchErr) throw churchErr
+        churchId = newChurch.id
+        setChurchData(newChurch)
+      }
+
+      // Create the user_profile record linked to the church
       await insforge.database
         .from('user_profiles')
         .insert([{
           id: authedUser.id,
-          church_id: churchData.id,
+          church_id: churchId,
           full_name: name || authedUser.email,
           role: role || ROLES.CHURCH_ADMIN,
           is_active: true,
         }])
 
-      // 3. Update the auth profile
+      // Update the auth profile display name
       await insforge.auth.setProfile({ name: name || authedUser.email })
-
-      setChurchData(churchData)
     } catch (err) {
       console.error('Failed to create church/profile:', err.message)
     }

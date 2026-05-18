@@ -27,6 +27,8 @@ const Branches       = React.lazy(() => import('./pages/app/Branches'))
 const Settings       = React.lazy(() => import('./pages/app/Settings'))
 const UserManagement = React.lazy(() => import('./pages/app/UserManagement'))
 
+const JoinChurchPage  = React.lazy(() => import('./pages/public/JoinChurchPage'))
+
 // ─── Public pages ─────────────────────────────────────────────
 const FeaturesPage    = React.lazy(() => import('./pages/public/FeaturesPage'))
 const PricingPage     = React.lazy(() => import('./pages/public/PricingPage'))
@@ -109,6 +111,7 @@ function AppRoutes() {
         <Route path="/landing"    element={<Landing />} />
         <Route path="/login"      element={<Login />} />
         <Route path="/register"   element={<Register />} />
+        <Route path="/join/:churchId" element={<JoinChurchPage />} />
         <Route path="/features"   element={<FeaturesPage />} />
         <Route path="/pricing"    element={<PricingPage />} />
         <Route path="/about"      element={<AboutPage />} />

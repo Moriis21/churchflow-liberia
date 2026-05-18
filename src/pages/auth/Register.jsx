@@ -18,6 +18,7 @@ import {
   ChevronRight,
   ChevronLeft,
   Globe,
+  Church,
 } from 'lucide-react'
 import { useAuth, ROLES } from '../../context/AuthContext'
 import { Input, Button } from '../../components/ui'
@@ -69,6 +70,333 @@ function StepIndicator({ currentStep }) {
   )
 }
 
+// ─── Member Self-Registration Form ───────────────────────────
+function MemberRegisterForm({ pendingChurchName, pendingChurchId }) {
+  const navigate = useNavigate()
+  const { register, verifyEmail, resendVerification, pendingVerificationEmail } = useAuth()
+
+  const [verifyStep, setVerifyStep] = useState(false)
+  const [otp, setOtp] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirm, setShowConfirm] = useState(false)
+  const [errors, setErrors] = useState({})
+
+  const [form, setForm] = useState({
+    fullName: '',
+    phone: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
+  })
+
+  function update(field, value) {
+    setForm((p) => ({ ...p, [field]: value }))
+    setErrors((p) => ({ ...p, [field]: '' }))
+  }
+
+  function validate() {
+    const errs = {}
+    if (!form.fullName.trim()) errs.fullName = 'Full name is required'
+    if (!form.email.trim()) errs.email = 'Email is required'
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) errs.email = 'Enter a valid email'
+    if (!form.password) errs.password = 'Password is required'
+    else if (form.password.length < 8) errs.password = 'Password must be at least 8 characters'
+    if (!form.confirmPassword) errs.confirmPassword = 'Please confirm your password'
+    else if (form.password !== form.confirmPassword) errs.confirmPassword = 'Passwords do not match'
+    return errs
+  }
+
+  async function handleSubmit(e) {
+    e.preventDefault()
+    const errs = validate()
+    if (Object.keys(errs).length) { setErrors(errs); return }
+    setErrors({})
+    setLoading(true)
+    try {
+      const { data, error } = await register(
+        form.email,
+        form.password,
+        form.fullName,
+        pendingChurchName,
+        ROLES.MEMBER,
+        pendingChurchId,
+      )
+      if (error) {
+        toast.error(error.message || 'Registration failed. Please try again.')
+      } else if (data?.requireEmailVerification) {
+        setVerifyStep(true)
+        toast.success('Check your email for a 6-digit verification code.')
+      } else {
+        sessionStorage.removeItem('pending_church_id')
+        sessionStorage.removeItem('pending_church_name')
+        toast.success('Welcome to ' + pendingChurchName + '!')
+        navigate('/app/dashboard')
+      }
+    } catch {
+      toast.error('Something went wrong. Please try again.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  async function handleVerify(e) {
+    e.preventDefault()
+    if (otp.trim().length !== 6) {
+      toast.error('Please enter the 6-digit code from your email.')
+      return
+    }
+    setLoading(true)
+    try {
+      const { error } = await verifyEmail(otp.trim())
+      if (error) {
+        toast.error(error.message || 'Invalid or expired code. Please try again.')
+      } else {
+        sessionStorage.removeItem('pending_church_id')
+        sessionStorage.removeItem('pending_church_name')
+        toast.success('Email verified! Welcome to ' + pendingChurchName + '.')
+        navigate('/app/dashboard')
+      }
+    } catch {
+      toast.error('Verification failed. Please try again.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // OTP verification screen
+  if (verifyStep) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#F5F3FF] to-[#EDE9FE] p-4">
+        <div className="w-full max-w-md bg-white rounded-2xl shadow-xl p-8 text-center">
+          <div className="w-16 h-16 rounded-full bg-purple-100 flex items-center justify-center mx-auto mb-4">
+            <Mail className="w-8 h-8 text-purple-600" />
+          </div>
+          <h2 className="text-2xl font-bold text-[#1E1B4B] mb-2">Verify Your Email</h2>
+          <p className="text-slate-500 mb-1 text-sm">We sent a 6-digit code to</p>
+          <p className="font-semibold text-purple-700 mb-6 text-sm">{pendingVerificationEmail || form.email}</p>
+          <form onSubmit={handleVerify} className="space-y-4">
+            <input
+              type="text"
+              maxLength={6}
+              inputMode="numeric"
+              pattern="[0-9]*"
+              value={otp}
+              onChange={e => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
+              placeholder="000000"
+              className="w-full text-center text-3xl font-bold tracking-[0.5em] border-2 border-purple-200 rounded-xl px-4 py-4 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-100 text-[#1E1B4B] placeholder-slate-300"
+            />
+            <Button type="submit" variant="primary" className="w-full" loading={loading}>
+              Verify & Continue
+            </Button>
+          </form>
+          <button
+            type="button"
+            onClick={resendVerification}
+            className="mt-4 text-sm text-purple-600 hover:underline"
+          >
+            Didn&apos;t receive it? Resend code
+          </button>
+          <div className="mt-3">
+            <button
+              type="button"
+              onClick={() => setVerifyStep(false)}
+              className="text-sm text-slate-400 hover:text-slate-600"
+            >
+              Back to registration
+            </button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#F5F3FF] to-[#EDE9FE] p-4">
+      {/* Decorative blobs */}
+      <div className="fixed -top-32 -left-32 w-96 h-96 rounded-full bg-purple-400/10 blur-3xl pointer-events-none" />
+      <div className="fixed -bottom-24 -right-24 w-80 h-80 rounded-full bg-indigo-400/10 blur-3xl pointer-events-none" />
+
+      <div className="relative w-full max-w-[460px]">
+        {/* Logo row */}
+        <div className="flex items-center justify-center gap-3 mb-8">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-600 to-purple-700 flex items-center justify-center shadow-lg">
+            <span className="text-white font-black text-lg leading-none">+</span>
+          </div>
+          <div>
+            <p className="text-[#1E1B4B] font-bold text-lg leading-tight">ChurchFlow</p>
+            <p className="text-[#F59E0B] text-xs tracking-widest uppercase font-semibold">Liberia</p>
+          </div>
+        </div>
+
+        {/* Card */}
+        <div className="bg-white rounded-2xl shadow-xl shadow-slate-200/80 border border-slate-100 overflow-hidden">
+          {/* Church banner */}
+          <div className="flex items-center gap-3 px-6 py-4 bg-gradient-to-r from-violet-600 to-purple-700">
+            <div className="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0">
+              <Church className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <p className="text-xs text-purple-200 font-medium">Joining</p>
+              <p className="text-white font-bold text-sm leading-tight">{pendingChurchName}</p>
+            </div>
+          </div>
+
+          <div className="p-8">
+            <div className="mb-6">
+              <h2 className="text-2xl font-extrabold text-[#1E1B4B]">Create Your Account</h2>
+              <p className="mt-1 text-slate-500 text-sm">Fill in your details to join as a member</p>
+            </div>
+
+            <form onSubmit={handleSubmit} noValidate className="space-y-5">
+              <Input
+                label="Full Name"
+                id="member-name"
+                name="fullName"
+                placeholder="e.g. Mary Dahn"
+                value={form.fullName}
+                onChange={(e) => update('fullName', e.target.value)}
+                icon={User}
+                error={errors.fullName}
+                required
+                autoComplete="name"
+              />
+
+              <Input
+                label="Phone Number"
+                id="member-phone"
+                name="phone"
+                placeholder="+231 770 000 000"
+                value={form.phone}
+                onChange={(e) => update('phone', e.target.value)}
+                error={errors.phone}
+                autoComplete="tel"
+              />
+
+              <Input
+                label="Email Address"
+                type="email"
+                id="member-email"
+                name="email"
+                placeholder="you@example.com"
+                value={form.email}
+                onChange={(e) => update('email', e.target.value)}
+                icon={Mail}
+                error={errors.email}
+                required
+                autoComplete="email"
+              />
+
+              <Input
+                label="Password"
+                type={showPassword ? 'text' : 'password'}
+                id="member-password"
+                name="password"
+                placeholder="Min. 8 characters"
+                value={form.password}
+                onChange={(e) => update('password', e.target.value)}
+                icon={Lock}
+                error={errors.password}
+                required
+                autoComplete="new-password"
+                suffix={
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((v) => !v)}
+                    className="pointer-events-auto text-slate-400 hover:text-slate-600 transition-colors"
+                    aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  >
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                }
+              />
+
+              <Input
+                label="Confirm Password"
+                type={showConfirm ? 'text' : 'password'}
+                id="member-confirm-password"
+                name="confirmPassword"
+                placeholder="Re-enter your password"
+                value={form.confirmPassword}
+                onChange={(e) => update('confirmPassword', e.target.value)}
+                icon={Lock}
+                error={errors.confirmPassword}
+                required
+                autoComplete="new-password"
+                suffix={
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirm((v) => !v)}
+                    className="pointer-events-auto text-slate-400 hover:text-slate-600 transition-colors"
+                    aria-label={showConfirm ? 'Hide confirm password' : 'Show confirm password'}
+                  >
+                    {showConfirm ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                }
+              />
+
+              {/* Password strength */}
+              {form.password.length > 0 && (
+                <div className="space-y-1.5">
+                  <div className="flex gap-1">
+                    {[1, 2, 3, 4].map((level) => {
+                      const strength = Math.min(Math.floor(form.password.length / 3), 4)
+                      return (
+                        <div
+                          key={level}
+                          className={[
+                            'flex-1 h-1.5 rounded-full transition-colors duration-300',
+                            level <= strength
+                              ? strength <= 1 ? 'bg-red-400'
+                              : strength <= 2 ? 'bg-amber-400'
+                              : strength <= 3 ? 'bg-blue-400'
+                              : 'bg-green-500'
+                              : 'bg-slate-100',
+                          ].join(' ')}
+                        />
+                      )
+                    })}
+                  </div>
+                  <p className="text-xs text-slate-400">
+                    {form.password.length < 4 ? 'Too short'
+                      : form.password.length < 7 ? 'Weak password'
+                      : form.password.length < 10 ? 'Fair password'
+                      : 'Strong password'}
+                  </p>
+                </div>
+              )}
+
+              <Button
+                type="submit"
+                variant="primary"
+                size="lg"
+                loading={loading}
+                className="w-full mt-2"
+              >
+                Join Church
+              </Button>
+            </form>
+
+            <p className="mt-6 text-center text-sm text-slate-500">
+              Already have an account?{' '}
+              <Link
+                to="/login"
+                className="text-purple-600 hover:text-purple-800 font-semibold transition-colors"
+              >
+                Sign in
+              </Link>
+            </p>
+          </div>
+        </div>
+
+        <p className="mt-6 text-center text-xs text-slate-400">
+          By joining, you agree to our Terms of Service &amp; Privacy Policy
+        </p>
+      </div>
+    </div>
+  )
+}
+
 // ─── Component ───────────────────────────────────────────────
 export default function Register() {
   const navigate = useNavigate()
@@ -98,6 +426,22 @@ export default function Register() {
   })
 
   const [errors, setErrors] = useState({})
+
+  // ── Detect member invite mode ────────────────────────────
+  const searchParams = new URLSearchParams(window.location.search)
+  const isMemberMode = searchParams.get('role') === 'member'
+  const pendingChurchId = sessionStorage.getItem('pending_church_id')
+  const pendingChurchName = sessionStorage.getItem('pending_church_name')
+
+  // If arriving via invite link, render the simplified member form
+  if (isMemberMode && pendingChurchId) {
+    return (
+      <MemberRegisterForm
+        pendingChurchName={pendingChurchName || 'Your Church'}
+        pendingChurchId={pendingChurchId}
+      />
+    )
+  }
 
   // ── Field updaters ───────────────────────────────────────
   function updateChurch(field, value) {
