@@ -1,0 +1,16 @@
+# InsForge edge functions (deployed separately via CLI, not via Vercel)
+insforge/
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# InsForge project config
+.insforge/
+
+# Node modules
+node_modules/
+
+# Git
+.git/
