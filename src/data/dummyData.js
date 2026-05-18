@@ -480,6 +480,33 @@ export const OFFERINGS = [
     member: 'Moses Pewee',
     notes: 'Remote donation via mobile money transfer.',
   },
+  {
+    id: 'off-013',
+    type: 'tithe',
+    amount: 80,
+    currency: 'EUR',
+    date: '2026-05-10',
+    member: 'John Kollie-Belgium',
+    notes: 'Diaspora tithe from Belgium – May.',
+  },
+  {
+    id: 'off-014',
+    type: 'building_fund',
+    amount: 120,
+    currency: 'EUR',
+    date: '2026-04-26',
+    member: 'Mary Doe-Germany',
+    notes: 'Building fund contribution from Germany.',
+  },
+  {
+    id: 'off-015',
+    type: 'offering',
+    amount: 50,
+    currency: 'EUR',
+    date: '2026-05-03',
+    member: 'John Kollie-Belgium',
+    notes: 'First Sunday offering – diaspora giving.',
+  },
 ]
 
 // ─── EXPENSES ────────────────────────────────────────────────

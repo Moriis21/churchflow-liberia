@@ -18,10 +18,20 @@ import {
   Clock,
   Calendar,
   Mic2,
+  FileText,
+  CheckCircle,
+  AlertCircle,
+  Loader2,
+  Copy,
+  ChevronDown,
+  Tag,
+  BookMarked,
 } from 'lucide-react'
 import { Button, Badge, Modal, Input } from '../../components/ui'
 import { SERMONS } from '../../data/dummyData'
 import { formatDate } from '../../utils/helpers'
+import { insforge } from '../../lib/insforge'
+import toast from 'react-hot-toast'
 
 // ─── Platform config ──────────────────────────────────────────
 const PLATFORM_CONFIG = {
@@ -50,6 +60,7 @@ const TYPE_TABS = [
   { key: 'live', label: 'Live Streams', icon: Radio },
   { key: 'audio', label: 'Audio', icon: Headphones },
   { key: 'devotional', label: 'Devotionals', icon: Mic2 },
+  { key: 'transcription', label: 'Transcription', icon: FileText },
 ]
 
 // Empty add-content form
@@ -244,6 +255,462 @@ function AddContentModal({ isOpen, onClose }) {
   )
 }
 
+// ─── Generate Transcript Modal ─────────────────────────────────
+function GenerateTranscriptModal({ isOpen, onClose, sermon, onGenerate }) {
+  const [mode, setMode] = useState('url')
+  const [audioUrl, setAudioUrl] = useState('')
+  const [manualText, setManualText] = useState('')
+  const [loading, setLoading] = useState(false)
+
+  const handleClose = () => {
+    setMode('url')
+    setAudioUrl('')
+    setManualText('')
+    onClose()
+  }
+
+  const handleGenerate = async () => {
+    if (mode === 'url' && !audioUrl.trim()) {
+      toast.error('Please enter an audio URL.')
+      return
+    }
+    if (mode === 'manual' && !manualText.trim()) {
+      toast.error('Please paste the sermon text.')
+      return
+    }
+
+    setLoading(true)
+    try {
+      await onGenerate(sermon, mode === 'url' ? audioUrl.trim() : null, mode === 'manual' ? manualText.trim() : null)
+      handleClose()
+    } catch {
+      // error handled in parent
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  if (!sermon) return null
+
+  return (
+    <Modal
+      isOpen={isOpen}
+      onClose={handleClose}
+      title="Generate Transcript"
+      size="md"
+      footer={
+        <div className="flex justify-end gap-3">
+          <Button variant="secondary" onClick={handleClose} disabled={loading}>
+            Cancel
+          </Button>
+          <Button variant="primary" onClick={handleGenerate} loading={loading}>
+            {loading ? 'Generating...' : 'Generate'}
+          </Button>
+        </div>
+      }
+    >
+      <div className="space-y-5">
+        <div className="p-3 rounded-xl bg-slate-50 border border-slate-100">
+          <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-0.5">Sermon</p>
+          <p className="text-sm font-bold text-slate-800">{sermon.title}</p>
+          <p className="text-xs text-slate-500">{sermon.preacher} — {formatDate(sermon.date)}</p>
+        </div>
+
+        <div>
+          <p className="text-sm font-semibold text-slate-700 mb-3">Transcription source</p>
+          <div className="space-y-2.5">
+            <label className="flex items-start gap-3 p-3 rounded-xl border cursor-pointer transition-all hover:border-purple-200 hover:bg-purple-50/30" style={{ borderColor: mode === 'url' ? '#7C3AED' : undefined, backgroundColor: mode === 'url' ? '#F5F3FF' : undefined }}>
+              <input
+                type="radio"
+                name="transcribe-mode"
+                value="url"
+                checked={mode === 'url'}
+                onChange={() => setMode('url')}
+                className="mt-0.5 accent-violet-600"
+              />
+              <div>
+                <p className="text-sm font-semibold text-slate-800">Transcribe from audio file URL</p>
+                <p className="text-xs text-slate-500">Provide a direct link to the audio recording</p>
+              </div>
+            </label>
+            <label className="flex items-start gap-3 p-3 rounded-xl border cursor-pointer transition-all hover:border-purple-200 hover:bg-purple-50/30" style={{ borderColor: mode === 'manual' ? '#7C3AED' : undefined, backgroundColor: mode === 'manual' ? '#F5F3FF' : undefined }}>
+              <input
+                type="radio"
+                name="transcribe-mode"
+                value="manual"
+                checked={mode === 'manual'}
+                onChange={() => setMode('manual')}
+                className="mt-0.5 accent-violet-600"
+              />
+              <div>
+                <p className="text-sm font-semibold text-slate-800">Paste sermon text manually</p>
+                <p className="text-xs text-slate-500">Enter the sermon text to summarize and extract key points</p>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        {mode === 'url' ? (
+          <div>
+            <label className="block text-xs font-semibold text-slate-600 mb-1.5">Audio File URL</label>
+            <Input
+              placeholder="https://..."
+              value={audioUrl}
+              onChange={(e) => setAudioUrl(e.target.value)}
+            />
+            <p className="text-xs text-slate-400 mt-1.5">Supported: MP3, WAV, M4A, or any direct audio link</p>
+          </div>
+        ) : (
+          <div>
+            <label className="block text-xs font-semibold text-slate-600 mb-1.5">Sermon Text</label>
+            <textarea
+              rows={7}
+              placeholder="Paste the full sermon text here..."
+              value={manualText}
+              onChange={(e) => setManualText(e.target.value)}
+              className="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-200 focus:border-purple-400 focus:ring-2 focus:ring-purple-100 outline-none transition-all resize-none"
+            />
+          </div>
+        )}
+      </div>
+    </Modal>
+  )
+}
+
+// ─── View Transcript Modal ────────────────────────────────────
+function ViewTranscriptModal({ isOpen, onClose, sermon, data }) {
+  const [copied, setCopied] = useState(false)
+
+  const handleCopy = () => {
+    copyToClipboard(data?.transcript || '')
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
+
+  if (!sermon || !data) return null
+
+  return (
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      title="Sermon Transcript"
+      size="xl"
+      footer={
+        <div className="flex items-center justify-between w-full">
+          <p className="text-xs text-slate-400 italic">Transcription powered by AI — ChurchFlow Liberia</p>
+          <Button variant="secondary" onClick={onClose}>Close</Button>
+        </div>
+      }
+    >
+      <div className="space-y-6">
+        {/* Header */}
+        <div className="p-4 rounded-xl bg-gradient-to-r from-violet-50 to-purple-50 border border-purple-100">
+          <h2 className="text-base font-extrabold text-slate-900">{sermon.title}</h2>
+          <div className="flex items-center gap-2 mt-1 text-xs text-slate-500">
+            <Mic2 className="w-3.5 h-3.5 text-purple-400" />
+            <span className="font-medium">{sermon.preacher}</span>
+            <span className="text-slate-300">·</span>
+            <Calendar className="w-3.5 h-3.5 text-slate-400" />
+            <span>{formatDate(sermon.date)}</span>
+          </div>
+        </div>
+
+        {/* Summary */}
+        {data.summary && (
+          <div>
+            <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Summary</h3>
+            <p className="text-sm text-slate-700 leading-relaxed bg-amber-50 border border-amber-100 rounded-xl px-4 py-3">
+              {data.summary}
+            </p>
+          </div>
+        )}
+
+        {/* Key Points */}
+        {data.keyPoints && data.keyPoints.length > 0 && (
+          <div>
+            <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Key Points</h3>
+            <ol className="space-y-2">
+              {data.keyPoints.map((point, i) => (
+                <li key={i} className="flex items-start gap-3 text-sm text-slate-700">
+                  <span className="flex-shrink-0 w-6 h-6 rounded-full bg-violet-100 text-violet-700 text-xs font-bold flex items-center justify-center mt-0.5">
+                    {i + 1}
+                  </span>
+                  <span className="leading-relaxed">{point}</span>
+                </li>
+              ))}
+            </ol>
+          </div>
+        )}
+
+        {/* Scripture References */}
+        {data.scriptureReferences && data.scriptureReferences.length > 0 && (
+          <div>
+            <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Scripture References</h3>
+            <div className="flex flex-wrap gap-2">
+              {data.scriptureReferences.map((ref, i) => (
+                <span
+                  key={i}
+                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200"
+                >
+                  <BookMarked className="w-3 h-3" />
+                  {ref}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Keywords */}
+        {data.keywords && data.keywords.length > 0 && (
+          <div>
+            <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Keywords</h3>
+            <div className="flex flex-wrap gap-2">
+              {data.keywords.map((kw, i) => (
+                <span
+                  key={i}
+                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-600 border border-slate-200"
+                >
+                  <Tag className="w-3 h-3" />
+                  {kw}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Full Transcript */}
+        {data.transcript && (
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider">Full Transcript</h3>
+              <button
+                onClick={handleCopy}
+                className="inline-flex items-center gap-1.5 text-xs font-semibold text-purple-700 hover:text-purple-800 border border-purple-200 bg-purple-50 hover:bg-purple-100 px-2.5 py-1 rounded-lg transition-colors"
+              >
+                <Copy className="w-3.5 h-3.5" />
+                {copied ? 'Copied!' : 'Copy'}
+              </button>
+            </div>
+            <div className="max-h-64 overflow-y-auto rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
+              <p className="text-sm text-slate-700 leading-relaxed whitespace-pre-wrap">{data.transcript}</p>
+            </div>
+          </div>
+        )}
+      </div>
+    </Modal>
+  )
+}
+
+// ─── Transcript Status Badge ──────────────────────────────────
+function TranscriptStatusBadge({ status }) {
+  if (status === 'done') {
+    return (
+      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+        <CheckCircle className="w-3.5 h-3.5" />
+        Completed
+      </span>
+    )
+  }
+  if (status === 'processing') {
+    return (
+      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200 animate-pulse">
+        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+        Processing
+      </span>
+    )
+  }
+  if (status === 'failed') {
+    return (
+      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-red-50 text-red-700 border border-red-200">
+        <AlertCircle className="w-3.5 h-3.5" />
+        Failed
+      </span>
+    )
+  }
+  return (
+    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-500 border border-slate-200">
+      <FileText className="w-3.5 h-3.5" />
+      No Transcript
+    </span>
+  )
+}
+
+// ─── Transcription Card ────────────────────────────────────────
+function TranscriptionCard({ sermon, transcriptInfo, onGenerate, onView }) {
+  const status = transcriptInfo?.status || 'none'
+
+  return (
+    <div className="bg-white rounded-2xl border border-slate-100 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07)] p-5 flex flex-col gap-4 hover:shadow-[0_4px_20px_-3px_rgba(124,58,237,0.1)] transition-all duration-200">
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex-1 min-w-0">
+          <h3 className="text-sm font-bold text-slate-800 leading-snug truncate">{sermon.title}</h3>
+          <div className="flex items-center gap-2 mt-1.5 text-xs text-slate-500">
+            <Mic2 className="w-3.5 h-3.5 text-purple-400 flex-shrink-0" />
+            <span className="font-medium truncate">{sermon.preacher}</span>
+            <span className="text-slate-300 flex-shrink-0">·</span>
+            <Calendar className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
+            <span className="flex-shrink-0">{formatDate(sermon.date)}</span>
+          </div>
+        </div>
+        <TranscriptStatusBadge status={status} />
+      </div>
+
+      <div className="flex items-center gap-2 pt-1 border-t border-slate-50">
+        {status === 'done' ? (
+          <button
+            onClick={() => onView(sermon)}
+            className="flex-1 inline-flex items-center justify-center gap-2 text-xs font-semibold text-white bg-gradient-to-r from-violet-600 to-purple-700 px-3 py-2 rounded-xl hover:from-violet-700 hover:to-purple-800 transition-all"
+          >
+            <FileText className="w-3.5 h-3.5" />
+            View Transcript
+          </button>
+        ) : (
+          <button
+            onClick={() => onGenerate(sermon)}
+            disabled={status === 'processing'}
+            className="flex-1 inline-flex items-center justify-center gap-2 text-xs font-semibold px-3 py-2 rounded-xl transition-all disabled:opacity-60 disabled:cursor-not-allowed border border-purple-200 bg-purple-50 text-purple-700 hover:bg-purple-100 disabled:hover:bg-purple-50"
+          >
+            {status === 'processing' ? (
+              <>
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                Processing...
+              </>
+            ) : (
+              <>
+                <FileText className="w-3.5 h-3.5" />
+                Generate
+              </>
+            )}
+          </button>
+        )}
+        {status === 'done' && (
+          <button
+            onClick={() => onGenerate(sermon)}
+            className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-slate-700 border border-slate-200 bg-white hover:bg-slate-50 px-3 py-2 rounded-xl transition-colors"
+            title="Re-generate transcript"
+          >
+            Re-generate
+          </button>
+        )}
+      </div>
+    </div>
+  )
+}
+
+// ─── Transcription Tab ─────────────────────────────────────────
+function TranscriptionTab({ transcriptData, setTranscriptData }) {
+  const [generateTarget, setGenerateTarget] = useState(null)
+  const [viewTarget, setViewTarget] = useState(null)
+
+  const handleOpenGenerate = (sermon) => setGenerateTarget(sermon)
+  const handleCloseGenerate = () => setGenerateTarget(null)
+
+  const handleOpenView = (sermon) => setViewTarget(sermon)
+  const handleCloseView = () => setViewTarget(null)
+
+  const handleGenerate = async (sermon, audioUrl, manualText) => {
+    // Optimistic: set processing
+    setTranscriptData((prev) => ({
+      ...prev,
+      [sermon.id]: { ...(prev[sermon.id] || {}), status: 'processing' },
+    }))
+
+    try {
+      const { data, error } = await insforge.functions.invoke('transcribe-sermon', {
+        body: {
+          action: audioUrl ? 'transcribe_url' : 'summarize',
+          audioUrl: audioUrl || undefined,
+          rawText: manualText || undefined,
+          sermonTitle: sermon.title,
+          preacher: sermon.preacher,
+        },
+      })
+
+      if (error) throw error
+
+      setTranscriptData((prev) => ({
+        ...prev,
+        [sermon.id]: {
+          transcript: data?.transcript || data?.text || '',
+          summary: data?.summary || '',
+          keyPoints: data?.keyPoints || data?.key_points || [],
+          scriptureReferences: data?.scriptureReferences || data?.scripture_references || [],
+          keywords: data?.keywords || [],
+          status: 'done',
+        },
+      }))
+
+      toast.success('Transcript generated successfully.')
+    } catch (err) {
+      console.error('Transcription error:', err)
+      setTranscriptData((prev) => ({
+        ...prev,
+        [sermon.id]: { ...(prev[sermon.id] || {}), status: 'failed' },
+      }))
+      toast.error('Failed to generate transcript. Please try again.')
+      throw err
+    }
+  }
+
+  return (
+    <div className="space-y-5">
+      {/* Info strip */}
+      <div className="flex items-start gap-3 p-4 rounded-xl bg-gradient-to-r from-violet-50 to-purple-50 border border-purple-100">
+        <FileText className="w-5 h-5 text-purple-600 mt-0.5 flex-shrink-0" />
+        <div>
+          <p className="text-sm font-semibold text-purple-900">AI-Powered Sermon Transcription</p>
+          <p className="text-xs text-purple-600 mt-0.5">
+            Generate transcripts from audio recordings or pasted text. Each transcript includes a summary, key points, scripture references, and keywords.
+          </p>
+        </div>
+      </div>
+
+      {/* Stats strip */}
+      <div className="flex items-center gap-4 text-xs text-slate-500">
+        <span>
+          <span className="font-semibold text-slate-700">
+            {Object.values(transcriptData).filter((t) => t.status === 'done').length}
+          </span>{' '}
+          completed
+        </span>
+        <span className="text-slate-300">|</span>
+        <span>
+          <span className="font-semibold text-slate-700">{SERMONS.length}</span> total sermons
+        </span>
+      </div>
+
+      {/* Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {SERMONS.map((sermon) => (
+          <TranscriptionCard
+            key={sermon.id}
+            sermon={sermon}
+            transcriptInfo={transcriptData[sermon.id]}
+            onGenerate={handleOpenGenerate}
+            onView={handleOpenView}
+          />
+        ))}
+      </div>
+
+      {/* Generate Modal */}
+      <GenerateTranscriptModal
+        isOpen={!!generateTarget}
+        onClose={handleCloseGenerate}
+        sermon={generateTarget}
+        onGenerate={handleGenerate}
+      />
+
+      {/* View Modal */}
+      <ViewTranscriptModal
+        isOpen={!!viewTarget}
+        onClose={handleCloseView}
+        sermon={viewTarget}
+        data={viewTarget ? transcriptData[viewTarget.id] : null}
+      />
+    </div>
+  )
+}
+
 // ─── Main Page ────────────────────────────────────────────────
 export default function Sermons() {
   const [activeTab, setActiveTab] = useState('all')
@@ -254,11 +721,22 @@ export default function Sermons() {
   const [dateFrom, setDateFrom] = useState('')
   const [dateTo, setDateTo] = useState('')
 
+  // Transcript state — keyed by sermon id
+  const [transcriptData, setTranscriptData] = useState(() => {
+    const init = {}
+    SERMONS.forEach((s) => {
+      if (s.transcript) {
+        init[s.id] = { transcript: s.transcript, status: 'done' }
+      }
+    })
+    return init
+  })
+
   // Check for live sermons (type === 'live')
   const liveSermons = SERMONS.filter((s) => s.type === 'live')
   const hasLive = liveSermons.length > 0
 
-  // Filter logic
+  // Filter logic (not applied to transcription tab)
   const filtered = SERMONS.filter((s) => {
     if (activeTab !== 'all' && s.type !== activeTab) return false
     if (platformFilter !== 'all' && s.platform !== platformFilter) return false
@@ -267,6 +745,8 @@ export default function Sermons() {
     if (dateTo && s.date > dateTo) return false
     return true
   })
+
+  const isTranscriptionTab = activeTab === 'transcription'
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -329,98 +809,108 @@ export default function Sermons() {
           ))}
         </div>
 
-        {/* Filters Row */}
-        <div className="flex flex-wrap items-center gap-3">
-          <div className="relative flex-1 min-w-[200px] max-w-xs">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-            <input
-              type="text"
-              placeholder="Search sermons..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 text-sm rounded-xl border border-slate-200 focus:border-purple-400 focus:ring-2 focus:ring-purple-100 outline-none transition-all bg-white"
-            />
-          </div>
-
-          {/* Platform filter */}
-          <select
-            value={platformFilter}
-            onChange={(e) => setPlatformFilter(e.target.value)}
-            className="px-3.5 py-2.5 text-sm rounded-xl border border-slate-200 focus:border-purple-400 focus:ring-2 focus:ring-purple-100 outline-none transition-all bg-white"
-          >
-            <option value="all">All Platforms</option>
-            <option value="youtube">YouTube</option>
-            <option value="facebook">Facebook</option>
-            <option value="zoom">Zoom</option>
-          </select>
-
-          <button
-            onClick={() => setShowFilters(!showFilters)}
-            className={`inline-flex items-center gap-2 px-3.5 py-2.5 text-sm font-semibold rounded-xl border transition-all ${
-              showFilters
-                ? 'bg-purple-50 border-purple-200 text-purple-700'
-                : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300'
-            }`}
-          >
-            <Filter className="w-4 h-4" />
-            Date Filter
-          </button>
-
-          {(search || platformFilter !== 'all' || dateFrom || dateTo) && (
-            <button
-              onClick={() => { setSearch(''); setPlatformFilter('all'); setDateFrom(''); setDateTo('') }}
-              className="inline-flex items-center gap-1.5 text-xs font-semibold text-red-600 hover:text-red-700 px-3 py-2 rounded-xl border border-red-100 bg-red-50 hover:bg-red-100 transition-colors"
-            >
-              <X className="w-3.5 h-3.5" />
-              Clear
-            </button>
-          )}
-        </div>
-
-        {/* Date Range Filter Panel */}
-        {showFilters && (
-          <div className="flex items-center gap-4 p-4 bg-white rounded-2xl border border-slate-100 shadow-sm">
-            <div className="flex items-center gap-2">
-              <label className="text-xs font-semibold text-slate-600">From</label>
-              <input
-                type="date"
-                value={dateFrom}
-                onChange={(e) => setDateFrom(e.target.value)}
-                className="px-3 py-2 text-sm rounded-xl border border-slate-200 focus:border-purple-400 outline-none"
-              />
-            </div>
-            <div className="flex items-center gap-2">
-              <label className="text-xs font-semibold text-slate-600">To</label>
-              <input
-                type="date"
-                value={dateTo}
-                onChange={(e) => setDateTo(e.target.value)}
-                className="px-3 py-2 text-sm rounded-xl border border-slate-200 focus:border-purple-400 outline-none"
-              />
-            </div>
-          </div>
-        )}
-
-        {/* Results count */}
-        <p className="text-xs text-slate-500">
-          Showing <span className="font-semibold text-slate-700">{filtered.length}</span> of {SERMONS.length} messages
-        </p>
-
-        {/* Sermon Grid */}
-        {filtered.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {filtered.map((sermon) => (
-              <SermonCard key={sermon.id} sermon={sermon} />
-            ))}
-          </div>
+        {/* Transcription Tab Content */}
+        {isTranscriptionTab ? (
+          <TranscriptionTab
+            transcriptData={transcriptData}
+            setTranscriptData={setTranscriptData}
+          />
         ) : (
-          <div className="flex flex-col items-center justify-center py-20 text-center">
-            <div className="w-16 h-16 rounded-2xl bg-purple-50 flex items-center justify-center mb-4">
-              <BookOpen className="w-8 h-8 text-purple-300" />
+          <>
+            {/* Filters Row */}
+            <div className="flex flex-wrap items-center gap-3">
+              <div className="relative flex-1 min-w-[200px] max-w-xs">
+                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                <input
+                  type="text"
+                  placeholder="Search sermons..."
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2.5 text-sm rounded-xl border border-slate-200 focus:border-purple-400 focus:ring-2 focus:ring-purple-100 outline-none transition-all bg-white"
+                />
+              </div>
+
+              {/* Platform filter */}
+              <select
+                value={platformFilter}
+                onChange={(e) => setPlatformFilter(e.target.value)}
+                className="px-3.5 py-2.5 text-sm rounded-xl border border-slate-200 focus:border-purple-400 focus:ring-2 focus:ring-purple-100 outline-none transition-all bg-white"
+              >
+                <option value="all">All Platforms</option>
+                <option value="youtube">YouTube</option>
+                <option value="facebook">Facebook</option>
+                <option value="zoom">Zoom</option>
+              </select>
+
+              <button
+                onClick={() => setShowFilters(!showFilters)}
+                className={`inline-flex items-center gap-2 px-3.5 py-2.5 text-sm font-semibold rounded-xl border transition-all ${
+                  showFilters
+                    ? 'bg-purple-50 border-purple-200 text-purple-700'
+                    : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300'
+                }`}
+              >
+                <Filter className="w-4 h-4" />
+                Date Filter
+              </button>
+
+              {(search || platformFilter !== 'all' || dateFrom || dateTo) && (
+                <button
+                  onClick={() => { setSearch(''); setPlatformFilter('all'); setDateFrom(''); setDateTo('') }}
+                  className="inline-flex items-center gap-1.5 text-xs font-semibold text-red-600 hover:text-red-700 px-3 py-2 rounded-xl border border-red-100 bg-red-50 hover:bg-red-100 transition-colors"
+                >
+                  <X className="w-3.5 h-3.5" />
+                  Clear
+                </button>
+              )}
             </div>
-            <h3 className="text-base font-bold text-slate-700 mb-1">No messages found</h3>
-            <p className="text-sm text-slate-400">Try adjusting your search or filters.</p>
-          </div>
+
+            {/* Date Range Filter Panel */}
+            {showFilters && (
+              <div className="flex items-center gap-4 p-4 bg-white rounded-2xl border border-slate-100 shadow-sm">
+                <div className="flex items-center gap-2">
+                  <label className="text-xs font-semibold text-slate-600">From</label>
+                  <input
+                    type="date"
+                    value={dateFrom}
+                    onChange={(e) => setDateFrom(e.target.value)}
+                    className="px-3 py-2 text-sm rounded-xl border border-slate-200 focus:border-purple-400 outline-none"
+                  />
+                </div>
+                <div className="flex items-center gap-2">
+                  <label className="text-xs font-semibold text-slate-600">To</label>
+                  <input
+                    type="date"
+                    value={dateTo}
+                    onChange={(e) => setDateTo(e.target.value)}
+                    className="px-3 py-2 text-sm rounded-xl border border-slate-200 focus:border-purple-400 outline-none"
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* Results count */}
+            <p className="text-xs text-slate-500">
+              Showing <span className="font-semibold text-slate-700">{filtered.length}</span> of {SERMONS.length} messages
+            </p>
+
+            {/* Sermon Grid */}
+            {filtered.length > 0 ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                {filtered.map((sermon) => (
+                  <SermonCard key={sermon.id} sermon={sermon} />
+                ))}
+              </div>
+            ) : (
+              <div className="flex flex-col items-center justify-center py-20 text-center">
+                <div className="w-16 h-16 rounded-2xl bg-purple-50 flex items-center justify-center mb-4">
+                  <BookOpen className="w-8 h-8 text-purple-300" />
+                </div>
+                <h3 className="text-base font-bold text-slate-700 mb-1">No messages found</h3>
+                <p className="text-sm text-slate-400">Try adjusting your search or filters.</p>
+              </div>
+            )}
+          </>
         )}
       </div>
 

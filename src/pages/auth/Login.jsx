@@ -15,6 +15,7 @@ import {
   CalendarCheck,
   ChevronRight,
   Globe,
+  ArrowLeft,
 } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { Input, Button } from '../../components/ui'
@@ -118,9 +119,18 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen flex">
+    <div className="min-h-screen flex flex-col md:flex-row">
+      {/* ── Fixed back button (visible on all sizes on left panel, or as overlay on mobile) */}
+      <Link
+        to="/landing"
+        className="fixed top-4 left-4 z-50 md:flex hidden items-center gap-1.5 text-sm font-medium text-white/80 hover:text-white transition-colors bg-white/10 hover:bg-white/20 backdrop-blur-sm px-3 py-1.5 rounded-lg"
+      >
+        <ArrowLeft className="w-4 h-4" />
+        Back to Home
+      </Link>
+
       {/* ── Left panel ──────────────────────────────────── */}
-      <div className="hidden lg:flex lg:w-[52%] relative flex-col justify-between p-12 overflow-hidden"
+      <div className="hidden md:flex md:w-[52%] relative flex-col justify-between p-12 overflow-hidden"
         style={{ background: 'linear-gradient(135deg, #1E1B4B 0%, #2D1B69 40%, #4C1D95 70%, #7C3AED 100%)' }}
       >
         {/* Background decorative circles */}
@@ -167,12 +177,21 @@ export default function Login() {
       </div>
 
       {/* ── Right panel ─────────────────────────────────── */}
-      <div className="flex-1 flex items-center justify-center px-6 py-12 bg-slate-50">
-        <div className="w-full max-w-[440px]">
+      <div className="flex-1 flex flex-col justify-center px-5 py-8 sm:px-8 md:px-12 lg:px-16 bg-slate-50 overflow-y-auto">
+        <div className="w-full max-w-[420px] mx-auto">
+          {/* Mobile back link */}
+          <Link
+            to="/landing"
+            className="md:hidden flex items-center gap-1.5 text-sm font-medium text-slate-600 hover:text-purple-700 transition-colors mb-6"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Back to Home
+          </Link>
+
           {/* Mobile logo */}
-          <div className="lg:hidden flex items-center gap-3 mb-8">
+          <div className="md:hidden flex items-center gap-3 mb-8">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-600 to-purple-700 flex items-center justify-center shadow-lg">
-              <span className="text-white font-black text-lg leading-none">✝</span>
+              <span className="text-white font-black text-lg leading-none">+</span>
             </div>
             <div>
               <p className="text-slate-800 font-bold text-lg leading-tight">ChurchFlow</p>
@@ -181,7 +200,7 @@ export default function Login() {
           </div>
 
           {/* Card */}
-          <div className="bg-white rounded-2xl shadow-xl shadow-slate-200/80 border border-slate-100 p-8">
+          <div className="bg-white rounded-2xl shadow-xl shadow-slate-200/80 border border-slate-100 p-6 sm:p-8">
             {/* Header */}
             <div className="mb-8">
               <h2 className="text-2xl font-extrabold text-[#1E1B4B]">Welcome Back</h2>
@@ -201,7 +220,7 @@ export default function Login() {
                   toast.error('Google sign-in failed. Please try again.')
                 }
               }}
-              className="w-full flex items-center justify-center gap-3 bg-white border border-slate-200 text-slate-700 text-sm font-semibold px-4 py-3 rounded-xl hover:bg-slate-50 hover:border-slate-300 hover:shadow-sm transition-all duration-200 mb-6"
+              className="w-full flex items-center justify-center gap-3 bg-white border border-slate-200 text-slate-700 text-sm font-semibold px-4 py-3 h-12 rounded-xl hover:bg-slate-50 hover:border-slate-300 hover:shadow-sm transition-all duration-200 mb-6"
             >
               <Globe className="w-4 h-4 text-slate-500" />
               Continue with Google
@@ -228,6 +247,7 @@ export default function Login() {
                 error={errors.email}
                 required
                 autoComplete="email"
+                inputClassName="text-base"
               />
 
               <div>
@@ -243,6 +263,7 @@ export default function Login() {
                   error={errors.password}
                   required
                   autoComplete="current-password"
+                  inputClassName="text-base"
                   suffix={
                     <button
                       type="button"
@@ -281,7 +302,7 @@ export default function Login() {
                 variant="primary"
                 size="lg"
                 loading={loading}
-                className="w-full"
+                className="w-full h-12 py-3"
               >
                 Sign In
               </Button>
@@ -299,31 +320,33 @@ export default function Login() {
               <p className="text-xs text-center text-slate-500 mb-3">
                 Explore ChurchFlow without an account
               </p>
-              {DEMO_ROLES.map(({ label, role, color }) => (
-                <button
-                  key={role}
-                  type="button"
-                  onClick={() => handleDemoLogin(role)}
-                  disabled={demoLoading !== null}
-                  className={[
-                    'w-full flex items-center justify-between px-4 py-3 rounded-xl',
-                    'bg-gradient-to-r text-white text-sm font-semibold',
-                    'transition-all duration-200 hover:opacity-90 hover:shadow-md active:scale-[0.99]',
-                    'disabled:opacity-50 disabled:cursor-not-allowed',
-                    color,
-                  ].join(' ')}
-                >
-                  <span>Demo as {label}</span>
-                  {demoLoading === role ? (
-                    <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                    </svg>
-                  ) : (
-                    <ChevronRight className="w-4 h-4 opacity-70" />
-                  )}
-                </button>
-              ))}
+              <div className="flex flex-col gap-2.5">
+                {DEMO_ROLES.map(({ label, role, color }) => (
+                  <button
+                    key={role}
+                    type="button"
+                    onClick={() => handleDemoLogin(role)}
+                    disabled={demoLoading !== null}
+                    className={[
+                      'w-full flex items-center justify-between px-4 py-3 h-12 rounded-xl',
+                      'bg-gradient-to-r text-white text-sm font-semibold',
+                      'transition-all duration-200 hover:opacity-90 hover:shadow-md active:scale-[0.99]',
+                      'disabled:opacity-50 disabled:cursor-not-allowed',
+                      color,
+                    ].join(' ')}
+                  >
+                    <span>Demo as {label}</span>
+                    {demoLoading === role ? (
+                      <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                      </svg>
+                    ) : (
+                      <ChevronRight className="w-4 h-4 opacity-70" />
+                    )}
+                  </button>
+                ))}
+              </div>
             </div>
 
             {/* Register link */}

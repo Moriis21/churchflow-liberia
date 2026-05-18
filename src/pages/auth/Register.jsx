@@ -19,6 +19,7 @@ import {
   ChevronLeft,
   Globe,
   Church,
+  ArrowLeft,
 } from 'lucide-react'
 import { useAuth, ROLES } from '../../context/AuthContext'
 import { Input, Button } from '../../components/ui'
@@ -33,7 +34,7 @@ function StepIndicator({ currentStep }) {
           <div className="flex items-center gap-2">
             <div
               className={[
-                'w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-all duration-300',
+                'w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-all duration-300 flex-shrink-0',
                 currentStep === step
                   ? 'bg-gradient-to-br from-violet-600 to-purple-700 text-white shadow-lg shadow-purple-500/30'
                   : currentStep > step
@@ -49,7 +50,7 @@ function StepIndicator({ currentStep }) {
             </div>
             <span
               className={[
-                'text-sm font-medium transition-colors',
+                'text-sm font-medium transition-colors hidden xs:inline',
                 currentStep === step ? 'text-purple-700' : currentStep > step ? 'text-green-600' : 'text-slate-400',
               ].join(' ')}
             >
@@ -57,7 +58,7 @@ function StepIndicator({ currentStep }) {
             </span>
           </div>
           {i < 1 && (
-            <div className="flex-1 mx-3 h-px bg-slate-200 relative overflow-hidden min-w-[40px]">
+            <div className="flex-1 mx-3 h-px bg-slate-200 relative overflow-hidden min-w-[24px]">
               <div
                 className="absolute inset-y-0 left-0 bg-gradient-to-r from-violet-600 to-purple-600 transition-all duration-500"
                 style={{ width: currentStep > 1 ? '100%' : '0%' }}
@@ -167,7 +168,7 @@ function MemberRegisterForm({ pendingChurchName, pendingChurchId }) {
   // OTP verification screen
   if (verifyStep) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#F5F3FF] to-[#EDE9FE] p-4">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#F5F3FF] to-[#EDE9FE] px-4 py-8">
         <div className="w-full max-w-md bg-white rounded-2xl shadow-xl p-8 text-center">
           <div className="w-16 h-16 rounded-full bg-purple-100 flex items-center justify-center mx-auto mb-4">
             <Mail className="w-8 h-8 text-purple-600" />
@@ -186,8 +187,8 @@ function MemberRegisterForm({ pendingChurchName, pendingChurchId }) {
               placeholder="000000"
               className="w-full text-center text-3xl font-bold tracking-[0.5em] border-2 border-purple-200 rounded-xl px-4 py-4 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-100 text-[#1E1B4B] placeholder-slate-300"
             />
-            <Button type="submit" variant="primary" className="w-full" loading={loading}>
-              Verify & Continue
+            <Button type="submit" variant="primary" className="w-full h-12" loading={loading}>
+              Verify &amp; Continue
             </Button>
           </form>
           <button
@@ -212,7 +213,7 @@ function MemberRegisterForm({ pendingChurchName, pendingChurchId }) {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#F5F3FF] to-[#EDE9FE] p-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#F5F3FF] to-[#EDE9FE] px-4 py-8">
       {/* Decorative blobs */}
       <div className="fixed -top-32 -left-32 w-96 h-96 rounded-full bg-purple-400/10 blur-3xl pointer-events-none" />
       <div className="fixed -bottom-24 -right-24 w-80 h-80 rounded-full bg-indigo-400/10 blur-3xl pointer-events-none" />
@@ -242,7 +243,16 @@ function MemberRegisterForm({ pendingChurchName, pendingChurchId }) {
             </div>
           </div>
 
-          <div className="p-8">
+          <div className="p-6 sm:p-8">
+            {/* Mobile back link */}
+            <Link
+              to="/landing"
+              className="flex items-center gap-1.5 text-sm font-medium text-slate-600 hover:text-purple-700 transition-colors mb-5"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              Back to Home
+            </Link>
+
             <div className="mb-6">
               <h2 className="text-2xl font-extrabold text-[#1E1B4B]">Create Your Account</h2>
               <p className="mt-1 text-slate-500 text-sm">Fill in your details to join as a member</p>
@@ -260,6 +270,7 @@ function MemberRegisterForm({ pendingChurchName, pendingChurchId }) {
                 error={errors.fullName}
                 required
                 autoComplete="name"
+                inputClassName="text-base"
               />
 
               <Input
@@ -271,6 +282,7 @@ function MemberRegisterForm({ pendingChurchName, pendingChurchId }) {
                 onChange={(e) => update('phone', e.target.value)}
                 error={errors.phone}
                 autoComplete="tel"
+                inputClassName="text-base"
               />
 
               <Input
@@ -285,6 +297,7 @@ function MemberRegisterForm({ pendingChurchName, pendingChurchId }) {
                 error={errors.email}
                 required
                 autoComplete="email"
+                inputClassName="text-base"
               />
 
               <Input
@@ -299,6 +312,7 @@ function MemberRegisterForm({ pendingChurchName, pendingChurchId }) {
                 error={errors.password}
                 required
                 autoComplete="new-password"
+                inputClassName="text-base"
                 suffix={
                   <button
                     type="button"
@@ -323,6 +337,7 @@ function MemberRegisterForm({ pendingChurchName, pendingChurchId }) {
                 error={errors.confirmPassword}
                 required
                 autoComplete="new-password"
+                inputClassName="text-base"
                 suffix={
                   <button
                     type="button"
@@ -371,7 +386,7 @@ function MemberRegisterForm({ pendingChurchName, pendingChurchId }) {
                 variant="primary"
                 size="lg"
                 loading={loading}
-                className="w-full mt-2"
+                className="w-full mt-2 h-12"
               >
                 Join Church
               </Button>
@@ -557,7 +572,7 @@ export default function Register() {
   // ── OTP Verification Screen ─────────────────────────────
   if (verifyStep) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#F5F3FF] to-[#EDE9FE] p-4">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#F5F3FF] to-[#EDE9FE] px-4 py-8">
         <div className="w-full max-w-md bg-white rounded-2xl shadow-xl p-8 text-center animate-fade-in">
           <div className="w-16 h-16 rounded-full bg-purple-100 flex items-center justify-center mx-auto mb-4">
             <Mail className="w-8 h-8 text-purple-600" />
@@ -576,8 +591,8 @@ export default function Register() {
               placeholder="000000"
               className="w-full text-center text-3xl font-bold tracking-[0.5em] border-2 border-purple-200 rounded-xl px-4 py-4 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-100 text-[#1E1B4B] placeholder-slate-300"
             />
-            <Button type="submit" variant="primary" className="w-full" loading={loading}>
-              Verify & Continue
+            <Button type="submit" variant="primary" className="w-full h-12" loading={loading}>
+              Verify &amp; Continue
             </Button>
           </form>
           <button
@@ -593,7 +608,7 @@ export default function Register() {
               onClick={() => setVerifyStep(false)}
               className="text-sm text-slate-400 hover:text-slate-600"
             >
-              ← Back to registration
+              Back to registration
             </button>
           </div>
         </div>
@@ -602,10 +617,10 @@ export default function Register() {
   }
 
   return (
-    <div className="min-h-screen flex">
+    <div className="min-h-screen flex flex-col md:flex-row">
       {/* ── Left panel ──────────────────────────────────── */}
       <div
-        className="hidden lg:flex lg:w-[44%] flex-col justify-between p-12 relative overflow-hidden"
+        className="hidden md:flex md:w-[44%] flex-col justify-between p-12 relative overflow-hidden"
         style={{ background: 'linear-gradient(135deg, #1E1B4B 0%, #2D1B69 40%, #4C1D95 70%, #7C3AED 100%)' }}
       >
         {/* Decorative blobs */}
@@ -653,12 +668,12 @@ export default function Register() {
       </div>
 
       {/* ── Right panel ─────────────────────────────────── */}
-      <div className="flex-1 flex items-center justify-center px-6 py-12 bg-slate-50 overflow-y-auto">
-        <div className="w-full max-w-[480px]">
+      <div className="flex-1 flex flex-col justify-start md:justify-center px-5 py-8 sm:px-8 bg-slate-50 overflow-y-auto">
+        <div className="w-full max-w-[480px] mx-auto">
           {/* Mobile logo */}
-          <div className="lg:hidden flex items-center gap-3 mb-8">
+          <div className="md:hidden flex items-center gap-3 mb-6">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-600 to-purple-700 flex items-center justify-center shadow-lg">
-              <span className="text-white font-black text-lg leading-none">✝</span>
+              <span className="text-white font-black text-lg leading-none">+</span>
             </div>
             <div>
               <p className="text-slate-800 font-bold text-lg leading-tight">ChurchFlow</p>
@@ -667,12 +682,21 @@ export default function Register() {
           </div>
 
           {/* Card */}
-          <div className="bg-white rounded-2xl shadow-xl shadow-slate-200/80 border border-slate-100 p-8">
+          <div className="bg-white rounded-2xl shadow-xl shadow-slate-200/80 border border-slate-100 p-6 sm:p-8">
             {/* Header */}
             <div className="mb-6">
               <h2 className="text-2xl font-extrabold text-[#1E1B4B]">Create Your Account</h2>
               <p className="mt-1 text-slate-500 text-sm">Set up ChurchFlow for your ministry</p>
             </div>
+
+            {/* Mobile back link */}
+            <Link
+              to="/landing"
+              className="md:hidden flex items-center gap-1.5 text-sm font-medium text-slate-600 hover:text-purple-700 transition-colors mb-5"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              Back to Home
+            </Link>
 
             {/* Step indicator */}
             <StepIndicator currentStep={step} />
@@ -690,6 +714,7 @@ export default function Register() {
                   icon={Building2}
                   error={errors.churchName}
                   required
+                  inputClassName="text-base"
                 />
 
                 <Input
@@ -702,6 +727,7 @@ export default function Register() {
                   icon={MapPin}
                   error={errors.location}
                   required
+                  inputClassName="text-base"
                 />
 
                 {/* Member count select */}
@@ -715,7 +741,7 @@ export default function Register() {
                     value={churchForm.memberCount}
                     onChange={(e) => updateChurch('memberCount', e.target.value)}
                     className={[
-                      'w-full rounded-xl border text-sm text-slate-800 bg-white px-4 py-2.5',
+                      'w-full rounded-xl border text-base text-slate-800 bg-white px-4 py-2.5',
                       'transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-0',
                       errors.memberCount
                         ? 'border-red-400 focus:border-red-500 focus:ring-red-200'
@@ -739,7 +765,7 @@ export default function Register() {
                     Do you need branch/multi-location support?
                     <span className="text-red-500 text-base leading-none" aria-hidden="true">*</span>
                   </label>
-                  <div className="flex gap-3">
+                  <div className="grid grid-cols-2 gap-3">
                     {[
                       { value: 'yes', label: 'Yes, we have branches' },
                       { value: 'no', label: 'No, single location' },
@@ -747,7 +773,7 @@ export default function Register() {
                       <label
                         key={opt.value}
                         className={[
-                          'flex-1 flex items-center gap-2.5 px-4 py-3 rounded-xl border-2 cursor-pointer transition-all duration-200',
+                          'flex items-center gap-2.5 px-3 py-3 rounded-xl border-2 cursor-pointer transition-all duration-200',
                           churchForm.needsBranches === opt.value
                             ? 'border-purple-500 bg-purple-50 text-purple-700'
                             : 'border-slate-200 text-slate-600 hover:border-slate-300 hover:bg-slate-50',
@@ -773,7 +799,7 @@ export default function Register() {
                             <div className="w-1.5 h-1.5 rounded-full bg-white" />
                           )}
                         </div>
-                        <span className="text-sm font-medium">{opt.label}</span>
+                        <span className="text-sm font-medium leading-snug">{opt.label}</span>
                       </label>
                     ))}
                   </div>
@@ -788,7 +814,7 @@ export default function Register() {
                   size="lg"
                   icon={ChevronRight}
                   iconPosition="right"
-                  className="w-full mt-2"
+                  className="w-full mt-2 h-12"
                   onClick={handleNext}
                 >
                   Continue to Admin Setup
@@ -816,7 +842,7 @@ export default function Register() {
                         toast.error('Google sign-in failed. Please try again.')
                       }
                     }}
-                    className="w-full flex items-center justify-center gap-3 bg-white border border-slate-200 text-slate-700 text-sm font-semibold px-4 py-3 rounded-xl hover:bg-slate-50 hover:border-slate-300 hover:shadow-sm transition-all duration-200"
+                    className="w-full flex items-center justify-center gap-3 bg-white border border-slate-200 text-slate-700 text-sm font-semibold px-4 py-3 h-12 rounded-xl hover:bg-slate-50 hover:border-slate-300 hover:shadow-sm transition-all duration-200"
                   >
                     <Globe className="w-4 h-4 text-slate-500" />
                     Continue with Google
@@ -841,6 +867,7 @@ export default function Register() {
                   error={errors.fullName}
                   required
                   autoComplete="name"
+                  inputClassName="text-base"
                 />
 
                 <Input
@@ -855,6 +882,7 @@ export default function Register() {
                   error={errors.email}
                   required
                   autoComplete="email"
+                  inputClassName="text-base"
                 />
 
                 <Input
@@ -869,6 +897,7 @@ export default function Register() {
                   error={errors.password}
                   required
                   autoComplete="new-password"
+                  inputClassName="text-base"
                   suffix={
                     <button
                       type="button"
@@ -893,6 +922,7 @@ export default function Register() {
                   error={errors.confirmPassword}
                   required
                   autoComplete="new-password"
+                  inputClassName="text-base"
                   suffix={
                     <button
                       type="button"
@@ -964,7 +994,7 @@ export default function Register() {
                     size="lg"
                     icon={ChevronLeft}
                     iconPosition="left"
-                    className="flex-1"
+                    className="flex-1 h-12"
                     onClick={handleBack}
                   >
                     Back
@@ -974,7 +1004,7 @@ export default function Register() {
                     variant="primary"
                     size="lg"
                     loading={loading}
-                    className="flex-1"
+                    className="flex-1 h-12"
                   >
                     Create Account
                   </Button>
@@ -995,7 +1025,7 @@ export default function Register() {
           </div>
 
           {/* Footer note */}
-          <p className="mt-6 text-center text-xs text-slate-400">
+          <p className="mt-6 mb-4 text-center text-xs text-slate-400">
             By registering, you agree to our Terms of Service &amp; Privacy Policy
           </p>
         </div>

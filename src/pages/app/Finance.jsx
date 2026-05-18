@@ -19,6 +19,7 @@ import {
   BadgeDollarSign,
   ArrowUpRight,
   ArrowDownRight,
+  Globe,
 } from 'lucide-react'
 import {
   BarChart,
@@ -67,16 +68,41 @@ const EXPENSE_CAT_CONFIG = {
   'Building Fund': { variant: 'gray',  color: TEAL   },
 }
 
-// ─── LRD exchange rate placeholder ───────────────────────────
-const LRD_TO_USD = 192 // approximate
+// ─── Multi-currency helpers ───────────────────────────────────
+const LRD_TO_USD = 192 // approximate (legacy helper kept for USD display)
+
+const RATES_TO_LRD = { LRD: 1, USD: 194, EUR: 212, GBP: 248, NGN: 0.13 }
+
+function toLocalCurrency(amount, currency) {
+  return (amount * (RATES_TO_LRD[currency] || 1)).toFixed(2)
+}
 
 function toUSD(amount, currency) {
   if (currency === 'USD') return amount
-  return (amount / LRD_TO_USD).toFixed(2)
+  const lrd = amount * (RATES_TO_LRD[currency] || 1)
+  return (lrd / LRD_TO_USD).toFixed(2)
 }
 function toLRD(amount, currency) {
   if (currency === 'LRD') return amount
-  return Math.round(amount * LRD_TO_USD)
+  return Math.round(amount * (RATES_TO_LRD[currency] || 1))
+}
+
+// ─── Currency badge config ─────────────────────────────────────
+const CURRENCY_BADGE = {
+  LRD: { bg: 'bg-indigo-50',  text: 'text-indigo-700',  border: 'border-indigo-200' },
+  USD: { bg: 'bg-emerald-50', text: 'text-emerald-700', border: 'border-emerald-200' },
+  EUR: { bg: 'bg-blue-50',    text: 'text-blue-700',    border: 'border-blue-200'   },
+  GBP: { bg: 'bg-violet-50',  text: 'text-violet-700',  border: 'border-violet-200' },
+  NGN: { bg: 'bg-orange-50',  text: 'text-orange-700',  border: 'border-orange-200' },
+}
+
+function CurrencyBadge({ currency }) {
+  const cfg = CURRENCY_BADGE[currency] || CURRENCY_BADGE.LRD
+  return (
+    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold border ${cfg.bg} ${cfg.text} ${cfg.border}`}>
+      {currency}
+    </span>
+  )
 }
 
 // ─── Monthly summary data (last 6 months) ────────────────────
@@ -243,8 +269,11 @@ function AddTransactionModal({ isOpen, onClose }) {
                   onChange={(e) => setCurrency(e.target.value)}
                   className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-purple-100 focus:border-purple-500 transition-all"
                 >
-                  <option value="LRD">LRD</option>
-                  <option value="USD">USD</option>
+                  <option value="LRD">LRD — Liberian Dollar</option>
+                  <option value="USD">USD — US Dollar</option>
+                  <option value="EUR">EUR — Euro</option>
+                  <option value="GBP">GBP — British Pound</option>
+                  <option value="NGN">NGN — Nigerian Naira</option>
                 </select>
               </div>
             </div>
@@ -387,7 +416,7 @@ function IncomeTab() {
         <table className="w-full text-sm">
           <thead>
             <tr className="bg-slate-50/70">
-              {['Date', 'Member', 'Type', 'Amount (LRD)', 'Amount (USD)', 'Notes', 'Receipt'].map((h) => (
+              {['Date', 'Member', 'Type', 'Currency', 'Original Amount', 'LRD Equivalent', 'Notes', 'Receipt'].map((h) => (
                 <th
                   key={h}
                   className="text-left text-xs font-semibold text-slate-500 uppercase tracking-wide px-4 py-3.5"
@@ -400,7 +429,7 @@ function IncomeTab() {
           <tbody className="divide-y divide-slate-50">
             {filtered.length === 0 ? (
               <tr>
-                <td colSpan={7} className="text-center py-10 text-slate-400 text-sm">
+                <td colSpan={8} className="text-center py-10 text-slate-400 text-sm">
                   No records match your filters.
                 </td>
               </tr>
@@ -408,10 +437,6 @@ function IncomeTab() {
               filtered.map((o) => {
                 const cfg = OFFERING_TYPE_CONFIG[o.type] || {}
                 const lrdAmt = toLRD(o.amount, o.currency)
-                const usdAmt = Number(toUSD(o.amount, o.currency)).toLocaleString('en-US', {
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 2,
-                })
                 return (
                   <tr key={o.id} className="hover:bg-slate-50/80 transition-colors">
                     <td className="px-4 py-3.5 whitespace-nowrap text-slate-600 font-medium">
@@ -435,11 +460,14 @@ function IncomeTab() {
                         {cfg.label || o.type}
                       </span>
                     </td>
+                    <td className="px-4 py-3.5">
+                      <CurrencyBadge currency={o.currency} />
+                    </td>
+                    <td className="px-4 py-3.5 font-semibold text-slate-700 whitespace-nowrap">
+                      {o.amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    </td>
                     <td className="px-4 py-3.5 font-semibold text-emerald-700 whitespace-nowrap">
                       {formatCurrency(lrdAmt, 'LRD')}
-                    </td>
-                    <td className="px-4 py-3.5 text-slate-500 whitespace-nowrap text-xs">
-                      $ {usdAmt}
                     </td>
                     <td className="px-4 py-3.5 text-slate-500 max-w-[180px] truncate text-xs">
                       {o.notes || '—'}
@@ -458,14 +486,11 @@ function IncomeTab() {
           {filtered.length > 0 && (
             <tfoot>
               <tr className="bg-violet-50/60 border-t-2 border-violet-100">
-                <td colSpan={3} className="px-4 py-3.5 text-sm font-bold text-violet-800">
-                  Total ({filtered.length} records)
+                <td colSpan={5} className="px-4 py-3.5 text-sm font-bold text-violet-800">
+                  Total (LRD equivalent) — {filtered.length} records
                 </td>
                 <td className="px-4 py-3.5 text-sm font-bold text-emerald-700 whitespace-nowrap">
                   {formatCurrency(totalLRD, 'LRD')}
-                </td>
-                <td className="px-4 py-3.5 text-sm font-bold text-slate-600 whitespace-nowrap">
-                  $ {(totalLRD / LRD_TO_USD).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </td>
                 <td colSpan={2} />
               </tr>
@@ -815,13 +840,25 @@ export default function Finance() {
               Track all income, expenses, and generate financial reports
             </p>
           </div>
-          <div className="flex items-center gap-3">
-            <Button variant="secondary" icon={Download} size="md">
-              Export
-            </Button>
-            <Button variant="primary" icon={PlusCircle} onClick={() => setModalOpen(true)}>
-              Add Transaction
-            </Button>
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+            {/* Exchange rate strip */}
+            <div className="flex items-center gap-2 text-xs text-slate-500 bg-slate-50 border border-slate-100 rounded-lg px-3 py-2">
+              <TrendingUp className="w-3.5 h-3.5 text-green-500" />
+              <span className="font-medium">Exchange Rates (approx):</span>
+              <span>1 USD = 194 LRD</span>
+              <span className="mx-1 text-slate-300">|</span>
+              <span>1 EUR = 212 LRD</span>
+              <span className="mx-1 text-slate-300">|</span>
+              <span>1 GBP = 248 LRD</span>
+            </div>
+            <div className="flex items-center gap-3">
+              <Button variant="secondary" icon={Download} size="md">
+                Export
+              </Button>
+              <Button variant="primary" icon={PlusCircle} onClick={() => setModalOpen(true)}>
+                Add Transaction
+              </Button>
+            </div>
           </div>
         </div>
 
@@ -859,6 +896,18 @@ export default function Finance() {
             icon={TrendingUp}
             color="gold"
           />
+        </div>
+
+        {/* ── Diaspora Giving Section ────────────────────── */}
+        <div className="rounded-xl border border-purple-100 bg-gradient-to-r from-purple-50 to-indigo-50 p-4 flex items-start gap-3">
+          <Globe className="w-5 h-5 text-purple-600 mt-0.5 flex-shrink-0" />
+          <div>
+            <p className="text-sm font-semibold text-purple-900">Multi-Currency Giving Enabled</p>
+            <p className="text-xs text-purple-600 mt-0.5">
+              Accept offerings in LRD, USD, EUR, GBP, and NGN. Ideal for diaspora members sending from abroad.
+              All amounts are displayed in their original currency and converted to LRD for reporting.
+            </p>
+          </div>
         </div>
 
         {/* ── Mobile Money Notice ────────────────────────── */}
