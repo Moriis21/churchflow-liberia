@@ -1,0 +1,36 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Build output
+dist/
+dist-ssr/
+build/
+
+# Environment variables — NEVER commit these
+.env
+.env.local
+.env.*.local
+
+# InsForge project config — contains API keys, never commit
+.insforge/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+
+# Editor & OS
+.DS_Store
+Thumbs.db
+.idea/
+*.suo
+*.sw?
+
+# Vite
+*.local
+
+# TypeScript
+*.tsbuildinfo
