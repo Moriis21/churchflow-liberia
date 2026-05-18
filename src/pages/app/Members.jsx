@@ -35,7 +35,6 @@ import {
   StatsCard,
   EmptyState,
 } from '../../components/ui'
-import { MEMBERS, DEPARTMENTS } from '../../data/dummyData'
 import {
   formatDate,
   getInitials,
@@ -52,8 +51,6 @@ const PAGE_SIZE = 10
 const STATUS_OPTIONS = ['active', 'inactive', 'new']
 const GENDER_OPTIONS = ['male', 'female']
 const MARITAL_OPTIONS = ['single', 'married', 'widowed', 'divorced']
-
-const DEPT_NAMES = DEPARTMENTS.map((d) => d.name)
 
 // ─── Blank form state ─────────────────────────────────────────
 const blankForm = {
@@ -118,7 +115,7 @@ function StatusBadge({ status }) {
 }
 
 // ─── Member Form (reused in Add & Edit modals) ────────────────
-function MemberForm({ form, onChange, errors }) {
+function MemberForm({ form, onChange, errors, deptNames = [] }) {
   const fileRef = useRef(null)
 
   const handleField = (key) => (e) => {
@@ -262,7 +259,7 @@ function MemberForm({ form, onChange, errors }) {
             className="w-full rounded-xl border border-slate-200 text-sm text-slate-800 bg-white px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-purple-100 focus:border-purple-500 hover:border-slate-300 transition-all"
           >
             <option value="">— Select Department —</option>
-            {DEPT_NAMES.map((d) => (
+            {deptNames.map((d) => (
               <option key={d} value={d}>
                 {d}
               </option>
@@ -607,7 +604,8 @@ export default function Members() {
   const { user } = useAuth()
 
   // ── State ────────────────────────────────────────────────────
-  const [members, setMembers] = useState(MEMBERS)
+  const [members, setMembers] = useState([])
+  const [departments, setDepartments] = useState([])
   const [dbLoading, setDbLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
   const [filterDept, setFilterDept] = useState('')
@@ -625,19 +623,33 @@ export default function Members() {
   const [saving, setSaving] = useState(false)
   const [toast, setToast] = useState(null)
 
-  // ── Load members from InsForge ────────────────────────────────
+  // ── Load members + departments from InsForge ──────────────────
   useEffect(() => {
     async function load() {
-      const { data, error } = await insforge.database
-        .from('members')
-        .select('*, departments(name, color)')
-        .order('full_name', { ascending: true })
-      if (data && data.length > 0) setMembers(data)
-      else if (!error) setMembers(MEMBERS) // fallback to dummy if DB empty
-      setDbLoading(false)
+      try {
+        const [mRes, dRes] = await Promise.all([
+          insforge.database
+            .from('members')
+            .select('*, departments(name, color)')
+            .order('full_name', { ascending: true }),
+          insforge.database
+            .from('departments')
+            .select('id, name, color')
+            .order('name', { ascending: true }),
+        ])
+        setMembers(mRes.data || [])
+        setDepartments(dRes.data || [])
+      } catch (err) {
+        console.error('Members load error:', err)
+      } finally {
+        setDbLoading(false)
+      }
     }
     load()
   }, [])
+
+  // ── Derived dept names for dropdowns ─────────────────────────
+  const deptNames = useMemo(() => departments.map((d) => d.name), [departments])
 
   // ── Derived stats ─────────────────────────────────────────────
   const totalCount = members.length
@@ -918,7 +930,7 @@ export default function Members() {
               className="rounded-xl border border-slate-200 text-sm text-slate-700 bg-white px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-purple-100 focus:border-purple-500 hover:border-slate-300 transition-all min-w-[160px]"
             >
               <option value="">All Departments</option>
-              {DEPT_NAMES.map((d) => (
+              {deptNames.map((d) => (
                 <option key={d} value={d}>{d}</option>
               ))}
             </select>
@@ -1094,7 +1106,7 @@ export default function Members() {
           </div>
         }
       >
-        <MemberForm form={form} onChange={setForm} errors={formErrors} />
+        <MemberForm form={form} onChange={setForm} errors={formErrors} deptNames={deptNames} />
       </Modal>
 
       {/* ── Edit Member Modal ───────────────────────────────── */}
@@ -1122,7 +1134,7 @@ export default function Members() {
           </div>
         }
       >
-        <MemberForm form={form} onChange={setForm} errors={formErrors} />
+        <MemberForm form={form} onChange={setForm} errors={formErrors} deptNames={deptNames} />
       </Modal>
 
       {/* ── Delete Confirm ──────────────────────────────────── */}

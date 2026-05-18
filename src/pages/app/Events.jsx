@@ -1,7 +1,7 @@
 // ============================================================
 // ChurchFlow Liberia — Events Management Page
 // ============================================================
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   Calendar,
@@ -22,10 +22,12 @@ import {
   Baby,
   Star,
   Church,
+  Loader2,
 } from 'lucide-react'
 import { Button, Card, Badge, Modal } from '../../components/ui'
-import { EVENTS } from '../../data/dummyData'
 import { formatDate, formatTime } from '../../utils/helpers'
+import { insforge } from '../../lib/insforge'
+import { useAuth } from '../../context/AuthContext'
 
 // ─── Colour helpers ──────────────────────────────────────────
 const STATUS_STYLES = {
@@ -110,9 +112,11 @@ function StatusBadge({ status }) {
 // ─── Event Card ───────────────────────────────────────────────
 function EventCard({ event, onView, onEdit }) {
   const TypeIcon = EVENT_TYPE_ICONS[event.type] || Calendar
-  const d = new Date(event.date + 'T00:00:00')
+  const dateStr = event.event_date || event.date || ''
+  const d = new Date(dateStr + 'T00:00:00')
   const dayNum = d.getDate()
   const monthAbbr = d.toLocaleDateString('en-US', { month: 'short' })
+  const volunteers = Array.isArray(event.volunteers) ? event.volunteers : []
 
   return (
     <div className="bg-white rounded-2xl border border-slate-100 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07)] hover:shadow-[0_8px_30px_-5px_rgba(124,58,237,0.12)] hover:-translate-y-0.5 transition-all duration-200 overflow-hidden group">
@@ -146,11 +150,11 @@ function EventCard({ event, onView, onEdit }) {
         <div className="space-y-2 mb-4">
           <div className="flex items-center gap-2 text-xs text-slate-500">
             <Calendar className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
-            <span>{formatDate(event.date)}</span>
+            <span>{formatDate(event.event_date || event.date)}</span>
           </div>
           <div className="flex items-center gap-2 text-xs text-slate-500">
             <Clock className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
-            <span>{formatTime(event.time)}</span>
+            <span>{formatTime(event.event_time || event.time)}</span>
           </div>
           <div className="flex items-center gap-2 text-xs text-slate-500">
             <MapPin className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
@@ -160,8 +164,8 @@ function EventCard({ event, onView, onEdit }) {
             <Users className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
             <span>
               {event.status === 'upcoming'
-                ? `${event.volunteers.length} volunteer${event.volunteers.length !== 1 ? 's' : ''}`
-                : `${event.attendees} attended`}
+                ? `${volunteers.length} volunteer${volunteers.length !== 1 ? 's' : ''}`
+                : `${event.attendees || 0} attended`}
             </span>
           </div>
         </div>
@@ -192,6 +196,7 @@ function EventCard({ event, onView, onEdit }) {
 function EventDetailModal({ event, isOpen, onClose, onMarkComplete }) {
   if (!event) return null
   const TypeIcon = EVENT_TYPE_ICONS[event.type] || Calendar
+  const volunteers = Array.isArray(event.volunteers) ? event.volunteers : []
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title={event.title} size="xl">
@@ -221,7 +226,7 @@ function EventDetailModal({ event, isOpen, onClose, onMarkComplete }) {
             </div>
             <div>
               <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Date</p>
-              <p className="text-sm font-bold text-slate-800 mt-0.5">{formatDate(event.date)}</p>
+              <p className="text-sm font-bold text-slate-800 mt-0.5">{formatDate(event.event_date || event.date)}</p>
             </div>
           </div>
           <div className="flex items-start gap-3 p-4 bg-slate-50 rounded-xl border border-slate-100">
@@ -230,7 +235,7 @@ function EventDetailModal({ event, isOpen, onClose, onMarkComplete }) {
             </div>
             <div>
               <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Time</p>
-              <p className="text-sm font-bold text-slate-800 mt-0.5">{formatTime(event.time)}</p>
+              <p className="text-sm font-bold text-slate-800 mt-0.5">{formatTime(event.event_time || event.time)}</p>
             </div>
           </div>
           <div className="flex items-start gap-3 p-4 bg-slate-50 rounded-xl border border-slate-100">
@@ -251,18 +256,18 @@ function EventDetailModal({ event, isOpen, onClose, onMarkComplete }) {
                 {event.status === 'upcoming' ? 'RSVP / Expected' : 'Attendance'}
               </p>
               <p className="text-sm font-bold text-slate-800 mt-0.5">
-                {event.status === 'upcoming' ? 'Pending' : `${event.attendees} attended`}
+                {event.status === 'upcoming' ? 'Pending' : `${event.attendees || 0} attended`}
               </p>
             </div>
           </div>
         </div>
 
         {/* Volunteers */}
-        {event.volunteers && event.volunteers.length > 0 && (
+        {volunteers.length > 0 && (
           <div>
-            <p className="text-sm font-bold text-slate-800 mb-3">Volunteers ({event.volunteers.length})</p>
+            <p className="text-sm font-bold text-slate-800 mb-3">Volunteers ({volunteers.length})</p>
             <div className="flex flex-wrap gap-2">
-              {event.volunteers.map((vol, i) => (
+              {volunteers.map((vol, i) => (
                 <span
                   key={i}
                   className="inline-flex items-center gap-1.5 text-xs font-medium bg-purple-50 text-purple-700 border border-purple-100 px-3 py-1.5 rounded-full"
@@ -282,7 +287,7 @@ function EventDetailModal({ event, isOpen, onClose, onMarkComplete }) {
           <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-4 border border-green-100">
             <p className="text-sm font-bold text-green-800 mb-1">Attendance Record</p>
             <div className="flex items-center gap-3">
-              <div className="text-3xl font-extrabold text-green-700">{event.attendees}</div>
+              <div className="text-3xl font-extrabold text-green-700">{event.attendees || 0}</div>
               <div>
                 <p className="text-xs text-green-600 font-semibold">People attended</p>
                 <p className="text-xs text-green-500">Great turnout!</p>
@@ -309,9 +314,10 @@ function EventDetailModal({ event, isOpen, onClose, onMarkComplete }) {
 }
 
 // ─── Create Event Modal ───────────────────────────────────────
-function CreateEventModal({ isOpen, onClose, onSave }) {
+function CreateEventModal({ isOpen, onClose, onSave, user }) {
   const [form, setForm] = useState(EMPTY_FORM)
   const [errors, setErrors] = useState({})
+  const [saving, setSaving] = useState(false)
 
   const validate = () => {
     const e = {}
@@ -328,18 +334,36 @@ function CreateEventModal({ isOpen, onClose, onSave }) {
     if (errors[field]) setErrors((prev) => ({ ...prev, [field]: '' }))
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
     if (!validate()) return
-    onSave({
-      id: `evt-${Date.now()}`,
-      ...form,
-      status: 'upcoming',
-      attendees: 0,
-      volunteers: form.volunteers
-        ? form.volunteers.split(',').map((v) => v.trim()).filter(Boolean)
-        : [],
-    })
+    setSaving(true)
+    const volunteersArr = form.volunteers
+      ? form.volunteers.split(',').map((v) => v.trim()).filter(Boolean)
+      : []
+    const { data: newEvent, error } = await insforge.database
+      .from('events')
+      .insert([{
+        church_id: user?.churchId || user?.profile?.church_id,
+        title: form.title,
+        type: form.type,
+        event_date: form.date,
+        event_time: form.time,
+        venue: form.venue,
+        description: form.description,
+        expected_attendees: form.expectedAttendees ? parseInt(form.expectedAttendees) : null,
+        volunteers: volunteersArr,
+        status: 'upcoming',
+        attendees: 0,
+      }])
+      .select()
+      .single()
+    setSaving(false)
+    if (error) {
+      console.error('[CreateEvent]', error.message)
+      return
+    }
+    if (newEvent) onSave(newEvent)
     setForm(EMPTY_FORM)
     setErrors({})
     onClose()
@@ -481,13 +505,16 @@ function CreateEventModal({ isOpen, onClose, onSave }) {
             type="button"
             onClick={handleClose}
             className="px-5 py-2.5 text-sm font-semibold text-slate-600 bg-slate-100 rounded-xl hover:bg-slate-200 transition-colors"
+            disabled={saving}
           >
             Cancel
           </button>
           <button
             type="submit"
-            className="px-5 py-2.5 text-sm font-semibold text-white bg-gradient-to-r from-violet-600 to-purple-700 rounded-xl hover:from-violet-700 hover:to-purple-800 shadow-md shadow-purple-500/25 transition-all"
+            disabled={saving}
+            className="px-5 py-2.5 text-sm font-semibold text-white bg-gradient-to-r from-violet-600 to-purple-700 rounded-xl hover:from-violet-700 hover:to-purple-800 shadow-md shadow-purple-500/25 transition-all inline-flex items-center gap-2 disabled:opacity-60"
           >
+            {saving && <Loader2 className="w-4 h-4 animate-spin" />}
             Create Event
           </button>
         </div>
@@ -498,14 +525,31 @@ function CreateEventModal({ isOpen, onClose, onSave }) {
 
 // ─── Events Page ──────────────────────────────────────────────
 export default function Events() {
+  const { user } = useAuth()
   const navigate = useNavigate()
-  const [events, setEvents] = useState(EVENTS)
+  const [events, setEvents] = useState([])
+  const [loading, setLoading] = useState(true)
   const [activeFilter, setActiveFilter] = useState('All')
   const [selectedEvent, setSelectedEvent] = useState(null)
   const [showDetail, setShowDetail] = useState(false)
   const [showCreate, setShowCreate] = useState(false)
   const [showEdit, setShowEdit] = useState(false)
   const [editingEvent, setEditingEvent] = useState(null)
+  const [editSaving, setEditSaving] = useState(false)
+
+  useEffect(() => {
+    async function load() {
+      setLoading(true)
+      const { data, error } = await insforge.database
+        .from('events')
+        .select('*')
+        .order('event_date', { ascending: true })
+      if (error) console.error('[Events]', error.message)
+      setEvents(data || [])
+      setLoading(false)
+    }
+    load()
+  }, [])
 
   // Filtered events
   const filteredEvents =
@@ -527,11 +571,25 @@ export default function Events() {
   }
 
   const handleEdit = (event) => {
-    setEditingEvent({ ...event, volunteers: event.volunteers.join(', ') })
+    const volunteers = Array.isArray(event.volunteers) ? event.volunteers.join(', ') : (event.volunteers || '')
+    setEditingEvent({
+      ...event,
+      volunteers,
+      date: event.event_date || event.date || '',
+      time: event.event_time || event.time || '',
+    })
     setShowEdit(true)
   }
 
-  const handleMarkComplete = (id) => {
+  const handleMarkComplete = async (id) => {
+    const { error } = await insforge.database
+      .from('events')
+      .update({ status: 'completed' })
+      .eq('id', id)
+    if (error) {
+      console.error('[MarkComplete]', error.message)
+      return
+    }
     setEvents((prev) =>
       prev.map((e) => (e.id === id ? { ...e, status: 'completed' } : e))
     )
@@ -542,22 +600,37 @@ export default function Events() {
     setEvents((prev) => [newEvent, ...prev])
   }
 
-  const handleEditSave = (e) => {
+  const handleEditSave = async (e) => {
     e.preventDefault()
-    setEvents((prev) =>
-      prev.map((ev) =>
-        ev.id === editingEvent.id
-          ? {
-              ...ev,
-              ...editingEvent,
-              volunteers:
-                typeof editingEvent.volunteers === 'string'
-                  ? editingEvent.volunteers.split(',').map((v) => v.trim()).filter(Boolean)
-                  : editingEvent.volunteers,
-            }
-          : ev
+    setEditSaving(true)
+    const volunteersArr =
+      typeof editingEvent.volunteers === 'string'
+        ? editingEvent.volunteers.split(',').map((v) => v.trim()).filter(Boolean)
+        : editingEvent.volunteers || []
+
+    const { data: updated, error } = await insforge.database
+      .from('events')
+      .update({
+        title: editingEvent.title,
+        event_date: editingEvent.date,
+        event_time: editingEvent.time,
+        venue: editingEvent.venue,
+        description: editingEvent.description,
+        volunteers: volunteersArr,
+      })
+      .eq('id', editingEvent.id)
+      .select()
+      .single()
+    setEditSaving(false)
+    if (error) {
+      console.error('[EditEvent]', error.message)
+      return
+    }
+    if (updated) {
+      setEvents((prev) =>
+        prev.map((ev) => (ev.id === updated.id ? updated : ev))
       )
-    )
+    }
     setShowEdit(false)
   }
 
@@ -620,28 +693,46 @@ export default function Events() {
           ))}
         </div>
 
+        {/* ── Loading State ─────────────────────────────────── */}
+        {loading && (
+          <div className="flex items-center justify-center py-20">
+            <Loader2 className="w-8 h-8 text-purple-400 animate-spin" />
+          </div>
+        )}
+
         {/* ── Events Grid ─────────────────────────────────── */}
-        {filteredEvents.length === 0 ? (
-          <div className="bg-white rounded-2xl border border-slate-100 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07)] p-16 flex flex-col items-center justify-center text-center">
-            <div className="w-16 h-16 rounded-2xl bg-purple-50 border border-purple-100 flex items-center justify-center mb-4">
-              <Calendar className="w-8 h-8 text-purple-400" />
+        {!loading && (
+          filteredEvents.length === 0 ? (
+            <div className="bg-white rounded-2xl border border-slate-100 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07)] p-16 flex flex-col items-center justify-center text-center">
+              <div className="w-16 h-16 rounded-2xl bg-purple-50 border border-purple-100 flex items-center justify-center mb-4">
+                <Calendar className="w-8 h-8 text-purple-400" />
+              </div>
+              <h3 className="text-base font-bold text-slate-700 mb-1">
+                {events.length === 0 ? 'No events scheduled' : 'No events found'}
+              </h3>
+              <p className="text-sm text-slate-400">
+                {events.length === 0
+                  ? 'Create your first event to get started.'
+                  : `No ${activeFilter.toLowerCase() !== 'all' ? activeFilter.toLowerCase() + ' ' : ''}events at the moment.`}
+              </p>
+              {events.length === 0 && (
+                <Button icon={Plus} onClick={() => setShowCreate(true)} className="mt-4">
+                  Create Event
+                </Button>
+              )}
             </div>
-            <h3 className="text-base font-bold text-slate-700 mb-1">No events found</h3>
-            <p className="text-sm text-slate-400">
-              No {activeFilter.toLowerCase() !== 'all' ? activeFilter.toLowerCase() + ' ' : ''}events at the moment.
-            </p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
-            {filteredEvents.map((event) => (
-              <EventCard
-                key={event.id}
-                event={event}
-                onView={handleView}
-                onEdit={handleEdit}
-              />
-            ))}
-          </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
+              {filteredEvents.map((event) => (
+                <EventCard
+                  key={event.id}
+                  event={event}
+                  onView={handleView}
+                  onEdit={handleEdit}
+                />
+              ))}
+            </div>
+          )
         )}
       </div>
 
@@ -658,6 +749,7 @@ export default function Events() {
         isOpen={showCreate}
         onClose={() => setShowCreate(false)}
         onSave={handleCreate}
+        user={user}
       />
 
       {/* ── Edit Event Modal ────────────────────────────────── */}
@@ -713,7 +805,7 @@ export default function Events() {
               <textarea
                 className="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-purple-300 focus:border-transparent transition-colors resize-none"
                 rows={3}
-                value={editingEvent.description}
+                value={editingEvent.description || ''}
                 onChange={(e) => setEditingEvent((prev) => ({ ...prev, description: e.target.value }))}
               />
             </div>
@@ -732,13 +824,16 @@ export default function Events() {
                 type="button"
                 onClick={() => setShowEdit(false)}
                 className="px-5 py-2.5 text-sm font-semibold text-slate-600 bg-slate-100 rounded-xl hover:bg-slate-200 transition-colors"
+                disabled={editSaving}
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                className="px-5 py-2.5 text-sm font-semibold text-white bg-gradient-to-r from-violet-600 to-purple-700 rounded-xl hover:from-violet-700 hover:to-purple-800 shadow-md shadow-purple-500/25 transition-all"
+                disabled={editSaving}
+                className="px-5 py-2.5 text-sm font-semibold text-white bg-gradient-to-r from-violet-600 to-purple-700 rounded-xl hover:from-violet-700 hover:to-purple-800 shadow-md shadow-purple-500/25 transition-all inline-flex items-center gap-2 disabled:opacity-60"
               >
+                {editSaving && <Loader2 className="w-4 h-4 animate-spin" />}
                 Save Changes
               </button>
             </div>

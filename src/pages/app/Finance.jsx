@@ -36,7 +36,6 @@ import {
 } from 'recharts'
 
 import { Button, StatsCard, Badge, Input, Modal, Avatar } from '../../components/ui'
-import { OFFERINGS, EXPENSES, MEMBERS } from '../../data/dummyData'
 import { formatCurrency, formatDate } from '../../utils/helpers'
 import { insforge } from '../../lib/insforge'
 import { useAuth } from '../../context/AuthContext'
@@ -118,7 +117,7 @@ const MONTHLY_SUMMARY = [
 ]
 
 // ─── Pie data from offerings ──────────────────────────────────
-function buildOfferingPie(offeringsList = OFFERINGS) {
+function buildOfferingPie(offeringsList = []) {
   const totals = {}
   offeringsList.forEach((o) => {
     const lrd = toLRD(o.amount, o.currency || 'LRD')
@@ -167,7 +166,7 @@ function ChartTooltip({ active, payload, label }) {
 }
 
 // ─── Add Transaction Modal ────────────────────────────────────
-function AddTransactionModal({ isOpen, onClose, onOfferingSaved, onExpenseSaved }) {
+function AddTransactionModal({ isOpen, onClose, onOfferingSaved, onExpenseSaved, members = [] }) {
   const { user } = useAuth()
   const [txTab, setTxTab]           = useState('Income')
   const [type, setType]             = useState('tithe')
@@ -187,8 +186,8 @@ function AddTransactionModal({ isOpen, onClose, onOfferingSaved, onExpenseSaved 
     const churchId = user?.churchId || user?.profile?.church_id
     try {
       if (txTab === 'Income') {
-        const selectedMember = MEMBERS.find((m) => m.id === memberId)
-        const mName = selectedMember?.name || selectedMember?.full_name || memberName || 'Anonymous'
+        const selectedMember = members.find((m) => m.id === memberId)
+        const mName = selectedMember?.full_name || selectedMember?.name || memberName || 'Anonymous'
         const { data, error } = await insforge.database
           .from('offerings')
           .insert([{
@@ -300,8 +299,8 @@ function AddTransactionModal({ isOpen, onClose, onOfferingSaved, onExpenseSaved 
                 className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-purple-100 focus:border-purple-500 transition-all"
               >
                 <option value="">— General Collection / Anonymous —</option>
-                {MEMBERS.map((m) => (
-                  <option key={m.id} value={m.id}>{m.name}</option>
+                {members.map((m) => (
+                  <option key={m.id} value={m.id}>{m.full_name || m.name}</option>
                 ))}
               </select>
             </div>
@@ -419,7 +418,7 @@ function AddTransactionModal({ isOpen, onClose, onOfferingSaved, onExpenseSaved 
 }
 
 // ─── Income Tab ───────────────────────────────────────────────
-function IncomeTab({ offerings = OFFERINGS }) {
+function IncomeTab({ offerings = [] }) {
   const [filterType, setFilterType]   = useState('all')
   const [search, setSearch]           = useState('')
 
@@ -562,7 +561,7 @@ function IncomeTab({ offerings = OFFERINGS }) {
 }
 
 // ─── Expenses Tab ─────────────────────────────────────────────
-function ExpensesTab({ expenses = EXPENSES }) {
+function ExpensesTab({ expenses = [] }) {
   const [search, setSearch] = useState('')
   const [filterCat, setFilterCat] = useState('all')
 
@@ -696,7 +695,7 @@ function ExpensesTab({ expenses = EXPENSES }) {
 }
 
 // ─── Reports Tab ──────────────────────────────────────────────
-function ReportsTab({ offerings = OFFERINGS }) {
+function ReportsTab({ offerings = [] }) {
   const pieData = useMemo(() => buildOfferingPie(offerings), [offerings])
 
   return (
@@ -864,18 +863,25 @@ export default function Finance() {
   const { user } = useAuth()
   const [activeTab, setActiveTab] = useState('Income')
   const [modalOpen, setModalOpen] = useState(false)
-  const [offerings, setOfferings] = useState(OFFERINGS)
-  const [expenses, setExpenses]   = useState(EXPENSES)
+  const [offerings, setOfferings] = useState([])
+  const [expenses, setExpenses]   = useState([])
+  const [members, setMembers]     = useState([])
 
   // ── Load data from InsForge ────────────────────────────────
   useEffect(() => {
     async function load() {
-      const [oRes, eRes] = await Promise.all([
-        insforge.database.from('offerings').select('*').order('date', { ascending: false }),
-        insforge.database.from('expenses').select('*').order('date', { ascending: false }),
-      ])
-      if (oRes.data?.length) setOfferings(oRes.data)
-      if (eRes.data?.length) setExpenses(eRes.data)
+      try {
+        const [oRes, eRes, mRes] = await Promise.all([
+          insforge.database.from('offerings').select('*').order('date', { ascending: false }),
+          insforge.database.from('expenses').select('*').order('date', { ascending: false }),
+          insforge.database.from('members').select('id, full_name').order('full_name', { ascending: true }),
+        ])
+        setOfferings(oRes.data || [])
+        setExpenses(eRes.data || [])
+        setMembers(mRes.data || [])
+      } catch (err) {
+        console.error('Finance load error:', err)
+      }
     }
     load()
   }, [])
@@ -1035,6 +1041,7 @@ export default function Finance() {
         onClose={() => setModalOpen(false)}
         onOfferingSaved={(o) => setOfferings((prev) => [o, ...prev])}
         onExpenseSaved={(e) => setExpenses((prev) => [e, ...prev])}
+        members={members}
       />
     </div>
   )

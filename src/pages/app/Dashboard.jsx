@@ -42,7 +42,6 @@ import {
 import { useAuth } from '../../context/AuthContext'
 import { useChurch } from '../../context/ChurchContext'
 import { StatsCard, Card, Badge, Avatar } from '../../components/ui'
-import { STATS } from '../../data/dummyData'
 import { formatCurrency, formatDate, getGreeting } from '../../utils/helpers'
 import { insforge } from '../../lib/insforge'
 
@@ -197,7 +196,14 @@ export default function Dashboard() {
   const navigate = useNavigate()
 
   // ── Live data state (empty — populated from InsForge on mount) ──
-  const [stats, setStats] = useState(STATS)
+  const [stats, setStats] = useState({
+    totalMembers: 0,
+    newThisMonth: 0,
+    todayAttendance: 0,
+    firstTimeVisitors: 0,
+    totalOfferings: 0,
+    currency: 'LRD',
+  })
   const [members, setMembers] = useState([])
   const [events, setEvents] = useState([])
   const [offerings, setOfferings] = useState([])

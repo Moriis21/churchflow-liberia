@@ -1,7 +1,7 @@
 // ============================================================
 // ChurchFlow Liberia — Sermons & Media Page
 // ============================================================
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import {
   Play,
   Plus,
@@ -28,9 +28,9 @@ import {
   BookMarked,
 } from 'lucide-react'
 import { Button, Badge, Modal, Input } from '../../components/ui'
-import { SERMONS } from '../../data/dummyData'
 import { formatDate } from '../../utils/helpers'
 import { insforge } from '../../lib/insforge'
+import { useAuth } from '../../context/AuthContext'
 import toast from 'react-hot-toast'
 
 // ─── Platform config ──────────────────────────────────────────
@@ -136,7 +136,7 @@ function SermonCard({ sermon }) {
           <span className="truncate font-medium">{sermon.preacher}</span>
           <span className="mx-1 text-slate-300">·</span>
           <Calendar className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
-          <span>{formatDate(sermon.date)}</span>
+          <span>{formatDate(sermon.sermon_date || sermon.date)}</span>
         </div>
 
         {/* Actions */}
@@ -164,22 +164,60 @@ function SermonCard({ sermon }) {
 }
 
 // ─── Add Content Modal ─────────────────────────────────────────
-function AddContentModal({ isOpen, onClose }) {
+function AddContentModal({ isOpen, onClose, onSaved, user }) {
   const [form, setForm] = useState(EMPTY_FORM)
+  const [saving, setSaving] = useState(false)
 
   const set = (field) => (e) =>
     setForm((prev) => ({ ...prev, [field]: e.target.value }))
 
+  const handleSave = async () => {
+    if (!form.title.trim()) {
+      toast.error('Title is required')
+      return
+    }
+    setSaving(true)
+    const { data: newSermon, error } = await insforge.database
+      .from('sermons')
+      .insert([{
+        church_id: user?.churchId || user?.profile?.church_id,
+        title: form.title,
+        preacher: form.preacher,
+        sermon_date: form.date || null,
+        type: form.type,
+        platform: form.platform,
+        url: form.url,
+        description: form.description,
+        duration: form.duration,
+      }])
+      .select()
+      .single()
+    setSaving(false)
+    if (error) {
+      console.error('[AddContentModal]', error.message)
+      toast.error('Failed to save sermon.')
+      return
+    }
+    if (newSermon) onSaved(newSermon)
+    setForm(EMPTY_FORM)
+    onClose()
+  }
+
+  const handleClose = () => {
+    setForm(EMPTY_FORM)
+    onClose()
+  }
+
   return (
     <Modal
       isOpen={isOpen}
-      onClose={onClose}
+      onClose={handleClose}
       title="Add Sermon / Media Content"
       size="lg"
       footer={
         <div className="flex justify-end gap-3">
-          <Button variant="secondary" onClick={onClose}>Cancel</Button>
-          <Button variant="primary" onClick={onClose}>Save Content</Button>
+          <Button variant="secondary" onClick={handleClose} disabled={saving}>Cancel</Button>
+          <Button variant="primary" onClick={handleSave} loading={saving}>Save Content</Button>
         </div>
       }
     >
@@ -313,7 +351,7 @@ function GenerateTranscriptModal({ isOpen, onClose, sermon, onGenerate }) {
         <div className="p-3 rounded-xl bg-slate-50 border border-slate-100">
           <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-0.5">Sermon</p>
           <p className="text-sm font-bold text-slate-800">{sermon.title}</p>
-          <p className="text-xs text-slate-500">{sermon.preacher} — {formatDate(sermon.date)}</p>
+          <p className="text-xs text-slate-500">{sermon.preacher} — {formatDate(sermon.sermon_date || sermon.date)}</p>
         </div>
 
         <div>
@@ -411,7 +449,7 @@ function ViewTranscriptModal({ isOpen, onClose, sermon, data }) {
             <span className="font-medium">{sermon.preacher}</span>
             <span className="text-slate-300">·</span>
             <Calendar className="w-3.5 h-3.5 text-slate-400" />
-            <span>{formatDate(sermon.date)}</span>
+            <span>{formatDate(sermon.sermon_date || sermon.date)}</span>
           </div>
         </div>
 
@@ -549,7 +587,7 @@ function TranscriptionCard({ sermon, transcriptInfo, onGenerate, onView }) {
             <span className="font-medium truncate">{sermon.preacher}</span>
             <span className="text-slate-300 flex-shrink-0">·</span>
             <Calendar className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
-            <span className="flex-shrink-0">{formatDate(sermon.date)}</span>
+            <span className="flex-shrink-0">{formatDate(sermon.sermon_date || sermon.date)}</span>
           </div>
         </div>
         <TranscriptStatusBadge status={status} />
@@ -598,7 +636,7 @@ function TranscriptionCard({ sermon, transcriptInfo, onGenerate, onView }) {
 }
 
 // ─── Transcription Tab ─────────────────────────────────────────
-function TranscriptionTab({ transcriptData, setTranscriptData }) {
+function TranscriptionTab({ sermons, transcriptData, setTranscriptData }) {
   const [generateTarget, setGenerateTarget] = useState(null)
   const [viewTarget, setViewTarget] = useState(null)
 
@@ -675,22 +713,32 @@ function TranscriptionTab({ transcriptData, setTranscriptData }) {
         </span>
         <span className="text-slate-300">|</span>
         <span>
-          <span className="font-semibold text-slate-700">{SERMONS.length}</span> total sermons
+          <span className="font-semibold text-slate-700">{sermons.length}</span> total sermons
         </span>
       </div>
 
-      {/* Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {SERMONS.map((sermon) => (
-          <TranscriptionCard
-            key={sermon.id}
-            sermon={sermon}
-            transcriptInfo={transcriptData[sermon.id]}
-            onGenerate={handleOpenGenerate}
-            onView={handleOpenView}
-          />
-        ))}
-      </div>
+      {/* Grid or empty state */}
+      {sermons.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-20 text-center">
+          <div className="w-16 h-16 rounded-2xl bg-purple-50 flex items-center justify-center mb-4">
+            <FileText className="w-8 h-8 text-purple-300" />
+          </div>
+          <h3 className="text-base font-bold text-slate-700 mb-1">No sermons yet</h3>
+          <p className="text-sm text-slate-400">Add your first sermon or live stream to get started.</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {sermons.map((sermon) => (
+            <TranscriptionCard
+              key={sermon.id}
+              sermon={sermon}
+              transcriptInfo={transcriptData[sermon.id]}
+              onGenerate={handleOpenGenerate}
+              onView={handleOpenView}
+            />
+          ))}
+        </div>
+      )}
 
       {/* Generate Modal */}
       <GenerateTranscriptModal
@@ -713,6 +761,9 @@ function TranscriptionTab({ transcriptData, setTranscriptData }) {
 
 // ─── Main Page ────────────────────────────────────────────────
 export default function Sermons() {
+  const { user } = useAuth()
+  const [sermons, setSermons] = useState([])
+  const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState('all')
   const [platformFilter, setPlatformFilter] = useState('all')
   const [search, setSearch] = useState('')
@@ -722,27 +773,34 @@ export default function Sermons() {
   const [dateTo, setDateTo] = useState('')
 
   // Transcript state — keyed by sermon id
-  const [transcriptData, setTranscriptData] = useState(() => {
-    const init = {}
-    SERMONS.forEach((s) => {
-      if (s.transcript) {
-        init[s.id] = { transcript: s.transcript, status: 'done' }
-      }
-    })
-    return init
-  })
+  const [transcriptData, setTranscriptData] = useState({})
+
+  useEffect(() => {
+    async function load() {
+      setLoading(true)
+      const { data, error } = await insforge.database
+        .from('sermons')
+        .select('*')
+        .order('sermon_date', { ascending: false })
+      if (error) console.error('[Sermons]', error.message)
+      setSermons(data || [])
+      setLoading(false)
+    }
+    load()
+  }, [])
 
   // Check for live sermons (type === 'live')
-  const liveSermons = SERMONS.filter((s) => s.type === 'live')
+  const liveSermons = sermons.filter((s) => s.type === 'live')
   const hasLive = liveSermons.length > 0
 
   // Filter logic (not applied to transcription tab)
-  const filtered = SERMONS.filter((s) => {
+  const filtered = sermons.filter((s) => {
+    const sermonDate = s.sermon_date || s.date || ''
     if (activeTab !== 'all' && s.type !== activeTab) return false
     if (platformFilter !== 'all' && s.platform !== platformFilter) return false
-    if (search && !s.title.toLowerCase().includes(search.toLowerCase()) && !s.preacher.toLowerCase().includes(search.toLowerCase())) return false
-    if (dateFrom && s.date < dateFrom) return false
-    if (dateTo && s.date > dateTo) return false
+    if (search && !s.title.toLowerCase().includes(search.toLowerCase()) && !(s.preacher || '').toLowerCase().includes(search.toLowerCase())) return false
+    if (dateFrom && sermonDate < dateFrom) return false
+    if (dateTo && sermonDate > dateTo) return false
     return true
   })
 
@@ -784,7 +842,7 @@ export default function Sermons() {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900">Sermons & Media</h1>
-            <p className="text-sm text-slate-500 mt-1">{SERMONS.length} messages archived</p>
+            <p className="text-sm text-slate-500 mt-1">{sermons.length} messages archived</p>
           </div>
           <Button variant="primary" icon={Plus} onClick={() => setShowAdd(true)}>
             Add Content
@@ -809,13 +867,23 @@ export default function Sermons() {
           ))}
         </div>
 
+        {/* Loading state */}
+        {loading && (
+          <div className="flex items-center justify-center py-20">
+            <Loader2 className="w-8 h-8 text-purple-400 animate-spin" />
+          </div>
+        )}
+
         {/* Transcription Tab Content */}
-        {isTranscriptionTab ? (
+        {!loading && isTranscriptionTab && (
           <TranscriptionTab
+            sermons={sermons}
             transcriptData={transcriptData}
             setTranscriptData={setTranscriptData}
           />
-        ) : (
+        )}
+
+        {!loading && !isTranscriptionTab && (
           <>
             {/* Filters Row */}
             <div className="flex flex-wrap items-center gap-3">
@@ -891,15 +959,26 @@ export default function Sermons() {
 
             {/* Results count */}
             <p className="text-xs text-slate-500">
-              Showing <span className="font-semibold text-slate-700">{filtered.length}</span> of {SERMONS.length} messages
+              Showing <span className="font-semibold text-slate-700">{filtered.length}</span> of {sermons.length} messages
             </p>
 
-            {/* Sermon Grid */}
+            {/* Sermon Grid or Empty State */}
             {filtered.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
                 {filtered.map((sermon) => (
                   <SermonCard key={sermon.id} sermon={sermon} />
                 ))}
+              </div>
+            ) : sermons.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-20 text-center">
+                <div className="w-16 h-16 rounded-2xl bg-purple-50 flex items-center justify-center mb-4">
+                  <BookOpen className="w-8 h-8 text-purple-300" />
+                </div>
+                <h3 className="text-base font-bold text-slate-700 mb-1">No sermons yet</h3>
+                <p className="text-sm text-slate-400">Add your first sermon or live stream to get started.</p>
+                <Button variant="primary" icon={Plus} onClick={() => setShowAdd(true)} className="mt-4">
+                  Add Content
+                </Button>
               </div>
             ) : (
               <div className="flex flex-col items-center justify-center py-20 text-center">
@@ -914,7 +993,12 @@ export default function Sermons() {
         )}
       </div>
 
-      <AddContentModal isOpen={showAdd} onClose={() => setShowAdd(false)} />
+      <AddContentModal
+        isOpen={showAdd}
+        onClose={() => setShowAdd(false)}
+        onSaved={(newSermon) => setSermons((prev) => [newSermon, ...prev])}
+        user={user}
+      />
     </div>
   )
 }

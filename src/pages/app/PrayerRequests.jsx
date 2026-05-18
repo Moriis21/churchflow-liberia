@@ -1,7 +1,7 @@
 // ============================================================
 // ChurchFlow Liberia — Prayer Requests Management Page
 // ============================================================
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import {
   Heart,
   Lock,
@@ -15,10 +15,12 @@ import {
   ChevronDown,
   BookOpen,
   Sparkles,
+  Loader2,
 } from 'lucide-react'
 import { Button, Modal, Avatar } from '../../components/ui'
-import { PRAYER_REQUESTS, MEMBERS } from '../../data/dummyData'
 import { formatDate } from '../../utils/helpers'
+import { insforge } from '../../lib/insforge'
+import { useAuth } from '../../context/AuthContext'
 
 // ─── Constants ───────────────────────────────────────────────
 const FILTER_TABS = ['All', 'Public', 'Private', 'Pastor Only', 'Answered']
@@ -88,11 +90,14 @@ function StatusBadge({ status }) {
 
 // ─── Prayer Card ──────────────────────────────────────────────
 function PrayerCard({ prayerReq, prayerCounts, onPray, onAddResponse, onViewTestimony }) {
-  const member = MEMBERS.find((m) => m.id === prayerReq.memberId)
   const count = prayerCounts[prayerReq.id] || 0
   const hasPrayed = prayerCounts[`${prayerReq.id}_prayed`] || false
 
-  const initials = prayerReq.memberName
+  const memberName = prayerReq.member_name || prayerReq.memberName || 'Anonymous'
+  const reqType = prayerReq.visibility || prayerReq.type || 'public'
+  const reqDate = prayerReq.created_at || prayerReq.date || ''
+
+  const initials = memberName
     .split(' ')
     .map((n) => n[0])
     .join('')
@@ -108,9 +113,9 @@ function PrayerCard({ prayerReq, prayerCounts, onPray, onAddResponse, onViewTest
         className={`h-1.5 w-full ${
           prayerReq.status === 'answered'
             ? 'bg-gradient-to-r from-emerald-400 to-teal-500'
-            : prayerReq.type === 'pastor_only'
+            : reqType === 'pastor_only'
             ? 'bg-gradient-to-r from-violet-600 to-purple-700'
-            : prayerReq.type === 'private'
+            : reqType === 'private'
             ? 'bg-gradient-to-r from-slate-400 to-slate-500'
             : 'bg-gradient-to-r from-sky-400 to-blue-500'
         }`}
@@ -119,22 +124,14 @@ function PrayerCard({ prayerReq, prayerCounts, onPray, onAddResponse, onViewTest
       <div className="p-5">
         {/* Header: member + badges */}
         <div className="flex items-start gap-3 mb-3">
-          {member?.profilePhoto ? (
-            <img
-              src={member.profilePhoto}
-              alt={prayerReq.memberName}
-              className="w-10 h-10 rounded-xl object-cover flex-shrink-0 shadow-sm"
-            />
-          ) : (
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-600 to-purple-700 flex items-center justify-center text-white text-sm font-bold flex-shrink-0 shadow-md shadow-purple-500/25">
-              {initials}
-            </div>
-          )}
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-600 to-purple-700 flex items-center justify-center text-white text-sm font-bold flex-shrink-0 shadow-md shadow-purple-500/25">
+            {initials}
+          </div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-bold text-[#1E1B4B] leading-tight">{prayerReq.memberName}</p>
+            <p className="text-sm font-bold text-[#1E1B4B] leading-tight">{memberName}</p>
             <div className="flex flex-wrap items-center gap-1.5 mt-1">
-              <TypeBadge type={prayerReq.type} />
-              <StatusBadge status={prayerReq.status} />
+              <TypeBadge type={reqType} />
+              <StatusBadge status={prayerReq.status || 'open'} />
             </div>
           </div>
         </div>
@@ -160,7 +157,7 @@ function PrayerCard({ prayerReq, prayerCounts, onPray, onAddResponse, onViewTest
         {/* Date */}
         <div className="flex items-center gap-1.5 text-xs text-slate-400 mb-3">
           <Calendar className="w-3 h-3" />
-          <span>Submitted {formatDate(prayerReq.date)}</span>
+          <span>Submitted {formatDate(reqDate)}</span>
         </div>
 
         {/* Actions */}
@@ -186,7 +183,7 @@ function PrayerCard({ prayerReq, prayerCounts, onPray, onAddResponse, onViewTest
           </button>
 
           {/* Pastor-only: Add Response */}
-          {prayerReq.type === 'pastor_only' && prayerReq.status === 'open' && (
+          {reqType === 'pastor_only' && prayerReq.status === 'open' && (
             <button
               onClick={() => onAddResponse(prayerReq)}
               className="flex-1 inline-flex items-center justify-center gap-1.5 text-xs font-semibold text-white bg-gradient-to-r from-violet-600 to-purple-700 px-3 py-2 rounded-xl hover:from-violet-700 hover:to-purple-800 shadow-md shadow-purple-500/20 transition-all"
@@ -213,9 +210,10 @@ function PrayerCard({ prayerReq, prayerCounts, onPray, onAddResponse, onViewTest
 }
 
 // ─── Submit Request Modal ─────────────────────────────────────
-function SubmitRequestModal({ isOpen, onClose, onSave }) {
+function SubmitRequestModal({ isOpen, onClose, onSave, user }) {
   const [form, setForm] = useState(EMPTY_SUBMIT_FORM)
   const [errors, setErrors] = useState({})
+  const [saving, setSaving] = useState(false)
 
   const validate = () => {
     const e = {}
@@ -230,19 +228,28 @@ function SubmitRequestModal({ isOpen, onClose, onSave }) {
     if (errors[field]) setErrors((prev) => ({ ...prev, [field]: '' }))
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
     if (!validate()) return
-    onSave({
-      id: `pray-${Date.now()}`,
-      memberId: null,
-      memberName: form.memberName,
-      request: form.request,
-      type: form.visibility,
-      status: 'open',
-      date: new Date().toISOString().split('T')[0],
-      response: '',
-    })
+    setSaving(true)
+    const { data: newRequest, error } = await insforge.database
+      .from('prayer_requests')
+      .insert([{
+        church_id: user?.churchId || user?.profile?.church_id,
+        member_name: form.memberName,
+        request: form.request,
+        visibility: form.visibility,
+        status: 'open',
+        response: '',
+      }])
+      .select()
+      .single()
+    setSaving(false)
+    if (error) {
+      console.error('[SubmitRequest]', error.message)
+      return
+    }
+    if (newRequest) onSave(newRequest)
     setForm(EMPTY_SUBMIT_FORM)
     setErrors({})
     onClose()
@@ -376,13 +383,16 @@ function SubmitRequestModal({ isOpen, onClose, onSave }) {
             type="button"
             onClick={handleClose}
             className="px-5 py-2.5 text-sm font-semibold text-slate-600 bg-slate-100 rounded-xl hover:bg-slate-200 transition-colors"
+            disabled={saving}
           >
             Cancel
           </button>
           <button
             type="submit"
-            className="px-5 py-2.5 text-sm font-semibold text-white bg-gradient-to-r from-violet-600 to-purple-700 rounded-xl hover:from-violet-700 hover:to-purple-800 shadow-md shadow-purple-500/25 transition-all inline-flex items-center gap-2"
+            disabled={saving}
+            className="px-5 py-2.5 text-sm font-semibold text-white bg-gradient-to-r from-violet-600 to-purple-700 rounded-xl hover:from-violet-700 hover:to-purple-800 shadow-md shadow-purple-500/25 transition-all inline-flex items-center gap-2 disabled:opacity-60"
           >
+            {saving && <Loader2 className="w-4 h-4 animate-spin" />}
             <Heart className="w-4 h-4" />
             Submit Request
           </button>
@@ -396,11 +406,14 @@ function SubmitRequestModal({ isOpen, onClose, onSave }) {
 function AddResponseModal({ prayerReq, isOpen, onClose, onSave }) {
   const [response, setResponse] = useState('')
   const [markAnswered, setMarkAnswered] = useState(false)
+  const [saving, setSaving] = useState(false)
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
     if (!response.trim()) return
-    onSave(prayerReq.id, response, markAnswered)
+    setSaving(true)
+    await onSave(prayerReq.id, response, markAnswered)
+    setSaving(false)
     setResponse('')
     setMarkAnswered(false)
     onClose()
@@ -419,7 +432,7 @@ function AddResponseModal({ prayerReq, isOpen, onClose, onSave }) {
       <div className="space-y-4">
         {/* Original request */}
         <div className="bg-purple-50 border border-purple-100 rounded-xl p-4">
-          <p className="text-xs font-bold text-purple-700 mb-1">Original Request — {prayerReq.memberName}</p>
+          <p className="text-xs font-bold text-purple-700 mb-1">Original Request — {prayerReq.member_name || prayerReq.memberName}</p>
           <p className="text-sm text-purple-800 leading-relaxed">{prayerReq.request}</p>
         </div>
 
@@ -459,13 +472,16 @@ function AddResponseModal({ prayerReq, isOpen, onClose, onSave }) {
               type="button"
               onClick={handleClose}
               className="px-5 py-2.5 text-sm font-semibold text-slate-600 bg-slate-100 rounded-xl hover:bg-slate-200 transition-colors"
+              disabled={saving}
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-5 py-2.5 text-sm font-semibold text-white bg-gradient-to-r from-violet-600 to-purple-700 rounded-xl hover:from-violet-700 hover:to-purple-800 shadow-md shadow-purple-500/25 transition-all"
+              disabled={saving}
+              className="px-5 py-2.5 text-sm font-semibold text-white bg-gradient-to-r from-violet-600 to-purple-700 rounded-xl hover:from-violet-700 hover:to-purple-800 shadow-md shadow-purple-500/25 transition-all inline-flex items-center gap-2 disabled:opacity-60"
             >
+              {saving && <Loader2 className="w-4 h-4 animate-spin" />}
               Save Response
             </button>
           </div>
@@ -479,8 +495,9 @@ function AddResponseModal({ prayerReq, isOpen, onClose, onSave }) {
 function TestimonyModal({ prayerReq, isOpen, onClose }) {
   if (!prayerReq) return null
 
-  const member = MEMBERS.find((m) => m.id === prayerReq.memberId)
-  const initials = prayerReq.memberName
+  const memberName = prayerReq.member_name || prayerReq.memberName || 'Anonymous'
+  const reqDate = prayerReq.created_at || prayerReq.date || ''
+  const initials = memberName
     .split(' ')
     .map((n) => n[0])
     .join('')
@@ -492,20 +509,12 @@ function TestimonyModal({ prayerReq, isOpen, onClose }) {
       <div className="space-y-5">
         {/* Member info */}
         <div className="flex items-center gap-3">
-          {member?.profilePhoto ? (
-            <img
-              src={member.profilePhoto}
-              alt={prayerReq.memberName}
-              className="w-12 h-12 rounded-xl object-cover shadow-sm"
-            />
-          ) : (
-            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-violet-600 to-purple-700 flex items-center justify-center text-white text-sm font-bold shadow-md shadow-purple-500/25">
-              {initials}
-            </div>
-          )}
+          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-violet-600 to-purple-700 flex items-center justify-center text-white text-sm font-bold shadow-md shadow-purple-500/25">
+            {initials}
+          </div>
           <div>
-            <p className="font-bold text-[#1E1B4B]">{prayerReq.memberName}</p>
-            <p className="text-xs text-slate-400">{formatDate(prayerReq.date)}</p>
+            <p className="font-bold text-[#1E1B4B]">{memberName}</p>
+            <p className="text-xs text-slate-400">{formatDate(reqDate)}</p>
           </div>
         </div>
 
@@ -547,7 +556,9 @@ function TestimonyModal({ prayerReq, isOpen, onClose }) {
 
 // ─── Prayer Requests Page ─────────────────────────────────────
 export default function PrayerRequests() {
-  const [requests, setRequests] = useState(PRAYER_REQUESTS)
+  const { user } = useAuth()
+  const [requests, setRequests] = useState([])
+  const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState('All')
   const [prayerCounts, setPrayerCounts] = useState({})
   const [showSubmit, setShowSubmit] = useState(false)
@@ -555,22 +566,38 @@ export default function PrayerRequests() {
   const [showTestimony, setShowTestimony] = useState(false)
   const [selectedRequest, setSelectedRequest] = useState(null)
 
+  useEffect(() => {
+    async function load() {
+      setLoading(true)
+      const { data, error } = await insforge.database
+        .from('prayer_requests')
+        .select('*')
+        .order('created_at', { ascending: false })
+      if (error) console.error('[PrayerRequests]', error.message)
+      setRequests(data || [])
+      setLoading(false)
+    }
+    load()
+  }, [])
+
   // Stats
   const openCount = requests.filter((r) => r.status === 'open').length
   const answeredThisMonth = requests.filter((r) => {
     if (r.status !== 'answered') return false
-    const d = new Date(r.date)
+    const d = new Date(r.created_at || r.date || '')
     const now = new Date()
     return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth()
   }).length
   const totalTestimonies = requests.filter((r) => r.status === 'answered' && r.response).length
 
+  const getType = (r) => r.visibility || r.type || 'public'
+
   // Filtered requests
   const filteredRequests = requests.filter((r) => {
     if (activeTab === 'All') return true
-    if (activeTab === 'Public') return r.type === 'public'
-    if (activeTab === 'Private') return r.type === 'private'
-    if (activeTab === 'Pastor Only') return r.type === 'pastor_only'
+    if (activeTab === 'Public') return getType(r) === 'public'
+    if (activeTab === 'Private') return getType(r) === 'private'
+    if (activeTab === 'Pastor Only') return getType(r) === 'pastor_only'
     if (activeTab === 'Answered') return r.status === 'answered'
     return true
   })
@@ -578,9 +605,9 @@ export default function PrayerRequests() {
   // Tab counts
   const tabCounts = {
     All: requests.length,
-    Public: requests.filter((r) => r.type === 'public').length,
-    Private: requests.filter((r) => r.type === 'private').length,
-    'Pastor Only': requests.filter((r) => r.type === 'pastor_only').length,
+    Public: requests.filter((r) => getType(r) === 'public').length,
+    Private: requests.filter((r) => getType(r) === 'private').length,
+    'Pastor Only': requests.filter((r) => getType(r) === 'pastor_only').length,
     Answered: requests.filter((r) => r.status === 'answered').length,
   }
 
@@ -588,7 +615,6 @@ export default function PrayerRequests() {
     setPrayerCounts((prev) => {
       const alreadyPrayed = prev[`${id}_prayed`]
       if (alreadyPrayed) {
-        // Un-pray
         return {
           ...prev,
           [id]: Math.max((prev[id] || 0) - 1, 0),
@@ -613,18 +639,29 @@ export default function PrayerRequests() {
     setShowTestimony(true)
   }
 
-  const handleSaveResponse = (id, response, markAnswered) => {
-    setRequests((prev) =>
-      prev.map((r) =>
-        r.id === id
-          ? {
-              ...r,
-              response,
-              status: markAnswered ? 'answered' : r.status,
-            }
-          : r
+  const handleSaveResponse = async (id, response, markAnswered) => {
+    const updatePayload = {
+      response,
+      ...(markAnswered && {
+        status: 'answered',
+        answered_at: new Date().toISOString(),
+      }),
+    }
+    const { data: updated, error } = await insforge.database
+      .from('prayer_requests')
+      .update(updatePayload)
+      .eq('id', id)
+      .select()
+      .single()
+    if (error) {
+      console.error('[SaveResponse]', error.message)
+      return
+    }
+    if (updated) {
+      setRequests((prev) =>
+        prev.map((r) => (r.id === updated.id ? updated : r))
       )
-    )
+    }
   }
 
   const handleSubmitRequest = (newRequest) => {
@@ -738,39 +775,50 @@ export default function PrayerRequests() {
           </div>
         )}
 
+        {/* ── Loading State ─────────────────────────────────── */}
+        {loading && (
+          <div className="flex items-center justify-center py-20">
+            <Loader2 className="w-8 h-8 text-purple-400 animate-spin" />
+          </div>
+        )}
+
         {/* ── Prayer Cards Grid ────────────────────────────── */}
-        {filteredRequests.length === 0 ? (
-          <div className="bg-white rounded-2xl border border-slate-100 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07)] p-16 flex flex-col items-center justify-center text-center">
-            <div className="w-16 h-16 rounded-2xl bg-rose-50 border border-rose-100 flex items-center justify-center mb-4">
-              <Heart className="w-8 h-8 text-rose-300" />
+        {!loading && (
+          filteredRequests.length === 0 ? (
+            <div className="bg-white rounded-2xl border border-slate-100 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07)] p-16 flex flex-col items-center justify-center text-center">
+              <div className="w-16 h-16 rounded-2xl bg-rose-50 border border-rose-100 flex items-center justify-center mb-4">
+                <Heart className="w-8 h-8 text-rose-300" />
+              </div>
+              <h3 className="text-base font-bold text-slate-700 mb-1">
+                {requests.length === 0 ? 'No prayer requests yet' : 'No requests found'}
+              </h3>
+              <p className="text-sm text-slate-400">
+                {requests.length === 0
+                  ? 'Be the first to submit a prayer request.'
+                  : `No ${activeTab.toLowerCase() !== 'all' ? activeTab.toLowerCase() + ' ' : ''}prayer requests at the moment.`}
+              </p>
+              <button
+                onClick={() => setShowSubmit(true)}
+                className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r from-violet-600 to-purple-700 px-5 py-2.5 rounded-xl shadow-md shadow-purple-500/25 hover:from-violet-700 hover:to-purple-800 transition-all"
+              >
+                <Plus className="w-4 h-4" />
+                Submit First Request
+              </button>
             </div>
-            <h3 className="text-base font-bold text-slate-700 mb-1">No requests found</h3>
-            <p className="text-sm text-slate-400">
-              No{' '}
-              {activeTab.toLowerCase() !== 'all' ? activeTab.toLowerCase() + ' ' : ''}
-              prayer requests at the moment.
-            </p>
-            <button
-              onClick={() => setShowSubmit(true)}
-              className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r from-violet-600 to-purple-700 px-5 py-2.5 rounded-xl shadow-md shadow-purple-500/25 hover:from-violet-700 hover:to-purple-800 transition-all"
-            >
-              <Plus className="w-4 h-4" />
-              Submit First Request
-            </button>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-            {filteredRequests.map((req) => (
-              <PrayerCard
-                key={req.id}
-                prayerReq={req}
-                prayerCounts={prayerCounts}
-                onPray={handlePray}
-                onAddResponse={handleAddResponse}
-                onViewTestimony={handleViewTestimony}
-              />
-            ))}
-          </div>
+          ) : (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+              {filteredRequests.map((req) => (
+                <PrayerCard
+                  key={req.id}
+                  prayerReq={req}
+                  prayerCounts={prayerCounts}
+                  onPray={handlePray}
+                  onAddResponse={handleAddResponse}
+                  onViewTestimony={handleViewTestimony}
+                />
+              ))}
+            </div>
+          )
         )}
       </div>
 
@@ -779,6 +827,7 @@ export default function PrayerRequests() {
         isOpen={showSubmit}
         onClose={() => setShowSubmit(false)}
         onSave={handleSubmitRequest}
+        user={user}
       />
 
       {/* ── Add Response Modal ────────────────────────────────── */}

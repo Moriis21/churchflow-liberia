@@ -1,7 +1,7 @@
 // ============================================================
 // ChurchFlow Liberia — Member Profile Page
 // ============================================================
-import React, { useState, useRef, useMemo } from 'react'
+import React, { useState, useEffect, useRef, useMemo } from 'react'
 import { useNavigate, useParams, Link } from 'react-router-dom'
 import {
   ArrowLeft,
@@ -9,7 +9,6 @@ import {
   Mail,
   MapPin,
   Calendar,
-  Users,
   Heart,
   DollarSign,
   CheckCircle2,
@@ -23,7 +22,7 @@ import {
   ShieldCheck,
   AlertCircle,
   X,
-  ChevronRight,
+  Loader2,
   Droplets,
 } from 'lucide-react'
 import {
@@ -33,54 +32,25 @@ import {
   Modal,
   Input,
 } from '../../components/ui'
-import { MEMBERS, DEPARTMENTS, ATTENDANCE_RECORDS, OFFERINGS, PRAYER_REQUESTS } from '../../data/dummyData'
+import { insforge } from '../../lib/insforge'
 import {
   formatDate,
   getInitials,
-  getStatusColor,
   formatPhone,
   calculateAge,
 } from '../../utils/helpers'
 
-// TODO: import { db } from '../../lib/insforge'
-
 // ─── Constants ───────────────────────────────────────────────
 const TABS = [
-  { id: 'overview',   label: 'Overview',         icon: UserCheck },
-  { id: 'attendance', label: 'Attendance',        icon: CheckCircle2 },
-  { id: 'giving',     label: 'Giving',            icon: DollarSign },
-  { id: 'prayer',     label: 'Prayer Requests',   icon: Heart },
+  { id: 'overview',   label: 'Overview',       icon: UserCheck },
+  { id: 'attendance', label: 'Attendance',      icon: CheckCircle2 },
+  { id: 'giving',     label: 'Giving',          icon: DollarSign },
+  { id: 'prayer',     label: 'Prayer Requests', icon: Heart },
 ]
 
 const STATUS_OPTIONS = ['active', 'inactive', 'new']
 const GENDER_OPTIONS = ['male', 'female']
 const MARITAL_OPTIONS = ['single', 'married', 'widowed', 'divorced']
-const DEPT_NAMES = DEPARTMENTS.map((d) => d.name)
-
-// ─── Mock per-member attendance ───────────────────────────────
-function getMemberAttendance(memberId) {
-  // In real use, query: db.memberAttendance().select().where({ memberId })
-  // Here we generate deterministic mock data based on the real ATTENDANCE_RECORDS
-  const statuses = ['present', 'present', 'present', 'absent', 'late', 'present', 'present', 'present']
-  return ATTENDANCE_RECORDS.map((rec, i) => ({
-    id: `${memberId}-att-${rec.id}`,
-    date: rec.date,
-    serviceType: rec.serviceType,
-    status: statuses[i % statuses.length],
-  }))
-}
-
-// ─── Mock per-member offerings ────────────────────────────────
-function getMemberOfferings(memberName) {
-  return OFFERINGS.filter(
-    (o) => o.member === memberName || o.member.toLowerCase().includes(memberName.split(' ')[0].toLowerCase())
-  )
-}
-
-// ─── Mock per-member prayer requests ─────────────────────────
-function getMemberPrayers(memberId) {
-  return PRAYER_REQUESTS.filter((p) => p.memberId === memberId)
-}
 
 // ─── Toast ────────────────────────────────────────────────────
 function Toast({ message, type, onClose }) {
@@ -111,8 +81,8 @@ function Toast({ message, type, onClose }) {
   )
 }
 
-// ─── Member Form (same as Members.jsx) ───────────────────────
-function MemberForm({ form, onChange, errors }) {
+// ─── Member Form ─────────────────────────────────────────────
+function MemberForm({ form, onChange, errors, departments }) {
   const fileRef = useRef(null)
 
   const handleField = (key) => (e) => {
@@ -126,11 +96,11 @@ function MemberForm({ form, onChange, errors }) {
       <div className="flex flex-col items-center gap-3 pb-2">
         <div className="relative">
           <div className="w-24 h-24 rounded-full overflow-hidden bg-slate-100 border-2 border-dashed border-purple-300 flex items-center justify-center">
-            {form.profilePhoto ? (
-              <img src={form.profilePhoto} alt="Preview" className="w-full h-full object-cover" />
+            {form.profile_photo_url ? (
+              <img src={form.profile_photo_url} alt="Preview" className="w-full h-full object-cover" />
             ) : (
               <span className="text-2xl font-bold text-purple-400">
-                {form.name ? getInitials(form.name) : '?'}
+                {form.full_name ? getInitials(form.full_name) : '?'}
               </span>
             )}
           </div>
@@ -149,7 +119,7 @@ function MemberForm({ form, onChange, errors }) {
           className="hidden"
           onChange={(e) => {
             const file = e.target.files?.[0]
-            if (file) onChange({ ...form, profilePhoto: URL.createObjectURL(file) })
+            if (file) onChange({ ...form, profile_photo_url: URL.createObjectURL(file) })
           }}
         />
         <p className="text-xs text-slate-400">Click camera icon to upload photo</p>
@@ -160,10 +130,10 @@ function MemberForm({ form, onChange, errors }) {
           <Input
             label="Full Name"
             required
-            value={form.name}
-            onChange={handleField('name')}
+            value={form.full_name || ''}
+            onChange={handleField('full_name')}
             placeholder="e.g. James Kollie"
-            error={errors?.name}
+            error={errors?.full_name}
           />
         </div>
 
@@ -189,8 +159,8 @@ function MemberForm({ form, onChange, errors }) {
         <div className="flex flex-col gap-1.5">
           <label className="text-sm font-medium text-slate-700">Marital Status</label>
           <select
-            value={form.maritalStatus}
-            onChange={handleField('maritalStatus')}
+            value={form.marital_status || 'single'}
+            onChange={handleField('marital_status')}
             className="w-full rounded-xl border border-slate-200 text-sm text-slate-800 bg-white px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-purple-100 focus:border-purple-500 hover:border-slate-300 transition-all"
           >
             {MARITAL_OPTIONS.map((m) => (
@@ -204,7 +174,7 @@ function MemberForm({ form, onChange, errors }) {
         <Input
           label="Phone"
           required
-          value={form.phone}
+          value={form.phone || ''}
           onChange={handleField('phone')}
           placeholder="+231-770-000-000"
           error={errors?.phone}
@@ -212,7 +182,7 @@ function MemberForm({ form, onChange, errors }) {
         <Input
           label="Email"
           type="email"
-          value={form.email}
+          value={form.email || ''}
           onChange={handleField('email')}
           placeholder="email@example.com"
         />
@@ -222,18 +192,20 @@ function MemberForm({ form, onChange, errors }) {
         <Input
           label="Date of Birth"
           type="date"
-          value={form.dateOfBirth}
-          onChange={handleField('dateOfBirth')}
+          value={form.date_of_birth || ''}
+          onChange={handleField('date_of_birth')}
         />
         <div className="flex flex-col gap-1.5">
           <label className="text-sm font-medium text-slate-700">Department</label>
           <select
-            value={form.department}
-            onChange={handleField('department')}
+            value={form.department_id || ''}
+            onChange={handleField('department_id')}
             className="w-full rounded-xl border border-slate-200 text-sm text-slate-800 bg-white px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-purple-100 focus:border-purple-500 hover:border-slate-300 transition-all"
           >
             <option value="">— Select Department —</option>
-            {DEPT_NAMES.map((d) => <option key={d} value={d}>{d}</option>)}
+            {departments.map((d) => (
+              <option key={d.id} value={d.id}>{d.name}</option>
+            ))}
           </select>
         </div>
       </div>
@@ -242,8 +214,8 @@ function MemberForm({ form, onChange, errors }) {
         <div className="flex flex-col gap-1.5">
           <label className="text-sm font-medium text-slate-700">Membership Status</label>
           <select
-            value={form.membershipStatus}
-            onChange={handleField('membershipStatus')}
+            value={form.membership_status || 'active'}
+            onChange={handleField('membership_status')}
             className="w-full rounded-xl border border-slate-200 text-sm text-slate-800 bg-white px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-purple-100 focus:border-purple-500 hover:border-slate-300 transition-all"
           >
             {STATUS_OPTIONS.map((s) => (
@@ -258,15 +230,15 @@ function MemberForm({ form, onChange, errors }) {
             <div className="relative">
               <input
                 type="checkbox"
-                checked={form.baptismStatus}
-                onChange={handleField('baptismStatus')}
+                checked={!!form.baptism_status}
+                onChange={handleField('baptism_status')}
                 className="sr-only peer"
               />
               <div className="w-11 h-6 bg-slate-200 rounded-full peer peer-checked:bg-purple-600 transition-colors" />
               <div className="absolute top-1 left-1 w-4 h-4 bg-white rounded-full shadow transition-transform peer-checked:translate-x-5" />
             </div>
             <span className="text-sm text-slate-700">
-              {form.baptismStatus ? 'Baptized' : 'Not baptized'}
+              {form.baptism_status ? 'Baptized' : 'Not baptized'}
             </span>
           </label>
         </div>
@@ -274,21 +246,21 @@ function MemberForm({ form, onChange, errors }) {
 
       <Input
         label="Address"
-        value={form.address}
+        value={form.address || ''}
         onChange={handleField('address')}
         placeholder="e.g. Sinkor, Monrovia, Liberia"
       />
       <Input
         label="Emergency Contact"
-        value={form.emergencyContact}
-        onChange={handleField('emergencyContact')}
+        value={form.emergency_contact || ''}
+        onChange={handleField('emergency_contact')}
         placeholder="Name — Phone"
       />
 
       <div className="flex flex-col gap-1.5">
         <label className="text-sm font-medium text-slate-700">Notes</label>
         <textarea
-          value={form.notes}
+          value={form.notes || ''}
           onChange={handleField('notes')}
           placeholder="Any additional notes..."
           rows={3}
@@ -319,12 +291,7 @@ function InfoRow({ icon: Icon, label, value, color = 'text-slate-400' }) {
 function QuickStat({ label, value, highlight }) {
   return (
     <div className="flex flex-col items-center gap-0.5 px-3 py-2 rounded-xl bg-slate-50 border border-slate-100 flex-1">
-      <span
-        className={[
-          'text-lg font-extrabold leading-none',
-          highlight ? 'text-purple-600' : 'text-slate-800',
-        ].join(' ')}
-      >
+      <span className={['text-lg font-extrabold leading-none', highlight ? 'text-purple-600' : 'text-slate-800'].join(' ')}>
         {value}
       </span>
       <span className="text-[10px] text-slate-400 font-medium text-center leading-tight">{label}</span>
@@ -355,39 +322,35 @@ function OverviewTab({ member, attendance, offerings, prayers }) {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="flex flex-col gap-0.5">
             <p className="text-xs text-slate-400">Full Name</p>
-            <p className="text-sm font-semibold text-slate-800">{member.name}</p>
+            <p className="text-sm font-semibold text-slate-800">{member.full_name}</p>
           </div>
           <div className="flex flex-col gap-0.5">
             <p className="text-xs text-slate-400">Gender</p>
-            <p className="text-sm font-semibold text-slate-800 capitalize">{member.gender}</p>
+            <p className="text-sm font-semibold text-slate-800 capitalize">{member.gender || '—'}</p>
           </div>
           <div className="flex flex-col gap-0.5">
             <p className="text-xs text-slate-400">Marital Status</p>
-            <p className="text-sm font-semibold text-slate-800 capitalize">
-              {member.maritalStatus || '—'}
-            </p>
+            <p className="text-sm font-semibold text-slate-800 capitalize">{member.marital_status || '—'}</p>
           </div>
           <div className="flex flex-col gap-0.5">
             <p className="text-xs text-slate-400">Date of Birth</p>
             <p className="text-sm font-semibold text-slate-800">
-              {formatDate(member.dateOfBirth)}{' '}
-              {member.dateOfBirth && (
-                <span className="text-slate-400 font-normal">
-                  (Age {calculateAge(member.dateOfBirth)})
-                </span>
-              )}
+              {member.date_of_birth ? (
+                <>
+                  {formatDate(member.date_of_birth)}{' '}
+                  <span className="text-slate-400 font-normal">(Age {calculateAge(member.date_of_birth)})</span>
+                </>
+              ) : '—'}
             </p>
           </div>
           <div className="flex flex-col gap-0.5">
             <p className="text-xs text-slate-400">Membership Status</p>
-            <p className="text-sm font-semibold text-slate-800 capitalize">
-              {member.membershipStatus}
-            </p>
+            <p className="text-sm font-semibold text-slate-800 capitalize">{member.membership_status}</p>
           </div>
           <div className="flex flex-col gap-0.5">
             <p className="text-xs text-slate-400">Baptism Status</p>
             <p className="text-sm font-semibold text-slate-800">
-              {member.baptismStatus ? 'Baptized' : 'Not Baptized'}
+              {member.baptism_status ? 'Baptized' : 'Not Baptized'}
             </p>
           </div>
           <div className="sm:col-span-2 flex flex-col gap-0.5">
@@ -411,28 +374,23 @@ function OverviewTab({ member, attendance, offerings, prayers }) {
         ) : (
           <div className="space-y-2">
             {recentAtt.map((a) => (
-              <div
-                key={a.id}
-                className="flex items-center justify-between gap-3 p-3 rounded-xl bg-slate-50 hover:bg-slate-100 transition-colors"
-              >
+              <div key={a.id} className="flex items-center justify-between gap-3 p-3 rounded-xl bg-slate-50 hover:bg-slate-100 transition-colors">
                 <div className="flex items-center gap-2 flex-1 min-w-0">
                   <AttendanceStatusIcon status={a.status} />
                   <div className="min-w-0">
-                    <p className="text-sm font-medium text-slate-700 truncate">{a.serviceType}</p>
-                    <p className="text-xs text-slate-400">{formatDate(a.date)}</p>
+                    <p className="text-sm font-medium text-slate-700 truncate">
+                      {a.attendance?.service_type || '—'}
+                    </p>
+                    <p className="text-xs text-slate-400">{formatDate(a.attendance?.service_date)}</p>
                   </div>
                 </div>
-                <span
-                  className={[
-                    'text-xs font-semibold px-2 py-0.5 rounded-full capitalize',
-                    a.status === 'present'
-                      ? 'bg-emerald-50 text-emerald-700'
-                      : a.status === 'late'
-                      ? 'bg-amber-50 text-amber-700'
-                      : 'bg-slate-100 text-slate-500',
-                  ].join(' ')}
-                >
-                  {a.status}
+                <span className={[
+                  'text-xs font-semibold px-2 py-0.5 rounded-full capitalize',
+                  a.status === 'present' ? 'bg-emerald-50 text-emerald-700'
+                    : a.status === 'late' ? 'bg-amber-50 text-amber-700'
+                    : 'bg-slate-100 text-slate-500',
+                ].join(' ')}>
+                  {a.status || 'absent'}
                 </span>
               </div>
             ))}
@@ -454,23 +412,20 @@ function OverviewTab({ member, attendance, offerings, prayers }) {
         ) : (
           <div className="space-y-2">
             {recentOff.map((o) => (
-              <div
-                key={o.id}
-                className="flex items-center justify-between gap-3 p-3 rounded-xl bg-slate-50 hover:bg-slate-100 transition-colors"
-              >
+              <div key={o.id} className="flex items-center justify-between gap-3 p-3 rounded-xl bg-slate-50 hover:bg-slate-100 transition-colors">
                 <div className="flex items-center gap-2 flex-1 min-w-0">
                   <div className="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center flex-shrink-0">
                     <DollarSign className="w-3.5 h-3.5 text-emerald-600" />
                   </div>
                   <div className="min-w-0">
                     <p className="text-sm font-medium text-slate-700 capitalize truncate">
-                      {o.type.replace('_', ' ')}
+                      {(o.type || 'offering').replace('_', ' ')}
                     </p>
                     <p className="text-xs text-slate-400">{formatDate(o.date)}</p>
                   </div>
                 </div>
                 <span className="text-sm font-bold text-slate-800 flex-shrink-0">
-                  {o.currency} {o.amount.toLocaleString()}
+                  {o.currency || 'LRD'} {(o.amount || 0).toLocaleString()}
                 </span>
               </div>
             ))}
@@ -486,7 +441,6 @@ function AttendanceTab({ attendance }) {
   const total = attendance.length
   const present = attendance.filter((a) => a.status === 'present').length
   const late = attendance.filter((a) => a.status === 'late').length
-  const absent = attendance.filter((a) => a.status === 'absent').length
   const rate = total > 0 ? Math.round(((present + late) / total) * 100) : 0
 
   return (
@@ -499,16 +453,8 @@ function AttendanceTab({ attendance }) {
           { label: 'Late',    value: late,    highlight: false },
           { label: 'Rate',    value: `${rate}%`, highlight: true },
         ].map((s) => (
-          <div
-            key={s.label}
-            className="bg-white rounded-2xl border border-slate-100 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07)] p-4 flex flex-col items-center gap-1"
-          >
-            <span
-              className={[
-                'text-2xl font-extrabold',
-                s.highlight ? 'text-purple-600' : 'text-slate-800',
-              ].join(' ')}
-            >
+          <div key={s.label} className="bg-white rounded-2xl border border-slate-100 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07)] p-4 flex flex-col items-center gap-1">
+            <span className={['text-2xl font-extrabold', s.highlight ? 'text-purple-600' : 'text-slate-800'].join(' ')}>
               {s.value}
             </span>
             <span className="text-xs text-slate-400 font-medium">{s.label}</span>
@@ -516,7 +462,7 @@ function AttendanceTab({ attendance }) {
         ))}
       </div>
 
-      {/* Attendance rate bar */}
+      {/* Rate bar */}
       <div className="bg-white rounded-2xl border border-slate-100 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07)] p-5">
         <div className="flex items-center justify-between mb-2">
           <p className="text-sm font-semibold text-slate-700">Attendance Rate</p>
@@ -539,8 +485,14 @@ function AttendanceTab({ attendance }) {
           <h3 className="text-sm font-bold text-slate-700">All Attendance Records</h3>
         </div>
         {attendance.length === 0 ? (
-          <div className="py-12 text-center text-sm text-slate-400">
-            No attendance records for this member.
+          <div className="py-12 text-center">
+            <div className="flex flex-col items-center gap-3">
+              <div className="w-12 h-12 rounded-2xl bg-slate-100 flex items-center justify-center">
+                <CheckCircle2 className="w-6 h-6 text-slate-300" />
+              </div>
+              <p className="text-sm font-semibold text-slate-500">No attendance records yet</p>
+              <p className="text-xs text-slate-400">Attendance for this member will appear here once recorded.</p>
+            </div>
           </div>
         ) : (
           <div className="overflow-x-auto">
@@ -548,12 +500,7 @@ function AttendanceTab({ attendance }) {
               <thead className="bg-slate-50">
                 <tr>
                   {['Date', 'Service', 'Status'].map((h) => (
-                    <th
-                      key={h}
-                      className="px-5 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider"
-                    >
-                      {h}
-                    </th>
+                    <th key={h} className="px-5 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">{h}</th>
                   ))}
                 </tr>
               </thead>
@@ -561,25 +508,21 @@ function AttendanceTab({ attendance }) {
                 {attendance.map((a) => (
                   <tr key={a.id} className="hover:bg-slate-50 transition-colors">
                     <td className="px-5 py-3 text-sm text-slate-600 whitespace-nowrap">
-                      {formatDate(a.date)}
+                      {formatDate(a.attendance?.service_date)}
                     </td>
                     <td className="px-5 py-3 text-sm text-slate-700 whitespace-nowrap">
-                      {a.serviceType}
+                      {a.attendance?.service_type || '—'}
                     </td>
                     <td className="px-5 py-3 whitespace-nowrap">
                       <div className="flex items-center gap-2">
-                        <AttendanceStatusIcon status={a.status} />
-                        <span
-                          className={[
-                            'text-xs font-semibold capitalize',
-                            a.status === 'present'
-                              ? 'text-emerald-600'
-                              : a.status === 'late'
-                              ? 'text-amber-600'
-                              : 'text-slate-400',
-                          ].join(' ')}
-                        >
-                          {a.status}
+                        <AttendanceStatusIcon status={a.status || 'absent'} />
+                        <span className={[
+                          'text-xs font-semibold capitalize',
+                          a.status === 'present' ? 'text-emerald-600'
+                            : a.status === 'late' ? 'text-amber-600'
+                            : 'text-slate-400',
+                        ].join(' ')}>
+                          {a.status || 'absent'}
                         </span>
                       </div>
                     </td>
@@ -598,16 +541,12 @@ function AttendanceTab({ attendance }) {
 function GivingTab({ offerings }) {
   const currentYear = new Date().getFullYear()
   const thisYearOfferings = offerings.filter((o) => {
-    const y = new Date(o.date + 'T00:00:00').getFullYear()
-    return y === currentYear
+    if (!o.date) return false
+    return new Date(o.date + 'T00:00:00').getFullYear() === currentYear
   })
 
-  const totalLRD = thisYearOfferings
-    .filter((o) => o.currency === 'LRD')
-    .reduce((sum, o) => sum + o.amount, 0)
-  const totalUSD = thisYearOfferings
-    .filter((o) => o.currency === 'USD')
-    .reduce((sum, o) => sum + o.amount, 0)
+  const totalLRD = thisYearOfferings.filter((o) => o.currency === 'LRD').reduce((sum, o) => sum + (o.amount || 0), 0)
+  const totalUSD = thisYearOfferings.filter((o) => o.currency === 'USD').reduce((sum, o) => sum + (o.amount || 0), 0)
 
   const typeColors = {
     tithe: 'bg-violet-100 text-violet-700',
@@ -623,15 +562,11 @@ function GivingTab({ offerings }) {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="bg-white rounded-2xl border border-slate-100 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07)] p-5">
           <p className="text-xs font-medium text-slate-500 mb-1">Total (LRD) — {currentYear}</p>
-          <p className="text-2xl font-extrabold text-slate-800">
-            LRD {totalLRD.toLocaleString()}
-          </p>
+          <p className="text-2xl font-extrabold text-slate-800">LRD {totalLRD.toLocaleString()}</p>
         </div>
         <div className="bg-white rounded-2xl border border-slate-100 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07)] p-5">
           <p className="text-xs font-medium text-slate-500 mb-1">Total (USD) — {currentYear}</p>
-          <p className="text-2xl font-extrabold text-slate-800">
-            USD {totalUSD.toLocaleString()}
-          </p>
+          <p className="text-2xl font-extrabold text-slate-800">USD {totalUSD.toLocaleString()}</p>
         </div>
         <div className="bg-white rounded-2xl border border-slate-100 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07)] p-5">
           <p className="text-xs font-medium text-slate-500 mb-1">Contributions</p>
@@ -645,38 +580,38 @@ function GivingTab({ offerings }) {
           <h3 className="text-sm font-bold text-slate-700">All Giving Records</h3>
         </div>
         {offerings.length === 0 ? (
-          <div className="py-12 text-center text-sm text-slate-400">
-            No giving records found for this member.
+          <div className="py-12 text-center">
+            <div className="flex flex-col items-center gap-3">
+              <div className="w-12 h-12 rounded-2xl bg-emerald-50 flex items-center justify-center">
+                <DollarSign className="w-6 h-6 text-emerald-300" />
+              </div>
+              <p className="text-sm font-semibold text-slate-500">No giving records yet</p>
+              <p className="text-xs text-slate-400">Offerings recorded for this member will appear here.</p>
+            </div>
           </div>
         ) : (
           <div className="divide-y divide-slate-50">
             {offerings.map((o) => (
-              <div
-                key={o.id}
-                className="flex items-center justify-between gap-4 px-5 py-4 hover:bg-slate-50 transition-colors"
-              >
+              <div key={o.id} className="flex items-center justify-between gap-4 px-5 py-4 hover:bg-slate-50 transition-colors">
                 <div className="flex items-center gap-3 flex-1 min-w-0">
                   <div className="w-9 h-9 rounded-xl bg-emerald-100 flex items-center justify-center flex-shrink-0">
                     <DollarSign className="w-4 h-4 text-emerald-600" />
                   </div>
                   <div className="min-w-0">
                     <div className="flex items-center gap-2 mb-0.5">
-                      <span
-                        className={[
-                          'inline-block text-[10px] font-bold px-2 py-0.5 rounded-full capitalize',
-                          typeColors[o.type] || 'bg-slate-100 text-slate-600',
-                        ].join(' ')}
-                      >
-                        {o.type.replace('_', ' ')}
+                      <span className={[
+                        'inline-block text-[10px] font-bold px-2 py-0.5 rounded-full capitalize',
+                        typeColors[o.type] || 'bg-slate-100 text-slate-600',
+                      ].join(' ')}>
+                        {(o.type || 'offering').replace('_', ' ')}
                       </span>
                     </div>
-                    <p className="text-xs text-slate-400">{o.notes || formatDate(o.date)}</p>
                     <p className="text-[11px] text-slate-400">{formatDate(o.date)}</p>
                   </div>
                 </div>
                 <div className="text-right flex-shrink-0">
                   <p className="text-base font-bold text-slate-800">
-                    {o.currency} {o.amount.toLocaleString()}
+                    {o.currency || 'LRD'} {(o.amount || 0).toLocaleString()}
                   </p>
                 </div>
               </div>
@@ -691,12 +626,12 @@ function GivingTab({ offerings }) {
 // ─── Prayer Tab ───────────────────────────────────────────────
 function PrayerTab({ prayers }) {
   const typeLabels = {
-    public: { label: 'Public', color: 'bg-sky-100 text-sky-700' },
-    private: { label: 'Private', color: 'bg-slate-100 text-slate-600' },
+    public:      { label: 'Public',      color: 'bg-sky-100 text-sky-700' },
+    private:     { label: 'Private',     color: 'bg-slate-100 text-slate-600' },
     pastor_only: { label: 'Pastor Only', color: 'bg-red-100 text-red-700' },
   }
   const statusLabels = {
-    open: { label: 'Open', color: 'bg-orange-100 text-orange-700' },
+    open:     { label: 'Open',     color: 'bg-orange-100 text-orange-700' },
     answered: { label: 'Answered', color: 'bg-emerald-100 text-emerald-700' },
   }
 
@@ -716,33 +651,20 @@ function PrayerTab({ prayers }) {
           const statusInfo = statusLabels[req.status] || statusLabels.open
 
           return (
-            <div
-              key={req.id}
-              className="bg-white rounded-2xl border border-slate-100 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07)] p-5"
-            >
+            <div key={req.id} className="bg-white rounded-2xl border border-slate-100 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07)] p-5">
               <div className="flex items-start gap-3">
                 <div className="w-9 h-9 rounded-xl bg-rose-50 flex items-center justify-center flex-shrink-0 mt-0.5">
                   <Heart className="w-4 h-4 text-rose-500" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap mb-2">
-                    <span
-                      className={[
-                        'text-[10px] font-bold px-2 py-0.5 rounded-full',
-                        typeInfo.color,
-                      ].join(' ')}
-                    >
+                    <span className={['text-[10px] font-bold px-2 py-0.5 rounded-full', typeInfo.color].join(' ')}>
                       {typeInfo.label}
                     </span>
-                    <span
-                      className={[
-                        'text-[10px] font-bold px-2 py-0.5 rounded-full',
-                        statusInfo.color,
-                      ].join(' ')}
-                    >
+                    <span className={['text-[10px] font-bold px-2 py-0.5 rounded-full', statusInfo.color].join(' ')}>
                       {statusInfo.label}
                     </span>
-                    <span className="text-xs text-slate-400">{formatDate(req.date)}</span>
+                    <span className="text-xs text-slate-400">{formatDate(req.submitted_at?.slice(0, 10))}</span>
                   </div>
                   <p className="text-sm text-slate-700 leading-relaxed">{req.request}</p>
                   {req.response && (
@@ -766,71 +688,158 @@ export default function MemberProfile() {
   const { id } = useParams()
   const navigate = useNavigate()
 
-  // Find member
-  const [member, setMember] = useState(() => MEMBERS.find((m) => m.id === id) || null)
+  const [member, setMember] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [notFound, setNotFound] = useState(false)
 
-  // Tab state
+  // Related data
+  const [attendance, setAttendance] = useState([])
+  const [offerings, setOfferings] = useState([])
+  const [prayers, setPrayers] = useState([])
+  const [departments, setDepartments] = useState([])
+
+  // UI state
   const [activeTab, setActiveTab] = useState('overview')
-
-  // Edit modal
   const [showEdit, setShowEdit] = useState(false)
   const [form, setForm] = useState({})
   const [formErrors, setFormErrors] = useState({})
   const [saving, setSaving] = useState(false)
   const [toast, setToast] = useState(null)
 
-  // Derived data
-  const attendance = useMemo(() => (member ? getMemberAttendance(member.id) : []), [member])
-  const offerings = useMemo(() => (member ? getMemberOfferings(member.name) : []), [member])
-  const prayers = useMemo(() => (member ? getMemberPrayers(member.id) : []), [member])
+  // Load member + related data
+  useEffect(() => {
+    async function load() {
+      setLoading(true)
+      setNotFound(false)
 
-  // Toast helper
+      const { data, error } = await insforge.database
+        .from('members')
+        .select('*, departments(name, color)')
+        .eq('id', id)
+        .maybeSingle()
+
+      if (error || !data) {
+        setNotFound(true)
+        setLoading(false)
+        return
+      }
+
+      setMember(data)
+
+      // Fetch related data in parallel
+      const [attRes, offRes, prayRes, deptRes] = await Promise.all([
+        insforge.database
+          .from('attendance_members')
+          .select('*, attendance(service_type, service_date, present_count)')
+          .eq('member_id', id)
+          .order('created_at', { ascending: false })
+          .limit(10),
+        insforge.database
+          .from('offerings')
+          .select('*')
+          .eq('member_id', id)
+          .order('date', { ascending: false })
+          .limit(10),
+        insforge.database
+          .from('prayer_requests')
+          .select('*')
+          .eq('member_id', id)
+          .order('submitted_at', { ascending: false }),
+        insforge.database
+          .from('departments')
+          .select('id, name')
+          .order('name'),
+      ])
+
+      if (attRes.error) console.error('[MemberProfile attendance]', attRes.error.message)
+      if (offRes.error) console.error('[MemberProfile offerings]', offRes.error.message)
+      if (prayRes.error) console.error('[MemberProfile prayers]', prayRes.error.message)
+      if (deptRes.error) console.error('[MemberProfile departments]', deptRes.error.message)
+
+      setAttendance(attRes.data || [])
+      setOfferings(offRes.data || [])
+      setPrayers(prayRes.data || [])
+      setDepartments(deptRes.data || [])
+      setLoading(false)
+    }
+    load()
+  }, [id])
+
   const showToast = (message, type = 'success') => {
     setToast({ message, type })
     setTimeout(() => setToast(null), 3500)
   }
 
-  // Open edit modal
   const handleOpenEdit = () => {
     if (!member) return
     setForm({
-      name: member.name || '',
+      full_name: member.full_name || '',
       gender: member.gender || 'male',
       phone: member.phone || '',
       email: member.email || '',
       address: member.address || '',
-      dateOfBirth: member.dateOfBirth || '',
-      department: member.department || '',
-      membershipStatus: member.membershipStatus || 'active',
-      baptismStatus: member.baptismStatus || false,
-      maritalStatus: member.maritalStatus || 'single',
-      emergencyContact: member.emergencyContact || '',
+      date_of_birth: member.date_of_birth || '',
+      department_id: member.department_id || '',
+      membership_status: member.membership_status || 'active',
+      baptism_status: member.baptism_status || false,
+      marital_status: member.marital_status || 'single',
+      emergency_contact: member.emergency_contact || '',
       notes: member.notes || '',
-      profilePhoto: member.profilePhoto || '',
+      profile_photo_url: member.profile_photo_url || '',
     })
     setFormErrors({})
     setShowEdit(true)
   }
 
-  // Save edits
   const handleSaveEdit = async () => {
     const errs = {}
-    if (!form.name?.trim()) errs.name = 'Full name is required'
+    if (!form.full_name?.trim()) errs.full_name = 'Full name is required'
     if (!form.phone?.trim()) errs.phone = 'Phone number is required'
     if (Object.keys(errs).length) { setFormErrors(errs); return }
 
     setSaving(true)
-    await new Promise((r) => setTimeout(r, 600))
-
-    // TODO: await db.members().update({ id: member.id }, form)
-    setMember((prev) => ({ ...prev, ...form }))
+    const { data, error } = await insforge.database
+      .from('members')
+      .update({
+        full_name: form.full_name,
+        gender: form.gender,
+        phone: form.phone,
+        email: form.email,
+        address: form.address,
+        date_of_birth: form.date_of_birth || null,
+        department_id: form.department_id || null,
+        membership_status: form.membership_status,
+        baptism_status: form.baptism_status,
+        marital_status: form.marital_status,
+        emergency_contact: form.emergency_contact,
+        notes: form.notes,
+      })
+      .eq('id', id)
+      .select('*, departments(name, color)')
+      .single()
     setSaving(false)
+
+    if (error) {
+      showToast(error.message, 'error')
+      return
+    }
+    setMember(data)
     setShowEdit(false)
     showToast('Profile updated successfully.')
   }
 
-  // Not found
-  if (!member) {
+  // ── Loading state ──────────────────────────────────────────
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center gap-4">
+        <Loader2 className="w-10 h-10 text-purple-500 animate-spin" />
+        <p className="text-sm text-slate-400 font-medium">Loading member profile…</p>
+      </div>
+    )
+  }
+
+  // ── Not found ──────────────────────────────────────────────
+  if (notFound) {
     return (
       <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center gap-6 p-8">
         <div className="w-20 h-20 rounded-2xl bg-red-50 flex items-center justify-center">
@@ -848,22 +857,22 @@ export default function MemberProfile() {
   }
 
   const statusMap = { active: 'success', inactive: 'gray', new: 'info' }
-  const age = calculateAge(member.dateOfBirth)
+  const age = member.date_of_birth ? calculateAge(member.date_of_birth) : null
   const presentCount = attendance.filter((a) => a.status === 'present' || a.status === 'late').length
   const attendanceRate = attendance.length > 0
     ? Math.round((presentCount / attendance.length) * 100)
     : 0
 
   const thisYearTotalLRD = offerings
-    .filter((o) => o.currency === 'LRD' && new Date(o.date + 'T00:00:00').getFullYear() === new Date().getFullYear())
-    .reduce((s, o) => s + o.amount, 0)
+    .filter((o) => o.currency === 'LRD' && o.date && new Date(o.date + 'T00:00:00').getFullYear() === new Date().getFullYear())
+    .reduce((s, o) => s + (o.amount || 0), 0)
 
   // ─────────────────────────────────────────────────────────────
   return (
-    <div className="min-h-screen bg-slate-50 animate-fade-in">
+    <div className="min-h-screen bg-slate-50">
       <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
-        {/* ── Back button ─────────────────────────────────── */}
+        {/* Back button */}
         <Link
           to="/app/members"
           className="inline-flex items-center gap-2 text-sm font-semibold text-slate-500 hover:text-purple-600 transition-colors mb-6 group"
@@ -872,36 +881,30 @@ export default function MemberProfile() {
           Back to Members
         </Link>
 
-        {/* ── Main layout ──────────────────────────────────── */}
+        {/* Main layout */}
         <div className="flex flex-col lg:flex-row gap-6 items-start">
 
-          {/* ═══ LEFT SIDEBAR ═══ */}
+          {/* LEFT SIDEBAR */}
           <div className="w-full lg:w-80 xl:w-96 flex-shrink-0 space-y-4">
 
             {/* Profile card */}
             <div className="bg-white rounded-2xl border border-slate-100 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07)] overflow-hidden">
-              {/* Gradient header */}
               <div className="relative h-24 bg-gradient-to-r from-violet-600 to-purple-700">
-                <div className="absolute inset-0 opacity-20"
-                  style={{
-                    backgroundImage: 'radial-gradient(circle at 70% 50%, #F59E0B 0%, transparent 50%)',
-                  }}
-                />
+                <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'radial-gradient(circle at 70% 50%, #F59E0B 0%, transparent 50%)' }} />
               </div>
 
-              {/* Avatar + info */}
               <div className="px-6 pb-6 -mt-12 flex flex-col items-center text-center">
                 <div className="relative mb-3">
-                  {member.profilePhoto ? (
+                  {member.profile_photo_url ? (
                     <img
-                      src={member.profilePhoto}
-                      alt={member.name}
+                      src={member.profile_photo_url}
+                      alt={member.full_name}
                       className="w-24 h-24 rounded-full object-cover ring-4 ring-white shadow-lg"
                     />
                   ) : (
                     <div className="w-24 h-24 rounded-full ring-4 ring-white shadow-lg bg-gradient-to-br from-violet-600 to-purple-700 flex items-center justify-center">
                       <span className="text-2xl font-extrabold text-white">
-                        {getInitials(member.name)}
+                        {getInitials(member.full_name)}
                       </span>
                     </div>
                   )}
@@ -914,73 +917,40 @@ export default function MemberProfile() {
                   </button>
                 </div>
 
-                <h1 className="text-xl font-extrabold text-slate-800">{member.name}</h1>
+                <h1 className="text-xl font-extrabold text-slate-800">{member.full_name}</h1>
 
                 <div className="flex items-center gap-2 mt-2 flex-wrap justify-center">
-                  {member.department && (
+                  {member.departments?.name && (
                     <span className="text-xs font-semibold text-purple-700 bg-purple-50 border border-purple-100 px-2.5 py-0.5 rounded-full">
-                      {member.department}
+                      {member.departments.name}
                     </span>
                   )}
-                  <Badge
-                    variant={statusMap[member.membershipStatus] || 'gray'}
-                    dot
-                    size="sm"
-                  >
-                    {member.membershipStatus.charAt(0).toUpperCase() +
-                      member.membershipStatus.slice(1)}
+                  <Badge variant={statusMap[member.membership_status] || 'gray'} dot size="sm">
+                    {(member.membership_status || 'active').charAt(0).toUpperCase() + (member.membership_status || 'active').slice(1)}
                   </Badge>
                 </div>
 
                 {/* Quick stats */}
                 <div className="flex gap-2 w-full mt-4">
-                  <QuickStat
-                    label="Age"
-                    value={member.dateOfBirth ? age : '—'}
-                  />
-                  <QuickStat
-                    label="Attendance"
-                    value={`${attendanceRate}%`}
-                    highlight
-                  />
-                  <QuickStat
-                    label="Given (LRD)"
-                    value={thisYearTotalLRD > 0 ? `${(thisYearTotalLRD / 1000).toFixed(0)}k` : '0'}
-                  />
+                  <QuickStat label="Age" value={age || '—'} />
+                  <QuickStat label="Attendance" value={`${attendanceRate}%`} highlight />
+                  <QuickStat label="Given (LRD)" value={thisYearTotalLRD > 0 ? `${(thisYearTotalLRD / 1000).toFixed(0)}k` : '0'} />
                 </div>
 
-                {/* Additional quick stats row */}
                 <div className="flex gap-2 w-full mt-2">
                   <QuickStat
                     label="Member Since"
-                    value={member.joinDate
-                      ? new Date(member.joinDate + 'T00:00:00').getFullYear()
-                      : '—'}
+                    value={member.join_date ? new Date(member.join_date + 'T00:00:00').getFullYear() : '—'}
                   />
-                  <QuickStat
-                    label="Baptized"
-                    value={member.baptismStatus ? 'Yes' : 'No'}
-                    highlight={member.baptismStatus}
-                  />
+                  <QuickStat label="Baptized" value={member.baptism_status ? 'Yes' : 'No'} highlight={member.baptism_status} />
                 </div>
 
                 {/* Action buttons */}
                 <div className="flex gap-2 w-full mt-5">
-                  <Button
-                    variant="primary"
-                    size="sm"
-                    icon={Pencil}
-                    onClick={handleOpenEdit}
-                    className="flex-1"
-                  >
+                  <Button variant="primary" size="sm" icon={Pencil} onClick={handleOpenEdit} className="flex-1">
                     Edit Profile
                   </Button>
-                  <Button
-                    variant="secondary"
-                    size="sm"
-                    icon={MessageSquare}
-                    className="flex-1"
-                  >
+                  <Button variant="secondary" size="sm" icon={MessageSquare} className="flex-1">
                     Message
                   </Button>
                 </div>
@@ -996,16 +966,11 @@ export default function MemberProfile() {
               <InfoRow icon={Phone} label="Phone" value={formatPhone(member.phone)} color="text-purple-400" />
               <InfoRow icon={Mail} label="Email" value={member.email} color="text-blue-400" />
               <InfoRow icon={MapPin} label="Address" value={member.address} color="text-amber-400" />
-              <InfoRow
-                icon={Calendar}
-                label="Join Date"
-                value={formatDate(member.joinDate)}
-                color="text-emerald-400"
-              />
+              <InfoRow icon={Calendar} label="Join Date" value={formatDate(member.join_date)} color="text-emerald-400" />
             </div>
 
             {/* Emergency Contact */}
-            {member.emergencyContact && (
+            {member.emergency_contact && (
               <div className="bg-white rounded-2xl border border-slate-100 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07)] p-5 space-y-3">
                 <h3 className="text-sm font-bold text-slate-700 flex items-center gap-2">
                   <div className="w-1 h-4 rounded-full bg-gradient-to-b from-red-500 to-rose-600" />
@@ -1015,12 +980,12 @@ export default function MemberProfile() {
                   <div className="w-8 h-8 rounded-lg bg-red-100 flex items-center justify-center flex-shrink-0">
                     <Phone className="w-3.5 h-3.5 text-red-600" />
                   </div>
-                  <p className="text-sm text-red-800 font-medium">{member.emergencyContact}</p>
+                  <p className="text-sm text-red-800 font-medium">{member.emergency_contact}</p>
                 </div>
               </div>
             )}
 
-            {/* Baptism + Marital */}
+            {/* Additional Info */}
             <div className="bg-white rounded-2xl border border-slate-100 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07)] p-5 space-y-3">
               <h3 className="text-sm font-bold text-slate-700 flex items-center gap-2">
                 <div className="w-1 h-4 rounded-full bg-gradient-to-b from-amber-400 to-yellow-500" />
@@ -1031,26 +996,22 @@ export default function MemberProfile() {
                 <div>
                   <p className="text-xs text-slate-400">Baptism Status</p>
                   <p className="text-sm font-semibold text-slate-700">
-                    {member.baptismStatus ? 'Baptized' : 'Not Baptized'}
+                    {member.baptism_status ? 'Baptized' : 'Not Baptized'}
                   </p>
                 </div>
-                {member.baptismStatus && (
-                  <ShieldCheck className="w-4 h-4 text-emerald-500 ml-auto" />
-                )}
+                {member.baptism_status && <ShieldCheck className="w-4 h-4 text-emerald-500 ml-auto" />}
               </div>
               <div className="flex items-center gap-3">
                 <Heart className="w-4 h-4 text-rose-400 flex-shrink-0" />
                 <div>
                   <p className="text-xs text-slate-400">Marital Status</p>
-                  <p className="text-sm font-semibold text-slate-700 capitalize">
-                    {member.maritalStatus || '—'}
-                  </p>
+                  <p className="text-sm font-semibold text-slate-700 capitalize">{member.marital_status || '—'}</p>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* ═══ RIGHT MAIN AREA ═══ */}
+          {/* RIGHT MAIN AREA */}
           <div className="flex-1 min-w-0 space-y-4">
 
             {/* Tab bar */}
@@ -1078,62 +1039,33 @@ export default function MemberProfile() {
 
             {/* Tab content */}
             {activeTab === 'overview' && (
-              <OverviewTab
-                member={member}
-                attendance={attendance}
-                offerings={offerings}
-                prayers={prayers}
-              />
+              <OverviewTab member={member} attendance={attendance} offerings={offerings} prayers={prayers} />
             )}
-            {activeTab === 'attendance' && (
-              <AttendanceTab attendance={attendance} />
-            )}
-            {activeTab === 'giving' && (
-              <GivingTab offerings={offerings} />
-            )}
-            {activeTab === 'prayer' && (
-              <PrayerTab prayers={prayers} />
-            )}
+            {activeTab === 'attendance' && <AttendanceTab attendance={attendance} />}
+            {activeTab === 'giving' && <GivingTab offerings={offerings} />}
+            {activeTab === 'prayer' && <PrayerTab prayers={prayers} />}
           </div>
         </div>
       </div>
 
-      {/* ── Edit Member Modal ───────────────────────────────── */}
+      {/* Edit Member Modal */}
       <Modal
         isOpen={showEdit}
         onClose={() => setShowEdit(false)}
-        title={`Edit — ${member.name}`}
+        title={`Edit — ${member?.full_name}`}
         size="xl"
         footer={
           <div className="flex justify-end gap-3">
-            <Button
-              variant="secondary"
-              onClick={() => setShowEdit(false)}
-              disabled={saving}
-            >
-              Cancel
-            </Button>
-            <Button
-              variant="primary"
-              loading={saving}
-              onClick={handleSaveEdit}
-            >
-              Save Changes
-            </Button>
+            <Button variant="secondary" onClick={() => setShowEdit(false)} disabled={saving}>Cancel</Button>
+            <Button variant="primary" loading={saving} onClick={handleSaveEdit}>Save Changes</Button>
           </div>
         }
       >
-        <MemberForm form={form} onChange={setForm} errors={formErrors} />
+        <MemberForm form={form} onChange={setForm} errors={formErrors} departments={departments} />
       </Modal>
 
-      {/* ── Toast ───────────────────────────────────────────── */}
-      {toast && (
-        <Toast
-          message={toast.message}
-          type={toast.type}
-          onClose={() => setToast(null)}
-        />
-      )}
+      {/* Toast */}
+      {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
     </div>
   )
 }

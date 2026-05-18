@@ -32,7 +32,6 @@ import {
 } from 'recharts'
 
 import { Button, StatsCard, Badge, Avatar, Input, Modal } from '../../components/ui'
-import { ATTENDANCE_RECORDS, MEMBERS } from '../../data/dummyData'
 import { formatDate } from '../../utils/helpers'
 import { insforge } from '../../lib/insforge'
 import { useAuth } from '../../context/AuthContext'
@@ -72,7 +71,7 @@ function normRec(r) {
 }
 
 // ─── Weekly bar-chart: last 8 service records combined ────────
-const buildWeeklyData = (records = ATTENDANCE_RECORDS) =>
+const buildWeeklyData = (records = []) =>
   records.slice()
     .reverse()
     .slice(0, 8)
@@ -91,7 +90,7 @@ const buildWeeklyData = (records = ATTENDANCE_RECORDS) =>
     })
 
 // ─── Pie data: attendance grouped by service type ─────────────
-const buildPieData = (records = ATTENDANCE_RECORDS) => {
+const buildPieData = (records = []) => {
   const totals = {}
   records.forEach((r) => {
     const n = normRec(r)
@@ -166,26 +165,30 @@ function MemberCheckRow({ member, status, onStatusChange }) {
 }
 
 // ─── Record Attendance Modal ──────────────────────────────────
-function RecordAttendanceModal({ isOpen, onClose, onSaved }) {
+function RecordAttendanceModal({ isOpen, onClose, onSaved, members = [] }) {
   const { user } = useAuth()
   const [serviceType, setServiceType] = useState('Sunday Service')
   const [date, setDate] = useState(new Date().toISOString().split('T')[0])
   const [memberSearch, setMemberSearch] = useState('')
-  const [memberStatuses, setMemberStatuses] = useState(
-    () => Object.fromEntries(MEMBERS.map((m) => [m.id, 'Present']))
-  )
+  const [memberStatuses, setMemberStatuses] = useState({})
+
+  // Re-initialise statuses when members list changes
+  useEffect(() => {
+    setMemberStatuses(Object.fromEntries(members.map((m) => [m.id, 'Present'])))
+  }, [members])
+
   const [visitorCount, setVisitorCount] = useState('')
   const [notes, setNotes] = useState('')
   const [saving, setSaving] = useState(false)
 
   const filteredMembers = useMemo(
     () =>
-      MEMBERS.filter(
+      members.filter(
         (m) =>
-          (m.name || m.full_name || '').toLowerCase().includes(memberSearch.toLowerCase()) ||
+          (m.full_name || m.name || '').toLowerCase().includes(memberSearch.toLowerCase()) ||
           (m.department || '').toLowerCase().includes(memberSearch.toLowerCase())
       ),
-    [memberSearch]
+    [members, memberSearch]
   )
 
   const handleStatusChange = (id, status) => {
@@ -283,7 +286,7 @@ function RecordAttendanceModal({ isOpen, onClose, onSaved }) {
                 type="button"
                 className="text-xs text-emerald-600 hover:underline font-medium"
                 onClick={() =>
-                  setMemberStatuses(Object.fromEntries(MEMBERS.map((m) => [m.id, 'Present'])))
+                  setMemberStatuses(Object.fromEntries(members.map((m) => [m.id, 'Present'])))
                 }
               >
                 Mark All Present
@@ -293,7 +296,7 @@ function RecordAttendanceModal({ isOpen, onClose, onSaved }) {
                 type="button"
                 className="text-xs text-rose-600 hover:underline font-medium"
                 onClick={() =>
-                  setMemberStatuses(Object.fromEntries(MEMBERS.map((m) => [m.id, 'Absent'])))
+                  setMemberStatuses(Object.fromEntries(members.map((m) => [m.id, 'Absent'])))
                 }
               >
                 Mark All Absent
@@ -358,17 +361,29 @@ export default function Attendance() {
   const [activeTab, setActiveTab]     = useState('All Services')
   const [expandedRow, setExpandedRow] = useState(null)
   const [modalOpen, setModalOpen]     = useState(false)
-  const [records, setRecords]         = useState(ATTENDANCE_RECORDS)
+  const [records, setRecords]         = useState([])
+  const [members, setMembers]         = useState([])
 
   // ── Load records from InsForge ─────────────────────────────
   useEffect(() => {
     async function load() {
-      const { data } = await insforge.database
-        .from('attendance')
-        .select('*')
-        .order('service_date', { ascending: false })
-        .limit(50)
-      if (data?.length) setRecords(data)
+      try {
+        const [attRes, mRes] = await Promise.all([
+          insforge.database
+            .from('attendance')
+            .select('*')
+            .order('service_date', { ascending: false })
+            .limit(50),
+          insforge.database
+            .from('members')
+            .select('id, full_name, department')
+            .order('full_name', { ascending: true }),
+        ])
+        setRecords(attRes.data || [])
+        setMembers(mRes.data || [])
+      } catch (err) {
+        console.error('Attendance load error:', err)
+      }
     }
     load()
   }, [])
@@ -385,7 +400,7 @@ export default function Attendance() {
 
   // ── Stats ─────────────────────────────────────────────────
   const normRecords  = useMemo(() => records.map(normRec), [records])
-  const todayRecord  = normRecords[0] || normRec(ATTENDANCE_RECORDS[0])
+  const todayRecord  = normRecords[0] || normRec({ presentCount: 0, absentCount: 0, lateCount: 0, visitorCount: 0 })
   const weeklyTotal  = normRecords.slice(0, 3).reduce((s, r) => s + r.presentCount, 0)
   const monthAvg     = normRecords.length
     ? Math.round(normRecords.reduce((s, r) => s + r.presentCount, 0) / normRecords.length)
@@ -737,6 +752,7 @@ export default function Attendance() {
         isOpen={modalOpen}
         onClose={() => setModalOpen(false)}
         onSaved={(newRecord) => setRecords((prev) => [newRecord, ...prev])}
+        members={members}
       />
     </div>
   )

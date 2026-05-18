@@ -1,7 +1,7 @@
 // ============================================================
 // ChurchFlow Liberia — Branches Page
 // ============================================================
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import {
   MapPin,
   Users,
@@ -12,86 +12,29 @@ import {
   Eye,
   Pencil,
   Building2,
-  Clock,
-  TrendingUp,
+  Trash2,
   X,
+  Loader2,
 } from 'lucide-react'
-import { Button, Badge, Avatar, Modal, Input } from '../../components/ui'
-import { BRANCHES, MEMBERS } from '../../data/dummyData'
-import { formatDate, formatCurrency } from '../../utils/helpers'
-
-// ─── Extended branch info (stats not in dummyData) ──────────
-const BRANCH_STATS = {
-  'branch-001': {
-    lastSundayAttendance: 186,
-    totalOfferings: 125750,
-    currency: 'LRD',
-    description:
-      'The main campus of Grace Community Church, located in Sinkor, Monrovia. This is the founding branch and home of the senior pastor.',
-    recentActivities: [
-      { text: 'Mother\'s Day Celebration – 186 attended', date: '2026-05-17', type: 'event' },
-      { text: 'Easter Sunday – record attendance 220', date: '2026-04-19', type: 'event' },
-      { text: 'New member: Agnes Worjlah joined Youth Ministry', date: '2026-04-06', type: 'member' },
-      { text: 'Building fund donation: LRD 25,000', date: '2026-05-10', type: 'finance' },
-    ],
-    departments: 9,
-    color: 'from-violet-600 to-purple-700',
-    borderColor: 'border-purple-200',
-    accentBg: 'bg-purple-50',
-    accentText: 'text-purple-700',
-  },
-  'branch-002': {
-    lastSundayAttendance: 112,
-    totalOfferings: 68400,
-    currency: 'LRD',
-    description:
-      'East Branch serves the Paynesville community and surrounding areas. Growing congregation with a strong youth presence.',
-    recentActivities: [
-      { text: 'Youth fellowship – 48 young people attended', date: '2026-05-10', type: 'event' },
-      { text: 'Outreach: Paynesville Waterside', date: '2026-04-27', type: 'outreach' },
-      { text: 'New members: 3 joined this month', date: '2026-05-01', type: 'member' },
-    ],
-    departments: 6,
-    color: 'from-amber-500 to-yellow-500',
-    borderColor: 'border-amber-200',
-    accentBg: 'bg-amber-50',
-    accentText: 'text-amber-700',
-  },
-  'branch-003': {
-    lastSundayAttendance: 74,
-    totalOfferings: 32100,
-    currency: 'LRD',
-    description:
-      'West Branch, Gardnersville — a newer plant established in 2019, growing steadily under Pastor Lydia Pewee\'s leadership.',
-    recentActivities: [
-      { text: 'Community Health Outreach planned', date: '2026-05-24', type: 'event' },
-      { text: 'First Sunday communion service held', date: '2026-05-03', type: 'event' },
-      { text: 'Received LRD 15,000 in building fund offerings', date: '2026-04-26', type: 'finance' },
-    ],
-    departments: 4,
-    color: 'from-emerald-500 to-teal-600',
-    borderColor: 'border-emerald-200',
-    accentBg: 'bg-emerald-50',
-    accentText: 'text-emerald-700',
-  },
-}
-
-// Activity icon + color
-function activityIcon(type) {
-  if (type === 'event') return { icon: Calendar, bg: 'bg-purple-100 text-purple-600' }
-  if (type === 'member') return { icon: Users, bg: 'bg-blue-100 text-blue-600' }
-  if (type === 'finance') return { icon: DollarSign, bg: 'bg-emerald-100 text-emerald-600' }
-  return { icon: TrendingUp, bg: 'bg-amber-100 text-amber-600' }
-}
+import { Button, Badge, Modal, Input } from '../../components/ui'
+import { insforge } from '../../lib/insforge'
+import { useAuth } from '../../context/AuthContext'
+import { formatDate } from '../../utils/helpers'
 
 // ─── Branch Card ──────────────────────────────────────────────
-function BranchCard({ branch, onView, onEdit }) {
-  const stats = BRANCH_STATS[branch.id]
+function BranchCard({ branch, onView, onEdit, onDelete }) {
+  const isMain = branch.is_main
 
   return (
     <div className="bg-white rounded-2xl border border-slate-100 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07)] overflow-hidden hover:-translate-y-0.5 hover:shadow-[0_8px_30px_-4px_rgba(124,58,237,0.12)] transition-all duration-300">
       {/* Gradient header */}
-      <div className={`relative h-24 bg-gradient-to-br ${stats.color} flex items-end p-5`}>
+      <div
+        className={`relative h-24 flex items-end p-5 ${
+          isMain
+            ? 'bg-gradient-to-br from-violet-600 to-purple-700'
+            : 'bg-gradient-to-br from-slate-600 to-slate-800'
+        }`}
+      >
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-3 right-8 w-20 h-20 rounded-full bg-white blur-xl" />
           <div className="absolute bottom-0 left-1/3 w-16 h-16 rounded-full bg-white blur-lg" />
@@ -104,52 +47,52 @@ function BranchCard({ branch, onView, onEdit }) {
             <h3 className="text-base font-extrabold text-white leading-tight">{branch.name}</h3>
             <div className="flex items-center gap-1 text-white/80 text-xs">
               <MapPin className="w-3 h-3" />
-              <span>{branch.location}</span>
+              <span>{branch.location || '—'}</span>
             </div>
           </div>
         </div>
+        {isMain && (
+          <span className="absolute top-3 right-3 text-[10px] font-bold bg-white/20 text-white px-2 py-0.5 rounded-full">
+            Main
+          </span>
+        )}
       </div>
 
       <div className="p-5 space-y-4">
         {/* Pastor + Founded */}
         <div className="grid grid-cols-2 gap-3">
-          <div className={`rounded-xl p-3 ${stats.accentBg} border ${stats.borderColor}`}>
+          <div className="rounded-xl p-3 bg-purple-50 border border-purple-100">
             <p className="text-[11px] font-semibold text-slate-500 mb-1">Senior Pastor</p>
-            <p className={`text-sm font-bold ${stats.accentText} truncate`}>{branch.pastor}</p>
+            <p className="text-sm font-bold text-purple-700 truncate">{branch.pastor || '—'}</p>
           </div>
           <div className="rounded-xl p-3 bg-slate-50 border border-slate-100">
             <p className="text-[11px] font-semibold text-slate-500 mb-1">Established</p>
-            <p className="text-sm font-bold text-slate-700">{formatDate(branch.established)}</p>
+            <p className="text-sm font-bold text-slate-700">
+              {branch.established ? formatDate(branch.established) : '—'}
+            </p>
           </div>
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-2 gap-3">
           <div className="text-center p-3 rounded-xl bg-slate-50">
             <Users className="w-4 h-4 text-purple-500 mx-auto mb-1" />
-            <p className="text-lg font-extrabold text-slate-800">{branch.memberCount}</p>
+            <p className="text-lg font-extrabold text-slate-800">0</p>
             <p className="text-[10px] text-slate-400 font-medium">Members</p>
           </div>
           <div className="text-center p-3 rounded-xl bg-slate-50">
-            <UserCheck className="w-4 h-4 text-amber-500 mx-auto mb-1" />
-            <p className="text-lg font-extrabold text-slate-800">{stats.lastSundayAttendance}</p>
-            <p className="text-[10px] text-slate-400 font-medium">Last Sunday</p>
-          </div>
-          <div className="text-center p-3 rounded-xl bg-slate-50">
-            <Building2 className="w-4 h-4 text-blue-500 mx-auto mb-1" />
-            <p className="text-lg font-extrabold text-slate-800">{stats.departments}</p>
-            <p className="text-[10px] text-slate-400 font-medium">Departments</p>
+            <Calendar className="w-4 h-4 text-blue-500 mx-auto mb-1" />
+            <p className="text-lg font-extrabold text-slate-800 truncate text-xs pt-1">
+              {branch.churches?.name || '—'}
+            </p>
+            <p className="text-[10px] text-slate-400 font-medium">Church</p>
           </div>
         </div>
 
-        {/* Offerings badge */}
-        <div className="flex items-center justify-between pt-1">
-          <div className="flex items-center gap-1.5 text-xs text-slate-500">
-            <DollarSign className="w-3.5 h-3.5 text-emerald-500" />
-            <span className="font-semibold text-emerald-700">{formatCurrency(stats.totalOfferings, stats.currency)}</span>
-            <span className="text-slate-400">monthly offerings</span>
-          </div>
-        </div>
+        {/* Description */}
+        {branch.description && (
+          <p className="text-xs text-slate-500 leading-relaxed line-clamp-2">{branch.description}</p>
+        )}
 
         {/* Action buttons */}
         <div className="flex items-center gap-2 pt-1 border-t border-slate-50">
@@ -160,7 +103,7 @@ function BranchCard({ branch, onView, onEdit }) {
             className="flex-1"
             onClick={() => onView(branch)}
           >
-            View Branch
+            View
           </Button>
           <Button
             size="sm"
@@ -170,6 +113,13 @@ function BranchCard({ branch, onView, onEdit }) {
           >
             Edit
           </Button>
+          <button
+            onClick={() => onDelete(branch.id)}
+            className="p-2 rounded-xl text-red-400 hover:text-red-600 hover:bg-red-50 transition-colors"
+            title="Delete branch"
+          >
+            <Trash2 className="w-4 h-4" />
+          </button>
         </div>
       </div>
     </div>
@@ -179,17 +129,17 @@ function BranchCard({ branch, onView, onEdit }) {
 // ─── Branch Detail Modal ──────────────────────────────────────
 function BranchDetailModal({ branch, isOpen, onClose }) {
   if (!branch) return null
-  const stats = BRANCH_STATS[branch.id]
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title={branch.name} size="xl">
       <div className="space-y-6">
         {/* About */}
         <div className="p-4 rounded-xl bg-slate-50 border border-slate-100">
-          <p className="text-sm text-slate-600 leading-relaxed">{stats.description}</p>
+          <p className="text-sm text-slate-600 leading-relaxed">
+            {branch.description || 'No description provided for this branch.'}
+          </p>
           <div className="flex flex-wrap gap-2 mt-3">
-            <Badge variant="purple" dot>{branch.memberCount} Members</Badge>
-            <Badge variant="gold">{stats.departments} Departments</Badge>
+            {branch.is_main && <Badge variant="purple" dot>Main Branch</Badge>}
             <Badge variant="success" dot>Active Branch</Badge>
           </div>
         </div>
@@ -198,33 +148,15 @@ function BranchDetailModal({ branch, isOpen, onClose }) {
         <div>
           <h4 className="text-sm font-bold text-slate-700 mb-3">Branch Pastor</h4>
           <div className="flex items-center gap-3 p-3 rounded-xl border border-slate-100">
-            <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${stats.color} flex items-center justify-center text-white font-bold text-sm`}>
-              {branch.pastor.split(' ').map((w) => w[0]).slice(1, 3).join('')}
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-600 to-purple-700 flex items-center justify-center text-white font-bold text-sm">
+              {branch.pastor
+                ? branch.pastor.split(' ').map((w) => w[0]).slice(0, 2).join('')
+                : '?'}
             </div>
             <div>
-              <p className="text-sm font-semibold text-slate-800">{branch.pastor}</p>
-              <p className="text-xs text-slate-500">Senior Pastor · {branch.location}</p>
+              <p className="text-sm font-semibold text-slate-800">{branch.pastor || '—'}</p>
+              <p className="text-xs text-slate-500">Senior Pastor · {branch.location || '—'}</p>
             </div>
-          </div>
-        </div>
-
-        {/* Key Stats */}
-        <div>
-          <h4 className="text-sm font-bold text-slate-700 mb-3">Branch Statistics</h4>
-          <div className="grid grid-cols-3 gap-3">
-            {[
-              { label: 'Total Members', value: branch.memberCount, icon: Users, color: 'text-purple-600 bg-purple-50' },
-              { label: 'Last Attendance', value: stats.lastSundayAttendance, icon: UserCheck, color: 'text-amber-600 bg-amber-50' },
-              { label: 'Monthly Offerings', value: formatCurrency(stats.totalOfferings, stats.currency), icon: DollarSign, color: 'text-emerald-600 bg-emerald-50' },
-            ].map(({ label, value, icon: Icon, color }) => (
-              <div key={label} className="p-4 rounded-xl bg-slate-50 border border-slate-100 text-center">
-                <div className={`w-9 h-9 rounded-xl ${color} flex items-center justify-center mx-auto mb-2`}>
-                  <Icon className="w-4 h-4" />
-                </div>
-                <p className="text-base font-extrabold text-slate-800">{value}</p>
-                <p className="text-[10px] text-slate-400 font-medium mt-0.5">{label}</p>
-              </div>
-            ))}
           </div>
         </div>
 
@@ -235,38 +167,16 @@ function BranchDetailModal({ branch, isOpen, onClose }) {
               <MapPin className="w-4 h-4 text-slate-400" />
               <span className="text-xs font-semibold text-slate-500">Location</span>
             </div>
-            <p className="text-sm font-medium text-slate-700">{branch.location}</p>
+            <p className="text-sm font-medium text-slate-700">{branch.location || '—'}</p>
           </div>
           <div className="p-3 rounded-xl bg-slate-50 border border-slate-100">
             <div className="flex items-center gap-2 mb-1">
               <Calendar className="w-4 h-4 text-slate-400" />
               <span className="text-xs font-semibold text-slate-500">Established</span>
             </div>
-            <p className="text-sm font-medium text-slate-700">{formatDate(branch.established)}</p>
-          </div>
-        </div>
-
-        {/* Recent Activities */}
-        <div>
-          <h4 className="text-sm font-bold text-slate-700 mb-3">Recent Activities</h4>
-          <div className="space-y-2">
-            {stats.recentActivities.map((act, i) => {
-              const { icon: Icon, bg } = activityIcon(act.type)
-              return (
-                <div key={i} className="flex items-start gap-3 p-3 rounded-xl hover:bg-slate-50 transition-colors">
-                  <div className={`flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center ${bg}`}>
-                    <Icon className="w-4 h-4" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm text-slate-700">{act.text}</p>
-                    <p className="text-xs text-slate-400 flex items-center gap-1 mt-0.5">
-                      <Clock className="w-3 h-3" />
-                      {formatDate(act.date)}
-                    </p>
-                  </div>
-                </div>
-              )
-            })}
+            <p className="text-sm font-medium text-slate-700">
+              {branch.established ? formatDate(branch.established) : '—'}
+            </p>
           </div>
         </div>
       </div>
@@ -275,14 +185,47 @@ function BranchDetailModal({ branch, isOpen, onClose }) {
 }
 
 // ─── Edit Branch Modal ────────────────────────────────────────
-function EditBranchModal({ branch, isOpen, onClose }) {
-  const [form, setForm] = useState(
-    branch
-      ? { name: branch.name, location: branch.location, pastor: branch.pastor, established: branch.established, description: BRANCH_STATS[branch.id]?.description || '' }
-      : {}
-  )
+function EditBranchModal({ branch, isOpen, onClose, onSaved }) {
+  const [form, setForm] = useState({})
+  const [saving, setSaving] = useState(false)
+  const [error, setError] = useState(null)
+
+  useEffect(() => {
+    if (branch) {
+      setForm({
+        name: branch.name || '',
+        location: branch.location || '',
+        pastor: branch.pastor || '',
+        established: branch.established || '',
+        description: branch.description || '',
+      })
+      setError(null)
+    }
+  }, [branch])
 
   const set = (field) => (e) => setForm((prev) => ({ ...prev, [field]: e.target.value }))
+
+  const handleSave = async () => {
+    if (!form.name?.trim()) { setError('Branch name is required.'); return }
+    setSaving(true)
+    setError(null)
+    const { data, error: err } = await insforge.database
+      .from('branches')
+      .update({
+        name: form.name,
+        location: form.location,
+        pastor: form.pastor,
+        established: form.established || null,
+        description: form.description,
+      })
+      .eq('id', branch.id)
+      .select()
+      .single()
+    setSaving(false)
+    if (err) { setError(err.message); return }
+    onSaved(data)
+    onClose()
+  }
 
   return (
     <Modal
@@ -292,18 +235,21 @@ function EditBranchModal({ branch, isOpen, onClose }) {
       size="md"
       footer={
         <div className="flex justify-end gap-3">
-          <Button variant="secondary" onClick={onClose}>Cancel</Button>
-          <Button variant="primary" onClick={onClose}>Save Changes</Button>
+          <Button variant="secondary" onClick={onClose} disabled={saving}>Cancel</Button>
+          <Button variant="primary" onClick={handleSave} loading={saving}>Save Changes</Button>
         </div>
       }
     >
       <div className="space-y-4">
+        {error && (
+          <div className="p-3 rounded-xl bg-red-50 border border-red-100 text-sm text-red-700">{error}</div>
+        )}
         <div>
           <label className="block text-xs font-semibold text-slate-600 mb-1.5">Branch Name *</label>
           <Input value={form.name || ''} onChange={set('name')} />
         </div>
         <div>
-          <label className="block text-xs font-semibold text-slate-600 mb-1.5">Location *</label>
+          <label className="block text-xs font-semibold text-slate-600 mb-1.5">Location</label>
           <Input placeholder="City, County, Liberia" value={form.location || ''} onChange={set('location')} />
         </div>
         <div>
@@ -329,9 +275,38 @@ function EditBranchModal({ branch, isOpen, onClose }) {
 }
 
 // ─── Add Branch Modal ─────────────────────────────────────────
-function AddBranchModal({ isOpen, onClose }) {
+function AddBranchModal({ isOpen, onClose, onCreated }) {
+  const { user } = useAuth()
   const [form, setForm] = useState({ name: '', location: '', pastor: '', established: '', description: '' })
+  const [saving, setSaving] = useState(false)
+  const [error, setError] = useState(null)
+
   const set = (field) => (e) => setForm((prev) => ({ ...prev, [field]: e.target.value }))
+
+  const handleCreate = async () => {
+    if (!form.name?.trim()) { setError('Branch name is required.'); return }
+    setSaving(true)
+    setError(null)
+    const churchId = user?.churchId || user?.profile?.church_id
+    const { data, error: err } = await insforge.database
+      .from('branches')
+      .insert({
+        church_id: churchId,
+        name: form.name,
+        location: form.location,
+        pastor: form.pastor,
+        established: form.established || null,
+        description: form.description,
+        is_main: false,
+      })
+      .select('*, churches(name)')
+      .single()
+    setSaving(false)
+    if (err) { setError(err.message); return }
+    onCreated(data)
+    onClose()
+    setForm({ name: '', location: '', pastor: '', established: '', description: '' })
+  }
 
   return (
     <Modal
@@ -341,33 +316,26 @@ function AddBranchModal({ isOpen, onClose }) {
       size="md"
       footer={
         <div className="flex justify-end gap-3">
-          <Button variant="secondary" onClick={onClose}>Cancel</Button>
-          <Button variant="primary" onClick={onClose}>Create Branch</Button>
+          <Button variant="secondary" onClick={onClose} disabled={saving}>Cancel</Button>
+          <Button variant="primary" onClick={handleCreate} loading={saving}>Create Branch</Button>
         </div>
       }
     >
       <div className="space-y-4">
+        {error && (
+          <div className="p-3 rounded-xl bg-red-50 border border-red-100 text-sm text-red-700">{error}</div>
+        )}
         <div>
           <label className="block text-xs font-semibold text-slate-600 mb-1.5">Branch Name *</label>
           <Input placeholder="e.g. North Branch" value={form.name} onChange={set('name')} />
         </div>
         <div>
-          <label className="block text-xs font-semibold text-slate-600 mb-1.5">Location *</label>
+          <label className="block text-xs font-semibold text-slate-600 mb-1.5">Location</label>
           <Input placeholder="City, County, Liberia" value={form.location} onChange={set('location')} />
         </div>
         <div>
           <label className="block text-xs font-semibold text-slate-600 mb-1.5">Senior Pastor</label>
-          <select
-            value={form.pastor}
-            onChange={set('pastor')}
-            className="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-200 focus:border-purple-400 focus:ring-2 focus:ring-purple-100 outline-none transition-all"
-          >
-            <option value="">Select pastor...</option>
-            {MEMBERS.filter((m) => m.membershipStatus === 'active').map((m) => (
-              <option key={m.id} value={m.name}>{m.name}</option>
-            ))}
-            <option value="Pastor John Doe">Pastor John Doe</option>
-          </select>
+          <Input placeholder="Pastor name..." value={form.pastor} onChange={set('pastor')} />
         </div>
         <div>
           <label className="block text-xs font-semibold text-slate-600 mb-1.5">Established Date</label>
@@ -390,12 +358,40 @@ function AddBranchModal({ isOpen, onClose }) {
 
 // ─── Main Page ────────────────────────────────────────────────
 export default function Branches() {
+  const [branches, setBranches] = useState([])
+  const [loading, setLoading] = useState(true)
   const [viewBranch, setViewBranch] = useState(null)
   const [editBranch, setEditBranch] = useState(null)
   const [showAdd, setShowAdd] = useState(false)
 
-  const totalMembers = BRANCHES.reduce((s, b) => s + b.memberCount, 0)
-  const totalOfferings = Object.values(BRANCH_STATS).reduce((s, b) => s + b.totalOfferings, 0)
+  useEffect(() => {
+    async function load() {
+      setLoading(true)
+      const { data, error } = await insforge.database
+        .from('branches')
+        .select('*, churches(name)')
+        .order('is_main', { ascending: false })
+      if (error) console.error('[Branches]', error.message)
+      setBranches(data || [])
+      setLoading(false)
+    }
+    load()
+  }, [])
+
+  const handleDelete = async (id) => {
+    if (!window.confirm('Delete this branch? This cannot be undone.')) return
+    const { error } = await insforge.database.from('branches').delete().eq('id', id)
+    if (error) { console.error('[Branches delete]', error.message); return }
+    setBranches((prev) => prev.filter((b) => b.id !== id))
+  }
+
+  const handleEditSaved = (updated) => {
+    setBranches((prev) => prev.map((b) => (b.id === updated.id ? { ...b, ...updated } : b)))
+  }
+
+  const handleCreated = (newBranch) => {
+    setBranches((prev) => [...prev, newBranch])
+  }
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -406,7 +402,7 @@ export default function Branches() {
           <div>
             <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900">Branches</h1>
             <p className="text-sm text-slate-500 mt-1">
-              {BRANCHES.length} active branches across Liberia
+              {loading ? 'Loading branches…' : `${branches.length} branch${branches.length !== 1 ? 'es' : ''} registered`}
             </p>
           </div>
           <Button variant="primary" icon={Plus} onClick={() => setShowAdd(true)}>
@@ -415,12 +411,11 @@ export default function Branches() {
         </div>
 
         {/* Summary stats */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
           {[
-            { label: 'Total Branches', value: BRANCHES.length, color: 'text-purple-700 bg-purple-50 border-purple-100' },
-            { label: 'Total Members', value: totalMembers, color: 'text-amber-700 bg-amber-50 border-amber-100' },
-            { label: 'Combined Offerings', value: `LRD ${totalOfferings.toLocaleString()}`, color: 'text-emerald-700 bg-emerald-50 border-emerald-100' },
-            { label: 'Countries', value: '1 (Liberia)', color: 'text-blue-700 bg-blue-50 border-blue-100' },
+            { label: 'Total Branches', value: loading ? '…' : branches.length, color: 'text-purple-700 bg-purple-50 border-purple-100' },
+            { label: 'Main Branch', value: loading ? '…' : branches.filter((b) => b.is_main).length, color: 'text-amber-700 bg-amber-50 border-amber-100' },
+            { label: 'Country', value: '1 (Liberia)', color: 'text-blue-700 bg-blue-50 border-blue-100' },
           ].map(({ label, value, color }) => (
             <div key={label} className={`rounded-2xl border p-4 ${color}`}>
               <p className="text-xs font-medium opacity-70 mb-1">{label}</p>
@@ -429,17 +424,44 @@ export default function Branches() {
           ))}
         </div>
 
+        {/* Loading state */}
+        {loading && (
+          <div className="flex flex-col items-center justify-center py-20 gap-4">
+            <Loader2 className="w-8 h-8 text-purple-500 animate-spin" />
+            <p className="text-sm text-slate-400 font-medium">Loading branches…</p>
+          </div>
+        )}
+
+        {/* Empty state */}
+        {!loading && branches.length === 0 && (
+          <div className="bg-white rounded-2xl border border-dashed border-purple-200 p-16 flex flex-col items-center gap-4 text-center">
+            <div className="w-16 h-16 rounded-2xl bg-purple-50 flex items-center justify-center">
+              <Building2 className="w-8 h-8 text-purple-300" />
+            </div>
+            <div>
+              <p className="text-base font-bold text-slate-700">No branches added yet</p>
+              <p className="text-sm text-slate-400 mt-1">Add your first church branch to get started.</p>
+            </div>
+            <Button variant="primary" icon={Plus} onClick={() => setShowAdd(true)}>
+              Add Branch
+            </Button>
+          </div>
+        )}
+
         {/* Branch Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-          {BRANCHES.map((branch) => (
-            <BranchCard
-              key={branch.id}
-              branch={branch}
-              onView={(b) => setViewBranch(b)}
-              onEdit={(b) => setEditBranch(b)}
-            />
-          ))}
-        </div>
+        {!loading && branches.length > 0 && (
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+            {branches.map((branch) => (
+              <BranchCard
+                key={branch.id}
+                branch={branch}
+                onView={(b) => setViewBranch(b)}
+                onEdit={(b) => setEditBranch(b)}
+                onDelete={handleDelete}
+              />
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Modals */}
@@ -452,8 +474,13 @@ export default function Branches() {
         branch={editBranch}
         isOpen={!!editBranch}
         onClose={() => setEditBranch(null)}
+        onSaved={handleEditSaved}
       />
-      <AddBranchModal isOpen={showAdd} onClose={() => setShowAdd(false)} />
+      <AddBranchModal
+        isOpen={showAdd}
+        onClose={() => setShowAdd(false)}
+        onCreated={handleCreated}
+      />
     </div>
   )
 }
