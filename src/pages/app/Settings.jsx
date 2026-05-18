@@ -1,7 +1,7 @@
 // ============================================================
 // ChurchFlow Liberia — Settings Page
 // ============================================================
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import {
   Church,
   Users,
@@ -85,17 +85,17 @@ const ROLES = [
 const SMS_TEMPLATES = [
   {
     name: 'Birthday Wishes',
-    body: 'Happy Birthday, {name}! 🎂 May God bless you abundantly. – Grace Community Church',
+    body: 'Happy Birthday, {name}! May God bless you abundantly. – {church_name}',
     tag: 'birthday',
   },
   {
     name: 'Event Reminder',
-    body: 'Reminder: {event_title} is happening on {date} at {time}. We look forward to seeing you! – Grace Church',
+    body: 'Reminder: {event_title} is happening on {date} at {time}. We look forward to seeing you! – {church_name}',
     tag: 'event',
   },
   {
     name: 'Follow-Up Message',
-    body: 'Dear {name}, it was great having you at Grace Community Church! We would love to connect. Call us: +231 770 000 000',
+    body: 'Dear {name}, it was great having you at {church_name}! We would love to connect. Call us: {church_phone}',
     tag: 'followup',
   },
 ]
@@ -103,14 +103,29 @@ const SMS_TEMPLATES = [
 // ─── Church Profile Section ───────────────────────────────────
 function ChurchProfileSection({ churchData }) {
   const [form, setForm] = useState({
-    name: 'Grace Community Church',
-    location: 'Sinkor, Monrovia, Liberia',
-    phone: '+231-770-000-001',
-    email: 'info@gracechurchliberia.org',
-    website: 'www.gracechurchliberia.org',
+    name: '',
+    location: '',
+    phone: '',
+    email: '',
+    website: '',
     currency: 'LRD',
-    founded: '2005-01-15',
+    founded: '',
   })
+
+  // Sync form with real church data when it arrives
+  useEffect(() => {
+    if (churchData) {
+      setForm({
+        name:     churchData.name      || '',
+        location: churchData.location  || '',
+        phone:    churchData.phone     || '',
+        email:    churchData.email     || '',
+        website:  churchData.website   || '',
+        currency: churchData.currency  || 'LRD',
+        founded:  churchData.founded_date || '',
+      })
+    }
+  }, [churchData])
   const [logoPreview, setLogoPreview] = useState(null)
   const [saved, setSaved] = useState(false)
 
@@ -458,6 +473,8 @@ function SMSSettingsSection() {
 
 // ─── Appearance Section ───────────────────────────────────────
 function AppearanceSection() {
+  const { church } = useChurch()
+  const churchName = church?.name || 'Your Church'
   const [primaryColor, setPrimaryColor] = useState('#7C3AED')
   const [fontSize, setFontSize] = useState('medium')
 
@@ -535,7 +552,7 @@ function AppearanceSection() {
           {/* Mock nav bar */}
           <div className="h-10 flex items-center px-4 gap-3" style={{ backgroundColor: primaryColor }}>
             <Church className="w-4 h-4 text-white" />
-            <span className="text-white font-bold text-sm">Grace Community Church</span>
+            <span className="text-white font-bold text-sm">{churchName || 'Your Church'}</span>
           </div>
           {/* Mock content */}
           <div className="p-4 bg-slate-50 space-y-3">
@@ -623,7 +640,7 @@ function BackupSection() {
 // ─── Main Page ────────────────────────────────────────────────
 export default function Settings() {
   const [activeSection, setActiveSection] = useState('profile')
-  const { church: churchData } = useChurch()
+  const { church: churchData, church } = useChurch()
 
   const renderSection = () => {
     switch (activeSection) {
@@ -644,7 +661,7 @@ export default function Settings() {
         {/* Page Header */}
         <div className="mb-6">
           <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900">Settings</h1>
-          <p className="text-sm text-slate-500 mt-1">Configure ChurchFlow for Grace Community Church</p>
+          <p className="text-sm text-slate-500 mt-1">Configure ChurchFlow for {church?.name || 'your church'}</p>
         </div>
 
         <div className="flex flex-col lg:flex-row gap-6">

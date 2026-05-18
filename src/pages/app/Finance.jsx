@@ -106,15 +106,26 @@ function CurrencyBadge({ currency }) {
   )
 }
 
-// ─── Monthly summary data (last 6 months) ────────────────────
-const MONTHLY_SUMMARY = [
-  { month: 'Dec', Income: 87000, Expenses: 24000 },
-  { month: 'Jan', Income: 92500, Expenses: 28500 },
-  { month: 'Feb', Income: 78200, Expenses: 21000 },
-  { month: 'Mar', Income: 104000, Expenses: 31000 },
-  { month: 'Apr', Income: 118500, Expenses: 35000 },
-  { month: 'May', Income: 125750, Expenses: 32400 },
-]
+// ─── Build monthly summary from real data ────────────────────
+// Groups offerings (income) and expenses by month for the last 6 months
+function buildMonthlySummary(offeringsList = [], expensesList = []) {
+  const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
+  const now = new Date()
+  const result = []
+  for (let i = 5; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1)
+    const monthStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
+    const label = MONTHS[d.getMonth()]
+    const income = offeringsList
+      .filter(o => (o.date || o.created_at || '').startsWith(monthStr))
+      .reduce((sum, o) => sum + toLRD(o.amount, o.currency || 'LRD'), 0)
+    const expenses = expensesList
+      .filter(e => (e.date || e.created_at || '').startsWith(monthStr))
+      .reduce((sum, e) => sum + toLRD(e.amount, e.currency || 'LRD'), 0)
+    result.push({ month: label, Income: Math.round(income), Expenses: Math.round(expenses) })
+  }
+  return result
+}
 
 // ─── Pie data from offerings ──────────────────────────────────
 function buildOfferingPie(offeringsList = []) {
@@ -721,7 +732,7 @@ function ReportsTab({ offerings = [] }) {
           <p className="text-xs text-slate-400 mb-5">Income vs Expenses – last 6 months (LRD)</p>
           <ResponsiveContainer width="100%" height={240}>
             <BarChart
-              data={MONTHLY_SUMMARY}
+              data={buildMonthlySummary(offerings, expenses)}
               margin={{ top: 5, right: 5, left: -15, bottom: 0 }}
               barCategoryGap="30%"
             >
@@ -821,7 +832,7 @@ function ReportsTab({ offerings = [] }) {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-50">
-              {MONTHLY_SUMMARY.map((row) => {
+              {buildMonthlySummary(offerings, expenses).map((row) => {
                 const net = row.Income - row.Expenses
                 const margin = ((net / row.Income) * 100).toFixed(0)
                 return (
