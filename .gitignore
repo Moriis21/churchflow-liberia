@@ -22,6 +22,9 @@ logs/
 npm-debug.log*
 yarn-debug.log*
 
+# Claude Code local config (preview server, not needed in repo)
+.claude/
+
 # Editor & OS
 .DS_Store
 Thumbs.db
