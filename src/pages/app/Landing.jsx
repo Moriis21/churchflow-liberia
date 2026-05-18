@@ -3,8 +3,8 @@
 // ============================================================
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import React from 'react'
 import {
-  Cross,
   Users,
   CheckSquare,
   DollarSign,
@@ -23,7 +23,6 @@ import {
   MessageCircle,
   Camera,
   PlayCircle,
-  ChevronRight,
 } from 'lucide-react'
 
 // ─── Navbar ──────────────────────────────────────────────────
@@ -42,13 +41,13 @@ function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <a href="#" className="flex items-center gap-2.5 flex-shrink-0">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-violet-600 to-purple-800 flex items-center justify-center shadow-md shadow-purple-500/30">
-              <Cross className="w-5 h-5 text-white" strokeWidth={2.5} />
+          <a href="#" className="flex items-center gap-2 flex-shrink-0">
+            <div className="w-10 h-10 rounded-xl overflow-hidden bg-[#1E1B4B] flex items-center justify-center shadow-md shadow-purple-500/30 flex-shrink-0">
+              <img src="/logo.png" alt="ChurchFlow Liberia" className="w-9 h-9 object-contain" />
             </div>
             <span className="font-bold text-lg text-slate-900 leading-tight">
-              ChurchFlow{' '}
-              <span className="text-purple-600">Liberia</span>
+              Church<span className="text-purple-600">Flow</span>{' '}
+              <span className="text-amber-500">Liberia</span>
             </span>
           </a>
 
@@ -359,29 +358,70 @@ function StatsBar() {
 }
 
 // ─── How It Works ─────────────────────────────────────────────
+function useStepInView(threshold = 0.2) {
+  const ref = React.useRef(null)
+  const [visible, setVisible] = React.useState(false)
+  React.useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const obs = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) { setVisible(true); obs.disconnect() } },
+      { threshold }
+    )
+    obs.observe(el)
+    return () => obs.disconnect()
+  }, [threshold])
+  return [ref, visible]
+}
+
 function HowItWorks() {
+  const [sectionRef, sectionVisible] = useStepInView(0.15)
+
   const steps = [
     {
       num: '01',
       title: 'Quick Setup',
+      emoji: '⚡',
+      color: 'from-[#1E1B4B] to-violet-700',
+      glow: 'shadow-violet-900/40',
+      lineColor: 'bg-violet-200',
       desc: 'Create your church profile in minutes. Add your church name, location, branches, and branding. No technical skills required.',
+      delay: 0,
     },
     {
       num: '02',
       title: 'Add Your Members',
+      emoji: '👥',
+      color: 'from-violet-600 to-purple-700',
+      glow: 'shadow-purple-700/40',
+      lineColor: 'bg-purple-200',
       desc: 'Import or manually add your congregation. Assign departments, record baptism status, and track membership history.',
+      delay: 200,
     },
     {
       num: '03',
       title: 'Track & Grow',
+      emoji: '📈',
+      color: 'from-amber-500 to-yellow-500',
+      glow: 'shadow-amber-400/40',
+      lineColor: 'bg-amber-100',
       desc: 'Record attendance, offerings, and events. Use built-in analytics to understand and grow your ministry.',
+      delay: 400,
     },
   ]
 
   return (
-    <section id="about" className="py-24 bg-white">
+    <section id="about" className="py-24 bg-white overflow-hidden" ref={sectionRef}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center max-w-2xl mx-auto mb-16">
+
+        {/* Section header */}
+        <div
+          className="text-center max-w-2xl mx-auto mb-20 transition-all duration-700"
+          style={{
+            opacity: sectionVisible ? 1 : 0,
+            transform: sectionVisible ? 'translateY(0)' : 'translateY(32px)',
+          }}
+        >
           <span className="inline-block text-sm font-semibold text-purple-600 bg-purple-50 px-4 py-1.5 rounded-full mb-4 border border-purple-100">
             How It Works
           </span>
@@ -394,24 +434,128 @@ function HowItWorks() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-12 relative">
-          {/* Connector line (desktop) */}
-          <div className="hidden md:block absolute top-12 left-1/6 right-1/6 h-0.5 bg-gradient-to-r from-purple-200 via-purple-300 to-purple-200" />
+        {/* Steps */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-10 lg:gap-16 relative">
 
-          {steps.map(({ num, title, desc }, i) => (
-            <div key={num} className="flex flex-col items-center text-center relative">
-              <div className="w-24 h-24 rounded-3xl bg-gradient-to-br from-[#1E1B4B] to-purple-700 flex items-center justify-center mb-6 shadow-xl shadow-purple-900/30 relative z-10">
-                <span className="text-3xl font-black text-white">{num}</span>
+          {/* Animated connector line (desktop only) */}
+          <div className="hidden md:block absolute top-14 left-[20%] right-[20%] h-1 bg-slate-100 rounded-full overflow-hidden">
+            <div
+              className="h-full bg-gradient-to-r from-violet-400 via-purple-500 to-amber-400 rounded-full transition-all duration-1000 ease-out"
+              style={{
+                width: sectionVisible ? '100%' : '0%',
+                transitionDelay: '300ms',
+              }}
+            />
+          </div>
+
+          {steps.map(({ num, title, emoji, color, glow, desc, delay }) => (
+            <div
+              key={num}
+              className="flex flex-col items-center text-center relative"
+              style={{
+                opacity: sectionVisible ? 1 : 0,
+                transform: sectionVisible ? 'translateY(0) scale(1)' : 'translateY(40px) scale(0.95)',
+                transition: `opacity 0.6s ease, transform 0.6s ease`,
+                transitionDelay: `${delay}ms`,
+              }}
+            >
+              {/* Step circle */}
+              <div
+                className={`w-28 h-28 rounded-3xl bg-gradient-to-br ${color} flex flex-col items-center justify-center mb-6 shadow-2xl ${glow} relative z-10`}
+                style={{
+                  animation: sectionVisible ? `stepPulse 2s ease-in-out ${delay + 600}ms 1` : 'none',
+                }}
+              >
+                <span className="text-3xl mb-1">{emoji}</span>
+                <span className="text-xl font-black text-white/80 leading-none">{num}</span>
               </div>
-              <h3 className="text-xl font-bold text-slate-800 mb-3">{title}</h3>
-              <p className="text-sm text-slate-500 leading-relaxed max-w-xs">{desc}</p>
-              {i < steps.length - 1 && (
-                <ChevronRight className="md:hidden text-purple-300 w-8 h-8 mt-6 rotate-90" />
+
+              {/* Arrow between steps on mobile */}
+              {num !== '03' && (
+                <div className="md:hidden flex justify-center my-2">
+                  <div
+                    className="flex flex-col items-center gap-1"
+                    style={{
+                      opacity: sectionVisible ? 1 : 0,
+                      transition: 'opacity 0.5s ease',
+                      transitionDelay: `${delay + 300}ms`,
+                    }}
+                  >
+                    {[0, 1, 2].map(i => (
+                      <div
+                        key={i}
+                        className="w-1 h-3 rounded-full bg-purple-300"
+                        style={{
+                          opacity: sectionVisible ? (1 - i * 0.25) : 0,
+                          transition: `opacity 0.4s ease`,
+                          transitionDelay: `${delay + 350 + i * 60}ms`,
+                        }}
+                      />
+                    ))}
+                  </div>
+                </div>
               )}
+
+              {/* Text */}
+              <h3
+                className="text-xl font-bold text-slate-800 mb-3"
+                style={{
+                  opacity: sectionVisible ? 1 : 0,
+                  transform: sectionVisible ? 'translateY(0)' : 'translateY(16px)',
+                  transition: 'opacity 0.5s ease, transform 0.5s ease',
+                  transitionDelay: `${delay + 200}ms`,
+                }}
+              >
+                {title}
+              </h3>
+              <p
+                className="text-sm text-slate-500 leading-relaxed max-w-xs"
+                style={{
+                  opacity: sectionVisible ? 1 : 0,
+                  transition: 'opacity 0.5s ease',
+                  transitionDelay: `${delay + 350}ms`,
+                }}
+              >
+                {desc}
+              </p>
+
+              {/* Animated underline accent */}
+              <div
+                className="mt-5 h-1 rounded-full bg-gradient-to-r from-violet-400 to-purple-500 transition-all duration-700"
+                style={{
+                  width: sectionVisible ? '48px' : '0px',
+                  transitionDelay: `${delay + 500}ms`,
+                }}
+              />
             </div>
           ))}
         </div>
+
+        {/* Bottom CTA nudge */}
+        <div
+          className="mt-16 text-center"
+          style={{
+            opacity: sectionVisible ? 1 : 0,
+            transform: sectionVisible ? 'translateY(0)' : 'translateY(20px)',
+            transition: 'opacity 0.6s ease, transform 0.6s ease',
+            transitionDelay: '800ms',
+          }}
+        >
+          <span className="inline-flex items-center gap-2 text-sm font-medium text-purple-600 bg-purple-50 px-5 py-2.5 rounded-full border border-purple-100">
+            <span>🚀</span>
+            Start your free church account today — no credit card required
+          </span>
+        </div>
       </div>
+
+      {/* Keyframe for step pulse */}
+      <style>{`
+        @keyframes stepPulse {
+          0%   { transform: scale(1); box-shadow: 0 0 0 0 rgba(124,58,237,0.4); }
+          50%  { transform: scale(1.06); box-shadow: 0 0 0 16px rgba(124,58,237,0); }
+          100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(124,58,237,0); }
+        }
+      `}</style>
     </section>
   )
 }
@@ -706,9 +850,7 @@ function Footer() {
           {/* Brand */}
           <div className="col-span-2">
             <div className="flex items-center gap-2.5 mb-4">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-violet-500 to-purple-700 flex items-center justify-center shadow-md">
-                <Cross className="w-5 h-5 text-white" strokeWidth={2.5} />
-              </div>
+              <img src="/logo.png" alt="ChurchFlow Liberia" className="w-10 h-10 rounded-xl object-contain flex-shrink-0" />
               <span className="font-bold text-lg">
                 ChurchFlow <span className="text-purple-300">Liberia</span>
               </span>

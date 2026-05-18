@@ -14,7 +14,6 @@ import {
   Wallet,
   CalendarCheck,
   ChevronRight,
-  CrossIcon,
 } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { Input, Button } from '../../components/ui'
@@ -130,12 +129,10 @@ export default function Login() {
         {/* Logo */}
         <div className="relative z-10">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-400 to-yellow-500 flex items-center justify-center shadow-lg shadow-amber-400/30">
-              <span className="text-amber-900 font-black text-lg leading-none">✝</span>
-            </div>
+            <img src="/logo.png" alt="ChurchFlow Liberia" className="w-14 h-14 object-contain rounded-xl" />
             <div>
-              <p className="text-white font-bold text-lg leading-tight">ChurchFlow</p>
-              <p className="text-purple-300 text-xs tracking-widest uppercase">Liberia</p>
+              <p className="text-white font-bold text-xl leading-tight">ChurchFlow</p>
+              <p className="text-amber-400 text-xs tracking-widest uppercase font-semibold">Liberia</p>
             </div>
           </div>
         </div>

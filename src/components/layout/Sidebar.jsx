@@ -20,8 +20,6 @@ import {
   LogOut,
   ChevronDown,
   Check,
-  Cross,
-  Church,
   X,
 } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
@@ -212,11 +210,11 @@ export default function Sidebar({ isOpen, onClose }) {
       {/* ── Logo ─────────────────────────────────────────── */}
       <div className="flex items-center justify-between px-5 pt-6 pb-5 flex-shrink-0">
         <div className="flex items-center gap-2.5">
-          {/* Cross icon in gold circle */}
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-400 to-amber-500 flex items-center justify-center shadow-md shadow-amber-900/30 flex-shrink-0">
-            <Church className="w-5 h-5 text-white" strokeWidth={2} />
-          </div>
-          {/* Brand name */}
+          <img
+            src="/logo.png"
+            alt="ChurchFlow Liberia"
+            className="w-10 h-10 rounded-xl object-contain flex-shrink-0"
+          />
           <div className="leading-tight">
             <span className="block text-base font-extrabold tracking-tight bg-gradient-to-r from-white to-purple-200 bg-clip-text text-transparent">
               ChurchFlow
