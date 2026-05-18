@@ -14,9 +14,11 @@ import {
   Wallet,
   CalendarCheck,
   ChevronRight,
+  Globe,
 } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { Input, Button } from '../../components/ui'
+import { insforge } from '../../lib/insforge'
 
 // ─── Left-panel decorative church graphic ────────────────────
 function ChurchGraphic() {
@@ -184,6 +186,32 @@ export default function Login() {
             <div className="mb-8">
               <h2 className="text-2xl font-extrabold text-[#1E1B4B]">Welcome Back</h2>
               <p className="mt-1 text-slate-500 text-sm">Sign in to your ChurchFlow account</p>
+            </div>
+
+            {/* Google OAuth */}
+            <button
+              type="button"
+              onClick={async () => {
+                try {
+                  await insforge.auth.signInWithOAuth({
+                    provider: 'google',
+                    redirectTo: `${window.location.origin}/app/dashboard`,
+                  })
+                } catch {
+                  toast.error('Google sign-in failed. Please try again.')
+                }
+              }}
+              className="w-full flex items-center justify-center gap-3 bg-white border border-slate-200 text-slate-700 text-sm font-semibold px-4 py-3 rounded-xl hover:bg-slate-50 hover:border-slate-300 hover:shadow-sm transition-all duration-200 mb-6"
+            >
+              <Globe className="w-4 h-4 text-slate-500" />
+              Continue with Google
+            </button>
+
+            {/* Divider */}
+            <div className="flex items-center gap-3 mb-6">
+              <div className="flex-1 h-px bg-slate-200" />
+              <span className="text-xs text-slate-400 font-medium">or sign in with email</span>
+              <div className="flex-1 h-px bg-slate-200" />
             </div>
 
             {/* Form */}

@@ -27,6 +27,25 @@ const Branches       = React.lazy(() => import('./pages/app/Branches'))
 const Settings       = React.lazy(() => import('./pages/app/Settings'))
 const UserManagement = React.lazy(() => import('./pages/app/UserManagement'))
 
+// ─── Public pages ─────────────────────────────────────────────
+const FeaturesPage    = React.lazy(() => import('./pages/public/FeaturesPage'))
+const PricingPage     = React.lazy(() => import('./pages/public/PricingPage'))
+const AboutPage       = React.lazy(() => import('./pages/public/AboutPage'))
+const ContactPage     = React.lazy(() => import('./pages/public/ContactPage'))
+const DocumentationPage = React.lazy(() => import('./pages/public/DocumentationPage'))
+const HelpCentrePage  = React.lazy(() => import('./pages/public/HelpCentrePage'))
+const ChangelogPage   = React.lazy(() => import('./pages/public/ChangelogPage'))
+const RoadmapPage     = React.lazy(() => import('./pages/public/RoadmapPage'))
+const StatusPage      = React.lazy(() => import('./pages/public/StatusPage'))
+const BlogPage        = React.lazy(() => import('./pages/public/BlogPage'))
+const CareersPage     = React.lazy(() => import('./pages/public/CareersPage'))
+const PressPage       = React.lazy(() => import('./pages/public/PressPage'))
+const CommunityPage   = React.lazy(() => import('./pages/public/CommunityPage'))
+const PrivacyPolicy   = React.lazy(() => import('./pages/public/LegalPages').then(m => ({ default: m.PrivacyPolicy  })))
+const TermsOfService  = React.lazy(() => import('./pages/public/LegalPages').then(m => ({ default: m.TermsOfService })))
+const CookiePolicy    = React.lazy(() => import('./pages/public/LegalPages').then(m => ({ default: m.CookiePolicy   })))
+const GDPRPage        = React.lazy(() => import('./pages/public/LegalPages').then(m => ({ default: m.GDPRPage       })))
+
 // ─── Suspense fallback spinner ────────────────────────────────
 function PageSpinner() {
   return (
@@ -87,9 +106,26 @@ function AppRoutes() {
         <Route path="/" element={<Navigate to="/landing" replace />} />
 
         {/* Public pages */}
-        <Route path="/landing"  element={<Landing />} />
-        <Route path="/login"    element={<Login />} />
-        <Route path="/register" element={<Register />} />
+        <Route path="/landing"    element={<Landing />} />
+        <Route path="/login"      element={<Login />} />
+        <Route path="/register"   element={<Register />} />
+        <Route path="/features"   element={<FeaturesPage />} />
+        <Route path="/pricing"    element={<PricingPage />} />
+        <Route path="/about"      element={<AboutPage />} />
+        <Route path="/contact"    element={<ContactPage />} />
+        <Route path="/docs"       element={<DocumentationPage />} />
+        <Route path="/help"       element={<HelpCentrePage />} />
+        <Route path="/changelog"  element={<ChangelogPage />} />
+        <Route path="/roadmap"    element={<RoadmapPage />} />
+        <Route path="/status"     element={<StatusPage />} />
+        <Route path="/blog"       element={<BlogPage />} />
+        <Route path="/careers"    element={<CareersPage />} />
+        <Route path="/press"      element={<PressPage />} />
+        <Route path="/community"  element={<CommunityPage />} />
+        <Route path="/privacy"    element={<PrivacyPolicy />} />
+        <Route path="/terms"      element={<TermsOfService />} />
+        <Route path="/cookies"    element={<CookiePolicy />} />
+        <Route path="/gdpr"       element={<GDPRPage />} />
 
         {/* Protected app shell */}
         <Route

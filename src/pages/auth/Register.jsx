@@ -17,9 +17,11 @@ import {
   CheckCircle2,
   ChevronRight,
   ChevronLeft,
+  Globe,
 } from 'lucide-react'
 import { useAuth, ROLES } from '../../context/AuthContext'
 import { Input, Button } from '../../components/ui'
+import { insforge } from '../../lib/insforge'
 
 // ─── Step progress indicator ─────────────────────────────────
 function StepIndicator({ currentStep }) {
@@ -191,7 +193,7 @@ export default function Register() {
       if (error) {
         toast.error(error.message || 'Invalid or expired code. Please try again.')
       } else {
-        toast.success('Email verified! Welcome to ChurchFlow Liberia 🎉')
+        toast.success('Email verified! Welcome to ChurchFlow Liberia.')
         navigate('/app/dashboard')
       }
     } catch {
@@ -453,6 +455,37 @@ export default function Register() {
             {/* ── STEP 2 ── */}
             {step === 2 && (
               <form onSubmit={handleSubmit} noValidate className="space-y-5">
+
+                {/* Google OAuth */}
+                <div>
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      try {
+                        await insforge.auth.signInWithOAuth({
+                          provider: 'google',
+                          redirectTo: `${window.location.origin}/app/dashboard`,
+                        })
+                        toast.success('Signed in with Google. Please complete your church setup.')
+                        navigate('/app/dashboard')
+                      } catch {
+                        toast.error('Google sign-in failed. Please try again.')
+                      }
+                    }}
+                    className="w-full flex items-center justify-center gap-3 bg-white border border-slate-200 text-slate-700 text-sm font-semibold px-4 py-3 rounded-xl hover:bg-slate-50 hover:border-slate-300 hover:shadow-sm transition-all duration-200"
+                  >
+                    <Globe className="w-4 h-4 text-slate-500" />
+                    Continue with Google
+                  </button>
+                </div>
+
+                {/* Divider */}
+                <div className="flex items-center gap-3">
+                  <div className="flex-1 h-px bg-slate-200" />
+                  <span className="text-xs text-slate-400 font-medium">or create account with email</span>
+                  <div className="flex-1 h-px bg-slate-200" />
+                </div>
+
                 <Input
                   label="Full Name"
                   id="admin-name"

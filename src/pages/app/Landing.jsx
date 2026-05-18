@@ -14,6 +14,7 @@ import {
   Star,
   CheckCircle,
   ArrowRight,
+  ArrowUpRight,
   Menu,
   X,
   TrendingUp,
@@ -24,6 +25,43 @@ import {
   Camera,
   PlayCircle,
 } from 'lucide-react'
+
+// ─── Global animation styles ─────────────────────────────────
+const GLOBAL_STYLES = `
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeInLeft {
+    from { opacity: 0; transform: translateX(-24px); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
+  @keyframes fadeInRight {
+    from { opacity: 0; transform: translateX(24px); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
+  @keyframes shimmer {
+    0%   { background-position: -200% center; }
+    100% { background-position: 200% center; }
+  }
+  @keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50%       { transform: translateY(-8px); }
+  }
+  @keyframes stepPulse {
+    0%   { transform: scale(1); box-shadow: 0 0 0 0 rgba(124,58,237,0.4); }
+    50%  { transform: scale(1.06); box-shadow: 0 0 0 16px rgba(124,58,237,0); }
+    100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(124,58,237,0); }
+  }
+  @keyframes lineGrow {
+    from { width: 0%; }
+    to   { width: 100%; }
+  }
+  @keyframes countUp {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+`
 
 // ─── Navbar ──────────────────────────────────────────────────
 function Navbar() {
@@ -138,13 +176,19 @@ function Hero() {
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center max-w-4xl mx-auto">
           {/* Badge */}
-          <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 text-white/90 text-sm font-medium px-4 py-1.5 rounded-full mb-8">
+          <div
+            className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 text-white/90 text-sm font-medium px-4 py-1.5 rounded-full mb-8"
+            style={{ animation: 'fadeInUp 0.7s ease both' }}
+          >
             <Zap className="w-3.5 h-3.5 text-yellow-400" />
             Built specifically for Liberian churches
           </div>
 
           {/* Headline */}
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white leading-tight tracking-tight mb-6">
+          <h1
+            className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white leading-tight tracking-tight mb-6"
+            style={{ animation: 'fadeInUp 0.7s ease both' }}
+          >
             Stop Losing Church Records.{' '}
             <span className="bg-gradient-to-r from-yellow-400 to-amber-500 bg-clip-text text-transparent">
               Start Building a Smarter Ministry.
@@ -152,13 +196,19 @@ function Hero() {
           </h1>
 
           {/* Subtext */}
-          <p className="text-lg sm:text-xl text-white/70 leading-relaxed max-w-2xl mx-auto mb-10">
+          <p
+            className="text-lg sm:text-xl text-white/70 leading-relaxed max-w-2xl mx-auto mb-10"
+            style={{ animation: 'fadeInUp 0.9s ease 0.2s both' }}
+          >
             ChurchFlow helps Liberian churches manage members, track attendance, record offerings,
             and stay connected — all in one place.
           </p>
 
           {/* CTA Buttons */}
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-14">
+          <div
+            className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-14"
+            style={{ animation: 'fadeInUp 0.9s ease 0.4s both' }}
+          >
             <Link
               to="/register"
               className="w-full sm:w-auto inline-flex items-center justify-center gap-2 text-base font-bold text-amber-950 bg-gradient-to-r from-yellow-400 to-amber-500 px-8 py-4 rounded-2xl hover:from-yellow-300 hover:to-amber-400 shadow-xl shadow-yellow-500/30 transition-all hover:-translate-y-1 hover:shadow-yellow-500/50"
@@ -173,7 +223,10 @@ function Hero() {
           </div>
 
           {/* Trust badges */}
-          <div className="flex flex-wrap items-center justify-center gap-6 mb-16">
+          <div
+            className="flex flex-wrap items-center justify-center gap-6 mb-16"
+            style={{ animation: 'fadeInUp 0.9s ease 0.5s both' }}
+          >
             {[
               { icon: Users, label: '500+ Churches' },
               { icon: TrendingUp, label: '25,000+ Members Tracked' },
@@ -190,7 +243,10 @@ function Hero() {
           </div>
 
           {/* Dashboard mockup */}
-          <div className="relative mx-auto max-w-4xl">
+          <div
+            className="relative mx-auto max-w-4xl"
+            style={{ animation: 'fadeInRight 0.8s ease 0.4s both' }}
+          >
             <div className="absolute -inset-1 bg-gradient-to-r from-violet-500/50 to-purple-600/50 rounded-3xl blur-xl" />
             <div className="relative bg-white/10 backdrop-blur-md border border-white/20 rounded-3xl p-6 shadow-2xl">
               {/* Mock header bar */}
@@ -291,12 +347,36 @@ const FEATURES = [
   },
 ]
 
+function useInView(threshold = 0.15) {
+  const ref = React.useRef(null)
+  const [visible, setVisible] = React.useState(false)
+  React.useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const obs = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) { setVisible(true); obs.disconnect() } },
+      { threshold }
+    )
+    obs.observe(el)
+    return () => obs.disconnect()
+  }, [threshold])
+  return [ref, visible]
+}
+
 function Features() {
+  const [sectionRef, sectionVisible] = useInView(0.1)
+
   return (
-    <section id="features" className="py-24 bg-slate-50">
+    <section id="features" className="py-24 bg-slate-50" ref={sectionRef}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
-        <div className="text-center max-w-2xl mx-auto mb-16">
+        <div
+          className="text-center max-w-2xl mx-auto mb-16 transition-all duration-700"
+          style={{
+            opacity: sectionVisible ? 1 : 0,
+            transform: sectionVisible ? 'translateY(0)' : 'translateY(24px)',
+          }}
+        >
           <span className="inline-block text-sm font-semibold text-purple-600 bg-purple-50 px-4 py-1.5 rounded-full mb-4 border border-purple-100">
             Features
           </span>
@@ -310,10 +390,16 @@ function Features() {
 
         {/* Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {FEATURES.map(({ icon: Icon, title, desc }) => (
+          {FEATURES.map(({ icon: Icon, title, desc }, i) => (
             <div
               key={title}
               className="bg-white border border-slate-100 rounded-2xl p-6 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07)] hover:shadow-[0_8px_30px_-4px_rgba(124,58,237,0.15)] hover:-translate-y-1 transition-all duration-300 group"
+              style={{
+                opacity: sectionVisible ? 1 : 0,
+                transform: sectionVisible ? 'translateY(0)' : 'translateY(32px)',
+                transition: `opacity 0.5s ease, transform 0.5s ease, box-shadow 0.3s ease`,
+                transitionDelay: `${i * 80}ms`,
+              }}
             >
               <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-violet-100 to-purple-100 border border-purple-100 flex items-center justify-center mb-5 group-hover:from-violet-600 group-hover:to-purple-700 group-hover:border-transparent transition-all duration-300 shadow-sm">
                 <Icon className="w-6 h-6 text-purple-600 group-hover:text-white transition-colors duration-300" />
@@ -330,6 +416,8 @@ function Features() {
 
 // ─── Stats Bar ────────────────────────────────────────────────
 function StatsBar() {
+  const [ref, visible] = useInView(0.2)
+
   const stats = [
     { value: '500+', label: 'Churches' },
     { value: '25,000+', label: 'Members Managed' },
@@ -338,11 +426,18 @@ function StatsBar() {
   ]
 
   return (
-    <section className="bg-gradient-to-r from-violet-700 via-purple-700 to-indigo-700 py-14">
+    <section className="bg-gradient-to-r from-violet-700 via-purple-700 to-indigo-700 py-14" ref={ref}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 text-center">
-          {stats.map(({ value, label }) => (
-            <div key={label} className="flex flex-col items-center gap-1">
+          {stats.map(({ value, label }, i) => (
+            <div
+              key={label}
+              className="flex flex-col items-center gap-1"
+              style={{
+                animation: visible ? `countUp 0.5s ease ${i * 100}ms both` : 'none',
+                opacity: visible ? 1 : 0,
+              }}
+            >
               <span className="text-4xl sm:text-5xl font-extrabold text-white tracking-tight">
                 {value}
               </span>
@@ -381,30 +476,27 @@ function HowItWorks() {
     {
       num: '01',
       title: 'Quick Setup',
-      emoji: '⚡',
+      Icon: Zap,
       color: 'from-[#1E1B4B] to-violet-700',
       glow: 'shadow-violet-900/40',
-      lineColor: 'bg-violet-200',
       desc: 'Create your church profile in minutes. Add your church name, location, branches, and branding. No technical skills required.',
       delay: 0,
     },
     {
       num: '02',
       title: 'Add Your Members',
-      emoji: '👥',
+      Icon: Users,
       color: 'from-violet-600 to-purple-700',
       glow: 'shadow-purple-700/40',
-      lineColor: 'bg-purple-200',
       desc: 'Import or manually add your congregation. Assign departments, record baptism status, and track membership history.',
       delay: 200,
     },
     {
       num: '03',
       title: 'Track & Grow',
-      emoji: '📈',
+      Icon: TrendingUp,
       color: 'from-amber-500 to-yellow-500',
       glow: 'shadow-amber-400/40',
-      lineColor: 'bg-amber-100',
       desc: 'Record attendance, offerings, and events. Use built-in analytics to understand and grow your ministry.',
       delay: 400,
     },
@@ -412,6 +504,7 @@ function HowItWorks() {
 
   return (
     <section id="about" className="py-24 bg-white overflow-hidden" ref={sectionRef}>
+      <style>{GLOBAL_STYLES}</style>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
         {/* Section header */}
@@ -448,7 +541,7 @@ function HowItWorks() {
             />
           </div>
 
-          {steps.map(({ num, title, emoji, color, glow, desc, delay }) => (
+          {steps.map(({ num, title, Icon, color, glow, desc, delay }) => (
             <div
               key={num}
               className="flex flex-col items-center text-center relative"
@@ -466,7 +559,7 @@ function HowItWorks() {
                   animation: sectionVisible ? `stepPulse 2s ease-in-out ${delay + 600}ms 1` : 'none',
                 }}
               >
-                <span className="text-3xl mb-1">{emoji}</span>
+                <Icon className="w-7 h-7 text-white mb-1" />
                 <span className="text-xl font-black text-white/80 leading-none">{num}</span>
               </div>
 
@@ -531,7 +624,7 @@ function HowItWorks() {
           ))}
         </div>
 
-        {/* Bottom CTA nudge */}
+        {/* Bottom CTA nudge — no emojis */}
         <div
           className="mt-16 text-center"
           style={{
@@ -541,21 +634,15 @@ function HowItWorks() {
             transitionDelay: '800ms',
           }}
         >
-          <span className="inline-flex items-center gap-2 text-sm font-medium text-purple-600 bg-purple-50 px-5 py-2.5 rounded-full border border-purple-100">
-            <span>🚀</span>
+          <Link
+            to="/register"
+            className="inline-flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r from-violet-600 to-purple-700 px-6 py-3 rounded-full shadow-md shadow-purple-500/25 hover:from-violet-700 hover:to-purple-800 hover:-translate-y-0.5 hover:shadow-purple-500/40 transition-all"
+          >
             Start your free church account today — no credit card required
-          </span>
+            <ArrowRight className="w-4 h-4" />
+          </Link>
         </div>
       </div>
-
-      {/* Keyframe for step pulse */}
-      <style>{`
-        @keyframes stepPulse {
-          0%   { transform: scale(1); box-shadow: 0 0 0 0 rgba(124,58,237,0.4); }
-          50%  { transform: scale(1.06); box-shadow: 0 0 0 16px rgba(124,58,237,0); }
-          100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(124,58,237,0); }
-        }
-      `}</style>
     </section>
   )
 }
@@ -592,10 +679,18 @@ const TESTIMONIALS = [
 ]
 
 function Testimonials() {
+  const [ref, visible] = useInView(0.1)
+
   return (
-    <section className="py-24 bg-gradient-to-br from-slate-50 to-purple-50">
+    <section className="py-24 bg-gradient-to-br from-slate-50 to-purple-50" ref={ref}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center max-w-2xl mx-auto mb-16">
+        <div
+          className="text-center max-w-2xl mx-auto mb-16 transition-all duration-700"
+          style={{
+            opacity: visible ? 1 : 0,
+            transform: visible ? 'translateY(0)' : 'translateY(24px)',
+          }}
+        >
           <span className="inline-block text-sm font-semibold text-purple-600 bg-purple-50 px-4 py-1.5 rounded-full mb-4 border border-purple-100">
             Testimonials
           </span>
@@ -605,15 +700,21 @@ function Testimonials() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {TESTIMONIALS.map((t) => (
+          {TESTIMONIALS.map((t, i) => (
             <div
               key={t.name}
               className="bg-white border border-slate-100 rounded-2xl p-7 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07)] hover:shadow-[0_8px_30px_-4px_rgba(124,58,237,0.12)] hover:-translate-y-1 transition-all duration-300 flex flex-col"
+              style={{
+                opacity: visible ? 1 : 0,
+                transform: visible ? 'translateY(0)' : 'translateY(32px)',
+                transition: `opacity 0.5s ease, transform 0.5s ease, box-shadow 0.3s ease`,
+                transitionDelay: `${i * 120}ms`,
+              }}
             >
               {/* Stars */}
               <div className="flex items-center gap-1 mb-5">
-                {Array.from({ length: t.stars }).map((_, i) => (
-                  <Star key={i} className="w-4 h-4 text-amber-400 fill-amber-400" />
+                {Array.from({ length: t.stars }).map((_, idx) => (
+                  <Star key={idx} className="w-4 h-4 text-amber-400 fill-amber-400" />
                 ))}
               </div>
 
@@ -697,10 +798,18 @@ const PLANS = [
 ]
 
 function Pricing() {
+  const [ref, visible] = useInView(0.1)
+
   return (
-    <section id="pricing" className="py-24 bg-white">
+    <section id="pricing" className="py-24 bg-white" ref={ref}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center max-w-2xl mx-auto mb-16">
+        <div
+          className="text-center max-w-2xl mx-auto mb-16 transition-all duration-700"
+          style={{
+            opacity: visible ? 1 : 0,
+            transform: visible ? 'translateY(0)' : 'translateY(24px)',
+          }}
+        >
           <span className="inline-block text-sm font-semibold text-purple-600 bg-purple-50 px-4 py-1.5 rounded-full mb-4 border border-purple-100">
             Pricing
           </span>
@@ -713,7 +822,7 @@ function Pricing() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 items-stretch">
-          {PLANS.map((plan) => (
+          {PLANS.map((plan, i) => (
             <div
               key={plan.name}
               className={[
@@ -722,6 +831,15 @@ function Pricing() {
                   ? 'bg-gradient-to-br from-[#1E1B4B] via-purple-800 to-violet-700 text-white shadow-2xl shadow-purple-900/40 scale-105 ring-4 ring-purple-400/30'
                   : 'bg-white border border-slate-100 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07)]',
               ].join(' ')}
+              style={
+                plan.popular
+                  ? { animation: visible ? 'float 4s ease-in-out infinite' : 'none' }
+                  : {
+                      opacity: visible ? 1 : 0,
+                      transform: visible ? 'translateY(0)' : 'translateY(32px)',
+                      transition: `opacity 0.5s ease ${i * 100}ms, transform 0.5s ease ${i * 100}ms`,
+                    }
+              }
             >
               {plan.popular && (
                 <div className="absolute -top-4 left-1/2 -translate-x-1/2">
@@ -750,7 +868,7 @@ function Pricing() {
                   </span>
                 </div>
                 <p className={`text-sm mt-1 ${plan.popular ? 'text-yellow-300/80' : 'text-slate-400'}`}>
-                  ≈ {plan.usd}/mo
+                  approx. {plan.usd}/mo
                 </p>
               </div>
 
@@ -806,12 +924,35 @@ function CTABanner() {
           to="/register"
           className="inline-flex items-center gap-2 text-base font-bold text-white bg-gradient-to-r from-violet-700 to-purple-800 px-10 py-4 rounded-2xl shadow-xl shadow-purple-900/30 hover:from-violet-800 hover:to-purple-900 transition-all hover:-translate-y-1 hover:shadow-purple-900/50"
         >
-          Get Started Free — It's Free for 14 Days
+          Get Started Free — It&apos;s Free for 14 Days
           <ArrowRight className="w-5 h-5" />
         </Link>
       </div>
     </section>
   )
+}
+
+// ─── Footer link route map ────────────────────────────────────
+const FOOTER_ROUTE_MAP = {
+  'Features': '/features',
+  'Pricing': '/pricing',
+  'Changelog': '/changelog',
+  'Roadmap': '/roadmap',
+  'Status': '/status',
+  'About Us': '/about',
+  'Blog': '/blog',
+  'Careers': '/careers',
+  'Press': '/press',
+  'Contact': '/contact',
+  'Documentation': '/docs',
+  'Help Centre': '/help',
+  'Tutorials': '/tutorials',
+  'Webinars': '/webinars',
+  'Community': '/community',
+  'Privacy Policy': '/privacy',
+  'Terms of Service': '/terms',
+  'Cookie Policy': '/cookies',
+  'GDPR': '/gdpr',
 }
 
 // ─── Footer ───────────────────────────────────────────────────
@@ -856,7 +997,7 @@ function Footer() {
               </span>
             </div>
             <p className="text-sm text-white/55 leading-relaxed max-w-xs mb-6">
-              The #1 church management platform built for Liberian churches. Manage members, offerings, and growth — all in one place.
+              The number-one church management platform built for Liberian churches. Manage members, offerings, and growth — all in one place.
             </p>
             {/* Socials */}
             <div className="flex items-center gap-3">
@@ -880,12 +1021,12 @@ function Footer() {
               <ul className="space-y-2.5">
                 {col.links.map((link) => (
                   <li key={link}>
-                    <a
-                      href="#"
+                    <Link
+                      to={FOOTER_ROUTE_MAP[link] || '#'}
                       className="text-sm text-white/50 hover:text-white transition-colors"
                     >
                       {link}
-                    </a>
+                    </Link>
                   </li>
                 ))}
               </ul>
@@ -899,7 +1040,7 @@ function Footer() {
             Built for Liberia. Designed for Churches. Powered by Growth.
           </p>
           <p className="text-sm text-white/35">
-            © {new Date().getFullYear()} ChurchFlow Liberia. All rights reserved.
+            &copy; {new Date().getFullYear()} ChurchFlow Liberia. All rights reserved.
           </p>
         </div>
       </div>
