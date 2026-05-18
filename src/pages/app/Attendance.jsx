@@ -1,7 +1,7 @@
 // ============================================================
 // ChurchFlow Liberia — Attendance Management Page
 // ============================================================
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import {
   Users,
   UserCheck,
@@ -34,6 +34,8 @@ import {
 import { Button, StatsCard, Badge, Avatar, Input, Modal } from '../../components/ui'
 import { ATTENDANCE_RECORDS, MEMBERS } from '../../data/dummyData'
 import { formatDate } from '../../utils/helpers'
+import { insforge } from '../../lib/insforge'
+import { useAuth } from '../../context/AuthContext'
 
 // ─── Palette ─────────────────────────────────────────────────
 const PURPLE = '#7C3AED'
@@ -54,27 +56,46 @@ const SERVICE_TABS = [
   'Special Events',
 ]
 
+// ─── Helper to normalise a record's field names ───────────────
+function normRec(r) {
+  return {
+    ...r,
+    id: r.id,
+    date: r.date || r.service_date || '',
+    serviceType: r.serviceType || r.service_type || '',
+    presentCount: r.presentCount ?? r.present_count ?? 0,
+    absentCount: r.absentCount ?? r.absent_count ?? 0,
+    lateCount: r.lateCount ?? r.late_count ?? 0,
+    visitorCount: r.visitorCount ?? r.visitor_count ?? 0,
+    notes: r.notes || '',
+  }
+}
+
 // ─── Weekly bar-chart: last 8 service records combined ────────
-const buildWeeklyData = () =>
-  ATTENDANCE_RECORDS.slice()
+const buildWeeklyData = (records = ATTENDANCE_RECORDS) =>
+  records.slice()
     .reverse()
     .slice(0, 8)
     .reverse()
-    .map((r) => ({
-      label: new Date(r.date + 'T00:00:00').toLocaleDateString('en-US', {
-        month: 'short',
-        day: 'numeric',
-      }),
-      Present: r.presentCount,
-      Late: r.lateCount,
-      Visitors: r.visitorCount,
-    }))
+    .map((r) => {
+      const n = normRec(r)
+      return {
+        label: new Date(n.date + 'T00:00:00').toLocaleDateString('en-US', {
+          month: 'short',
+          day: 'numeric',
+        }),
+        Present: n.presentCount,
+        Late: n.lateCount,
+        Visitors: n.visitorCount,
+      }
+    })
 
 // ─── Pie data: attendance grouped by service type ─────────────
-const buildPieData = () => {
+const buildPieData = (records = ATTENDANCE_RECORDS) => {
   const totals = {}
-  ATTENDANCE_RECORDS.forEach((r) => {
-    totals[r.serviceType] = (totals[r.serviceType] || 0) + r.presentCount
+  records.forEach((r) => {
+    const n = normRec(r)
+    totals[n.serviceType] = (totals[n.serviceType] || 0) + n.presentCount
   })
   return Object.entries(totals).map(([name, value]) => ({ name, value }))
 }
@@ -145,7 +166,8 @@ function MemberCheckRow({ member, status, onStatusChange }) {
 }
 
 // ─── Record Attendance Modal ──────────────────────────────────
-function RecordAttendanceModal({ isOpen, onClose }) {
+function RecordAttendanceModal({ isOpen, onClose, onSaved }) {
+  const { user } = useAuth()
   const [serviceType, setServiceType] = useState('Sunday Service')
   const [date, setDate] = useState(new Date().toISOString().split('T')[0])
   const [memberSearch, setMemberSearch] = useState('')
@@ -160,8 +182,8 @@ function RecordAttendanceModal({ isOpen, onClose }) {
     () =>
       MEMBERS.filter(
         (m) =>
-          m.name.toLowerCase().includes(memberSearch.toLowerCase()) ||
-          m.department.toLowerCase().includes(memberSearch.toLowerCase())
+          (m.name || m.full_name || '').toLowerCase().includes(memberSearch.toLowerCase()) ||
+          (m.department || '').toLowerCase().includes(memberSearch.toLowerCase())
       ),
     [memberSearch]
   )
@@ -177,13 +199,31 @@ function RecordAttendanceModal({ isOpen, onClose }) {
     return { present, absent, late }
   }, [memberStatuses])
 
-  const handleSave = () => {
+  const handleSave = async () => {
     setSaving(true)
-    // TODO: connect to InsForge: db.attendance().insert([{ serviceType, date, presentCount: counts.present, absentCount: counts.absent, lateCount: counts.late, visitorCount: Number(visitorCount) || 0, notes }])
-    setTimeout(() => {
+    try {
+      const { data, error } = await insforge.database
+        .from('attendance')
+        .insert([{
+          church_id: user?.churchId || user?.profile?.church_id,
+          service_type: serviceType,
+          service_date: date,
+          present_count: counts.present,
+          absent_count: counts.absent,
+          late_count: counts.late,
+          visitor_count: Number(visitorCount) || 0,
+          notes,
+        }])
+        .select()
+        .single()
+      if (error) throw error
+      if (data && onSaved) onSaved(data)
+    } catch (err) {
+      console.error('Save attendance error:', err)
+    } finally {
       setSaving(false)
       onClose()
-    }, 800)
+    }
   }
 
   return (
@@ -314,36 +354,50 @@ function RecordAttendanceModal({ isOpen, onClose }) {
 
 // ─── Main Attendance Page ─────────────────────────────────────
 export default function Attendance() {
+  const { user } = useAuth()
   const [activeTab, setActiveTab]     = useState('All Services')
   const [expandedRow, setExpandedRow] = useState(null)
   const [modalOpen, setModalOpen]     = useState(false)
+  const [records, setRecords]         = useState(ATTENDANCE_RECORDS)
+
+  // ── Load records from InsForge ─────────────────────────────
+  useEffect(() => {
+    async function load() {
+      const { data } = await insforge.database
+        .from('attendance')
+        .select('*')
+        .order('service_date', { ascending: false })
+        .limit(50)
+      if (data?.length) setRecords(data)
+    }
+    load()
+  }, [])
 
   // ── Filter records by tab ──────────────────────────────────
   const filteredRecords = useMemo(() => {
-    if (activeTab === 'All Services') return ATTENDANCE_RECORDS
+    const normalised = records.map(normRec)
+    if (activeTab === 'All Services') return normalised
     // Match loosely so "Sunday Service" tab catches "Sunday Morning Service"
-    return ATTENDANCE_RECORDS.filter((r) =>
+    return normalised.filter((r) =>
       r.serviceType.toLowerCase().includes(activeTab.toLowerCase())
     )
-  }, [activeTab])
+  }, [activeTab, records])
 
   // ── Stats ─────────────────────────────────────────────────
-  const todayRecord  = ATTENDANCE_RECORDS[0]
-  const weeklyTotal  = ATTENDANCE_RECORDS.slice(0, 3).reduce((s, r) => s + r.presentCount, 0)
-  const monthAvg     = Math.round(
-    ATTENDANCE_RECORDS.reduce((s, r) => s + r.presentCount, 0) / ATTENDANCE_RECORDS.length
-  )
-  const overallRate  = Math.round(
-    (ATTENDANCE_RECORDS.reduce((s, r) => s + r.presentCount, 0) /
-      ATTENDANCE_RECORDS.reduce(
-        (s, r) => s + r.presentCount + r.absentCount + r.lateCount,
-        0
-      )) *
-      100
-  )
+  const normRecords  = useMemo(() => records.map(normRec), [records])
+  const todayRecord  = normRecords[0] || normRec(ATTENDANCE_RECORDS[0])
+  const weeklyTotal  = normRecords.slice(0, 3).reduce((s, r) => s + r.presentCount, 0)
+  const monthAvg     = normRecords.length
+    ? Math.round(normRecords.reduce((s, r) => s + r.presentCount, 0) / normRecords.length)
+    : 0
+  const overallRate  = (() => {
+    const totalPresent = normRecords.reduce((s, r) => s + r.presentCount, 0)
+    const totalAll     = normRecords.reduce((s, r) => s + r.presentCount + r.absentCount + r.lateCount, 0)
+    return totalAll > 0 ? Math.round((totalPresent / totalAll) * 100) : 0
+  })()
 
-  const weeklyChartData = useMemo(buildWeeklyData, [])
-  const pieData         = useMemo(buildPieData, [])
+  const weeklyChartData = useMemo(() => buildWeeklyData(records), [records])
+  const pieData         = useMemo(() => buildPieData(records), [records])
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -679,7 +733,11 @@ export default function Attendance() {
       </div>
 
       {/* Record Attendance Modal */}
-      <RecordAttendanceModal isOpen={modalOpen} onClose={() => setModalOpen(false)} />
+      <RecordAttendanceModal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        onSaved={(newRecord) => setRecords((prev) => [newRecord, ...prev])}
+      />
     </div>
   )
 }

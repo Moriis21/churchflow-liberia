@@ -94,6 +94,7 @@ const AuthContext = createContext({
   user: null,
   loading: true,
   churchData: null,
+  churchId: null,
   pendingVerificationEmail: null,
   login: async () => {},
   register: async () => {},
@@ -124,7 +125,7 @@ export function AuthProvider({ children }) {
 
         if (!error && data?.user) {
           setUser(data.user)
-          await fetchChurchData(data.user)
+          await fetchUserProfile(data.user.id)
         } else {
           setUser(null)
         }
@@ -141,16 +142,39 @@ export function AuthProvider({ children }) {
     }
   }, [])
 
-  // ── Fetch church data for the authenticated user ──────────
+  // ── Fetch user_profiles + church for the authenticated user ─
+  async function fetchUserProfile(userId) {
+    try {
+      const { data } = await insforge.database
+        .from('user_profiles')
+        .select('*, churches(*)')
+        .eq('id', userId)
+        .maybeSingle()
+
+      if (data) {
+        if (data.churches) setChurchData(data.churches)
+        setUser((prev) => ({
+          ...prev,
+          profile: data,
+          role: data.role,
+          churchId: data.church_id,
+        }))
+      }
+    } catch {
+      // Non-fatal; church data will fall back to context defaults
+    }
+  }
+
+  // ── Fetch church data for the authenticated user (legacy fallback) ─
   async function fetchChurchData(authedUser) {
     try {
-      const churchId = authedUser?.user_metadata?.churchId
-      if (!churchId) return
+      const cId = authedUser?.user_metadata?.churchId
+      if (!cId) return
 
       const { data, error } = await insforge.database
         .from('churches')
         .select('*')
-        .eq('id', churchId)
+        .eq('id', cId)
         .single()
 
       if (!error && data) {
@@ -173,7 +197,7 @@ export function AuthProvider({ children }) {
       if (error) throw error
 
       setUser(data.user)
-      await fetchChurchData(data.user)
+      await fetchUserProfile(data.user.id)
       return { data, error: null }
     } catch (error) {
       return { data: null, error }
@@ -235,6 +259,7 @@ export function AuthProvider({ children }) {
         const { name, churchName, role, existingChurchId } = pendingRegData || {}
         await _createChurchAndProfile(data.user, name, churchName, role, existingChurchId)
         setUser(data.user)
+        await fetchUserProfile(data.user.id)
         setPendingVerificationEmail(null)
         setPendingRegData(null)
       }
@@ -319,9 +344,20 @@ export function AuthProvider({ children }) {
    */
   function demoLogin(role = ROLES.CHURCH_ADMIN) {
     const mockUser = DEMO_USERS[role] ?? DEMO_USERS[ROLES.CHURCH_ADMIN]
-    setUser(mockUser)
+    const demoChurchId = 'church-001'
+    setUser({
+      ...mockUser,
+      churchId: demoChurchId,
+      role: mockUser.user_metadata.role,
+      profile: {
+        id: mockUser.id,
+        full_name: mockUser.name,
+        role: mockUser.user_metadata.role,
+        church_id: demoChurchId,
+      },
+    })
     setChurchData({
-      id: 'church-001',
+      id: demoChurchId,
       name: 'Grace Community Church',
       location: 'Monrovia, Liberia',
       currency: 'LRD',
@@ -330,6 +366,9 @@ export function AuthProvider({ children }) {
     setLoading(false)
   }
 
+  // ── Derived churchId ──────────────────────────────────────
+  const churchId = user?.churchId || user?.profile?.church_id || null
+
   // ─────────────────────────────────────────────────────────
   return (
     <AuthContext.Provider
@@ -337,6 +376,7 @@ export function AuthProvider({ children }) {
         user,
         loading,
         churchData,
+        churchId,
         pendingVerificationEmail,
         login,
         register,

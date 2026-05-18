@@ -1,7 +1,7 @@
 // ============================================================
 // ChurchFlow Liberia — Members Management Page
 // ============================================================
-import React, { useState, useMemo, useRef } from 'react'
+import React, { useState, useMemo, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   UserPlus,
@@ -43,8 +43,8 @@ import {
   formatPhone,
   calculateAge,
 } from '../../utils/helpers'
-
-// TODO: import { db } from '../../lib/insforge'
+import { insforge } from '../../lib/insforge'
+import { useAuth } from '../../context/AuthContext'
 
 // ─── Constants ───────────────────────────────────────────────
 const PAGE_SIZE = 10
@@ -347,7 +347,7 @@ function DeleteConfirmModal({ member, onConfirm, onCancel }) {
       <div className="space-y-4">
         <p className="text-sm text-slate-600 leading-relaxed">
           Are you sure you want to delete{' '}
-          <span className="font-semibold text-slate-800">{member?.name}</span>? This
+          <span className="font-semibold text-slate-800">{member?.name || member?.full_name}</span>? This
           action cannot be undone.
         </p>
         <div className="flex gap-3 justify-end pt-2">
@@ -376,7 +376,10 @@ function MemberCard({ member, onView, onEdit, onDelete }) {
     Evangelism: 'bg-red-100 text-red-700',
     'Prayer Team': 'bg-indigo-100 text-indigo-700',
   }
-  const deptClass = deptColors[member.department] || 'bg-slate-100 text-slate-700'
+  const mName = member.name || member.full_name || '—'
+  const mDept = member.department || member.departments?.name || ''
+  const mStatus = member.membershipStatus || member.membership_status || 'active'
+  const deptClass = deptColors[mDept] || 'bg-slate-100 text-slate-700'
 
   return (
     <div className="bg-white rounded-2xl border border-slate-100 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07)] hover:shadow-[0_8px_30px_-4px_rgba(124,58,237,0.12)] hover:-translate-y-0.5 transition-all duration-300 overflow-hidden flex flex-col">
@@ -386,25 +389,25 @@ function MemberCard({ member, onView, onEdit, onDelete }) {
       <div className="p-5 flex flex-col gap-4 flex-1">
         {/* Avatar + name */}
         <div className="flex items-start gap-3">
-          <Avatar src={member.profilePhoto} name={member.name} size="lg" />
+          <Avatar src={member.profilePhoto || member.profile_photo} name={mName} size="lg" />
           <div className="flex-1 min-w-0">
-            <h3 className="text-sm font-bold text-slate-800 truncate">{member.name}</h3>
+            <h3 className="text-sm font-bold text-slate-800 truncate">{mName}</h3>
             <p className="text-xs text-slate-400 mt-0.5 capitalize">{member.gender}</p>
             <div className="mt-1.5">
-              <StatusBadge status={member.membershipStatus} />
+              <StatusBadge status={mStatus} />
             </div>
           </div>
         </div>
 
         {/* Dept badge */}
-        {member.department && (
+        {mDept && (
           <span
             className={[
               'self-start inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold',
               deptClass,
             ].join(' ')}
           >
-            {member.department}
+            {mDept}
           </span>
         )}
 
@@ -457,14 +460,18 @@ function MemberCard({ member, onView, onEdit, onDelete }) {
 
 // ─── Table Row ────────────────────────────────────────────────
 function MemberRow({ member, onView, onEdit, onDelete }) {
+  const mName = member.name || member.full_name || '—'
+  const mDept = member.department || member.departments?.name || ''
+  const mStatus = member.membershipStatus || member.membership_status || 'active'
+  const mJoinDate = member.joinDate || member.join_date || ''
   return (
     <tr className="hover:bg-slate-50 transition-colors group">
       {/* Name + Avatar */}
       <td className="px-4 py-3 whitespace-nowrap">
         <div className="flex items-center gap-3">
-          <Avatar src={member.profilePhoto} name={member.name} size="sm" />
+          <Avatar src={member.profilePhoto || member.profile_photo} name={mName} size="sm" />
           <div>
-            <p className="text-sm font-semibold text-slate-800">{member.name}</p>
+            <p className="text-sm font-semibold text-slate-800">{mName}</p>
             <p className="text-xs text-slate-400 capitalize">{member.gender}</p>
           </div>
         </div>
@@ -472,7 +479,7 @@ function MemberRow({ member, onView, onEdit, onDelete }) {
 
       {/* Department */}
       <td className="px-4 py-3 whitespace-nowrap">
-        <span className="text-xs text-slate-600">{member.department || '—'}</span>
+        <span className="text-xs text-slate-600">{mDept || '—'}</span>
       </td>
 
       {/* Phone */}
@@ -482,12 +489,12 @@ function MemberRow({ member, onView, onEdit, onDelete }) {
 
       {/* Status */}
       <td className="px-4 py-3 whitespace-nowrap">
-        <StatusBadge status={member.membershipStatus} />
+        <StatusBadge status={mStatus} />
       </td>
 
       {/* Join Date */}
       <td className="px-4 py-3 whitespace-nowrap">
-        <span className="text-xs text-slate-500">{formatDate(member.joinDate)}</span>
+        <span className="text-xs text-slate-500">{formatDate(mJoinDate)}</span>
       </td>
 
       {/* Actions */}
@@ -597,9 +604,11 @@ function Pagination({ page, totalPages, onPage }) {
 // ─── Main Component ───────────────────────────────────────────
 export default function Members() {
   const navigate = useNavigate()
+  const { user } = useAuth()
 
   // ── State ────────────────────────────────────────────────────
   const [members, setMembers] = useState(MEMBERS)
+  const [dbLoading, setDbLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
   const [filterDept, setFilterDept] = useState('')
   const [filterStatus, setFilterStatus] = useState('')
@@ -616,32 +625,51 @@ export default function Members() {
   const [saving, setSaving] = useState(false)
   const [toast, setToast] = useState(null)
 
+  // ── Load members from InsForge ────────────────────────────────
+  useEffect(() => {
+    async function load() {
+      const { data, error } = await insforge.database
+        .from('members')
+        .select('*, departments(name, color)')
+        .order('full_name', { ascending: true })
+      if (data && data.length > 0) setMembers(data)
+      else if (!error) setMembers(MEMBERS) // fallback to dummy if DB empty
+      setDbLoading(false)
+    }
+    load()
+  }, [])
+
   // ── Derived stats ─────────────────────────────────────────────
   const totalCount = members.length
-  const activeCount = members.filter((m) => m.membershipStatus === 'active').length
+  const activeCount = members.filter((m) => (m.membershipStatus || m.membership_status) === 'active').length
   const newThisMonth = useMemo(() => {
     const now = new Date()
     return members.filter((m) => {
-      if (!m.joinDate) return false
-      const d = new Date(m.joinDate + 'T00:00:00')
+      const jd = m.joinDate || m.join_date
+      if (!jd) return false
+      const d = new Date(jd + 'T00:00:00')
       return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth()
     }).length
   }, [members])
-  const baptizedCount = members.filter((m) => m.baptismStatus).length
+  const baptizedCount = members.filter((m) => m.baptismStatus || m.baptism_status).length
 
   // ── Filtered + paginated ──────────────────────────────────────
   const filtered = useMemo(() => {
     return members.filter((m) => {
       const q = searchTerm.toLowerCase()
+      const mName = m.name || m.full_name || ''
+      const mDept = m.department || m.departments?.name || ''
+      const mStatus = m.membershipStatus || m.membership_status || ''
+      const mGender = m.gender || ''
       const matchSearch =
         !q ||
-        m.name.toLowerCase().includes(q) ||
+        mName.toLowerCase().includes(q) ||
         (m.email || '').toLowerCase().includes(q) ||
         (m.phone || '').includes(q) ||
-        (m.department || '').toLowerCase().includes(q)
-      const matchDept = !filterDept || m.department === filterDept
-      const matchStatus = !filterStatus || m.membershipStatus === filterStatus
-      const matchGender = !filterGender || m.gender === filterGender
+        mDept.toLowerCase().includes(q)
+      const matchDept = !filterDept || mDept === filterDept
+      const matchStatus = !filterStatus || mStatus === filterStatus
+      const matchGender = !filterGender || mGender === filterGender
       return matchSearch && matchDept && matchStatus && matchGender
     })
   }, [members, searchTerm, filterDept, filterStatus, filterGender])
@@ -672,19 +700,19 @@ export default function Members() {
   // ── Open Edit modal ───────────────────────────────────────────
   const handleOpenEdit = (member) => {
     setForm({
-      name: member.name || '',
+      name: member.name || member.full_name || '',
       gender: member.gender || 'male',
       phone: member.phone || '',
       email: member.email || '',
       address: member.address || '',
-      dateOfBirth: member.dateOfBirth || '',
-      department: member.department || '',
-      membershipStatus: member.membershipStatus || 'active',
-      baptismStatus: member.baptismStatus || false,
-      maritalStatus: member.maritalStatus || 'single',
-      emergencyContact: member.emergencyContact || '',
+      dateOfBirth: member.dateOfBirth || member.date_of_birth || '',
+      department: member.department || member.departments?.name || '',
+      membershipStatus: member.membershipStatus || member.membership_status || 'active',
+      baptismStatus: member.baptismStatus ?? member.baptism_status ?? false,
+      maritalStatus: member.maritalStatus || member.marital_status || 'single',
+      emergencyContact: member.emergencyContact || member.emergency_contact || '',
       notes: member.notes || '',
-      profilePhoto: member.profilePhoto || '',
+      profilePhoto: member.profilePhoto || member.profile_photo || '',
     })
     setFormErrors({})
     setEditMember(member)
@@ -704,20 +732,50 @@ export default function Members() {
     if (Object.keys(errs).length) { setFormErrors(errs); return }
 
     setSaving(true)
-    await new Promise((r) => setTimeout(r, 600)) // Simulate async
+    try {
+      const churchId = user?.churchId || user?.profile?.church_id
+      const { data, error } = await insforge.database
+        .from('members')
+        .insert([{
+          church_id: churchId,
+          full_name: form.name,
+          gender: form.gender,
+          phone: form.phone,
+          email: form.email,
+          address: form.address,
+          date_of_birth: form.dateOfBirth || null,
+          membership_status: form.membershipStatus || 'active',
+          baptism_status: form.baptismStatus || false,
+          marital_status: form.maritalStatus,
+          join_date: new Date().toISOString().split('T')[0],
+          notes: form.notes,
+          emergency_contact: form.emergencyContact,
+        }])
+        .select()
+        .single()
 
-    const newMember = {
-      ...form,
-      id: `mem-${Date.now()}`,
-      joinDate: new Date().toISOString().split('T')[0],
-      churchId: 'church-001',
+      if (error) throw error
+
+      if (data) {
+        setMembers((prev) => [data, ...prev])
+        showToast(`${form.name} has been added successfully.`)
+      }
+    } catch (err) {
+      // Fallback: add locally so UI stays consistent
+      const newMember = {
+        ...form,
+        id: `mem-${Date.now()}`,
+        full_name: form.name,
+        join_date: new Date().toISOString().split('T')[0],
+        church_id: user?.churchId || user?.profile?.church_id || 'church-001',
+      }
+      setMembers((prev) => [newMember, ...prev])
+      showToast(`${form.name} added (offline).`)
+      console.error('Insert member error:', err)
+    } finally {
+      setSaving(false)
+      setShowAddModal(false)
     }
-
-    // TODO: await db.members().insert([newMember])
-    setMembers((prev) => [newMember, ...prev])
-    setSaving(false)
-    setShowAddModal(false)
-    showToast(`${form.name} has been added successfully.`)
   }
 
   // ── Save (Edit) ───────────────────────────────────────────────
@@ -726,22 +784,58 @@ export default function Members() {
     if (Object.keys(errs).length) { setFormErrors(errs); return }
 
     setSaving(true)
-    await new Promise((r) => setTimeout(r, 600))
+    try {
+      const { data, error } = await insforge.database
+        .from('members')
+        .update({
+          full_name: form.name,
+          gender: form.gender,
+          phone: form.phone,
+          email: form.email,
+          address: form.address,
+          date_of_birth: form.dateOfBirth || null,
+          membership_status: form.membershipStatus || 'active',
+          baptism_status: form.baptismStatus || false,
+          marital_status: form.maritalStatus,
+          notes: form.notes,
+          emergency_contact: form.emergencyContact,
+        })
+        .eq('id', editMember.id)
+        .select()
+        .single()
 
-    // TODO: await db.members().update({ id: editMember.id }, form)
-    setMembers((prev) =>
-      prev.map((m) => (m.id === editMember.id ? { ...m, ...form } : m))
-    )
-    setSaving(false)
-    setEditMember(null)
-    showToast(`${form.name}'s profile has been updated.`)
+      if (error) throw error
+
+      setMembers((prev) =>
+        prev.map((m) => (m.id === editMember.id ? { ...m, ...(data || form) } : m))
+      )
+      showToast(`${form.name}'s profile has been updated.`)
+    } catch (err) {
+      setMembers((prev) =>
+        prev.map((m) => (m.id === editMember.id ? { ...m, ...form } : m))
+      )
+      showToast(`${form.name}'s profile updated (offline).`)
+      console.error('Update member error:', err)
+    } finally {
+      setSaving(false)
+      setEditMember(null)
+    }
   }
 
   // ── Delete ────────────────────────────────────────────────────
-  const handleConfirmDelete = () => {
-    // TODO: await db.members().delete({ id: deleteMember.id })
+  const handleConfirmDelete = async () => {
+    const memberName = deleteMember.name || deleteMember.full_name || 'Member'
+    try {
+      const { error } = await insforge.database
+        .from('members')
+        .delete()
+        .eq('id', deleteMember.id)
+      if (error) throw error
+    } catch (err) {
+      console.error('Delete member error:', err)
+    }
     setMembers((prev) => prev.filter((m) => m.id !== deleteMember.id))
-    showToast(`${deleteMember.name} has been removed.`, 'success')
+    showToast(`${memberName} has been removed.`, 'success')
     setDeleteMember(null)
   }
 

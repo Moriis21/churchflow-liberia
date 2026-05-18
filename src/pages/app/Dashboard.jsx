@@ -2,6 +2,7 @@
 // ChurchFlow Liberia — Main App Dashboard
 // ============================================================
 import { useNavigate } from 'react-router-dom'
+import { useState, useEffect } from 'react'
 import {
   Users,
   UserCheck,
@@ -21,6 +22,7 @@ import {
   Video,
   CheckCircle2,
   ChevronRight,
+  Wifi,
 } from 'lucide-react'
 import {
   AreaChart,
@@ -49,6 +51,7 @@ import {
   OFFERINGS,
 } from '../../data/dummyData'
 import { formatCurrency, formatDate, getGreeting } from '../../utils/helpers'
+import { insforge } from '../../lib/insforge'
 
 // ─── Palette ─────────────────────────────────────────────────
 const CHART_COLORS = {
@@ -60,21 +63,24 @@ const CHART_COLORS = {
   rose: '#F43F5E',
 }
 
-// ─── Attendance area-chart data ───────────────────────────────
-const attendanceChartData = ATTENDANCE_RECORDS.filter(
-  (r) => r.serviceType === 'Sunday Morning Service',
-)
-  .slice()
-  .reverse()
-  .slice(-7)
-  .map((r) => ({
-    date: new Date(r.date + 'T00:00:00').toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-    }),
-    present: r.presentCount,
-    visitors: r.visitorCount,
-  }))
+// ─── Attendance area-chart data (initial from dummy data) ─────
+function buildAttendanceChartData(records) {
+  return records
+    .filter((r) => (r.serviceType || r.service_type || '').includes('Sunday'))
+    .slice()
+    .reverse()
+    .slice(-7)
+    .map((r) => ({
+      date: new Date((r.date || r.service_date) + 'T00:00:00').toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+      }),
+      present: r.presentCount ?? r.present_count ?? 0,
+      visitors: r.visitorCount ?? r.visitor_count ?? 0,
+    }))
+}
+
+const attendanceChartData = buildAttendanceChartData(ATTENDANCE_RECORDS)
 
 // ─── Offering pie-chart data ──────────────────────────────────
 const pieData = [
@@ -129,27 +135,33 @@ const ACTIVITIES = [
   },
 ]
 
-// ─── Birthday members (birthdays this week) ───────────────────
-const birthdayMembers = MEMBERS.filter((m) => {
-  const bDay = new Date(m.dateOfBirth + 'T00:00:00')
-  const today = new Date()
-  const thisWeek = new Date(today)
-  thisWeek.setDate(today.getDate() + 7)
-  const bDayThisYear = new Date(today.getFullYear(), bDay.getMonth(), bDay.getDate())
-  return bDayThisYear >= today && bDayThisYear <= thisWeek
-}).slice(0, 3)
+// ─── Birthday members helper ──────────────────────────────────
+function getBirthdayMembers(membersList) {
+  const candidates = membersList.filter((m) => {
+    const dob = m.dateOfBirth || m.date_of_birth
+    if (!dob) return false
+    const bDay = new Date(dob + 'T00:00:00')
+    const today = new Date()
+    const thisWeek = new Date(today)
+    thisWeek.setDate(today.getDate() + 7)
+    const bDayThisYear = new Date(today.getFullYear(), bDay.getMonth(), bDay.getDate())
+    return bDayThisYear >= today && bDayThisYear <= thisWeek
+  }).slice(0, 3)
+  return candidates.length > 0 ? candidates : membersList.slice(0, 3)
+}
 
-// If none fall within the week, use the first 3 members as fallback
-const displayBirthdays =
-  birthdayMembers.length > 0 ? birthdayMembers : MEMBERS.slice(0, 3)
+// ─── Open prayer requests helper ─────────────────────────────
+function getOpenPrayers(prayerList) {
+  return prayerList.filter((p) => p.status === 'open').slice(0, 3)
+}
 
-// ─── Open prayer requests ─────────────────────────────────────
-const openPrayers = PRAYER_REQUESTS.filter((p) => p.status === 'open').slice(0, 3)
-
-// ─── Upcoming events ─────────────────────────────────────────
-const upcomingEvents = EVENTS.filter((e) => e.status === 'upcoming')
-  .sort((a, b) => new Date(a.date) - new Date(b.date))
-  .slice(0, 3)
+// ─── Upcoming events helper ───────────────────────────────────
+function getUpcomingEvents(eventsList) {
+  return eventsList
+    .filter((e) => e.status === 'upcoming')
+    .sort((a, b) => new Date(a.date || a.event_date) - new Date(b.date || b.event_date))
+    .slice(0, 3)
+}
 
 // ─── Scripture of the Day ─────────────────────────────────────
 const SCRIPTURE = {
@@ -218,8 +230,68 @@ export default function Dashboard() {
   const { church } = useChurch()
   const navigate = useNavigate()
 
+  // ── Live data state (starts with dummy fallbacks) ──────────
+  const [stats, setStats] = useState(STATS)
+  const [members, setMembers] = useState(MEMBERS)
+  const [events, setEvents] = useState(EVENTS)
+  const [offerings, setOfferings] = useState(OFFERINGS)
+  const [attendance, setAttendance] = useState(ATTENDANCE_RECORDS)
+  const [prayerReqs, setPrayerReqs] = useState(PRAYER_REQUESTS)
+  const [dataLoading, setDataLoading] = useState(true)
+  const [chartData, setChartData] = useState(attendanceChartData)
+
+  useEffect(() => {
+    async function loadDashboardData() {
+      try {
+        const [membersRes, eventsRes, offeringsRes, attendanceRes, prayerRes] = await Promise.all([
+          insforge.database.from('members').select('*').order('created_at', { ascending: false }),
+          insforge.database.from('events').select('*').order('event_date', { ascending: true }),
+          insforge.database.from('offerings').select('*').order('date', { ascending: false }).limit(20),
+          insforge.database.from('attendance').select('*').order('service_date', { ascending: false }).limit(10),
+          insforge.database.from('prayer_requests').select('*').order('submitted_at', { ascending: false }).limit(5),
+        ])
+
+        if (membersRes.data?.length) {
+          setMembers(membersRes.data)
+          const now = new Date()
+          const thisMonth = membersRes.data.filter((m) => {
+            const d = new Date(m.created_at)
+            return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear()
+          })
+          const totalOfferings = offeringsRes.data?.reduce((sum, o) => sum + Number(o.amount || 0), 0) || 0
+          const todayAtt = attendanceRes.data?.[0]
+          setStats((prev) => ({
+            ...prev,
+            totalMembers: membersRes.data.length,
+            newThisMonth: thisMonth.length,
+            todayAttendance: todayAtt?.present_count || prev.todayAttendance,
+            totalOfferings,
+          }))
+        }
+        if (eventsRes.data?.length) setEvents(eventsRes.data)
+        if (offeringsRes.data?.length) setOfferings(offeringsRes.data)
+        if (attendanceRes.data?.length) {
+          setAttendance(attendanceRes.data)
+          setChartData(buildAttendanceChartData(attendanceRes.data))
+        }
+        if (prayerRes.data?.length) setPrayerReqs(prayerRes.data)
+      } catch (err) {
+        console.error('Dashboard load error:', err)
+      } finally {
+        setDataLoading(false)
+      }
+    }
+
+    loadDashboardData()
+  }, [])
+
+  // ── Derived display values ─────────────────────────────────
+  const displayBirthdays = getBirthdayMembers(members)
+  const openPrayers = getOpenPrayers(prayerReqs)
+  const upcomingEvents = getUpcomingEvents(events)
+
   const displayName =
-    user?.user_metadata?.name || user?.name || 'Pastor'
+    user?.profile?.full_name || user?.user_metadata?.name || user?.name || 'Pastor'
   const today = new Date().toLocaleDateString('en-US', {
     weekday: 'long',
     year: 'numeric',
@@ -240,6 +312,17 @@ export default function Dashboard() {
             <p className="text-sm text-slate-500 mt-1">{today}</p>
           </div>
           <div className="flex items-center gap-3">
+            {dataLoading ? (
+              <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-amber-700 bg-amber-50 border border-amber-200 px-3 py-1.5 rounded-full animate-pulse">
+                <Wifi className="w-3.5 h-3.5" />
+                Syncing...
+              </span>
+            ) : (
+              <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded-full">
+                <Wifi className="w-3.5 h-3.5" />
+                Live data
+              </span>
+            )}
             <button className="relative p-2.5 rounded-xl bg-white border border-slate-100 shadow-sm text-slate-500 hover:text-purple-600 hover:border-purple-100 transition-colors">
               <Bell className="w-5 h-5" />
               <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-rose-500" />
@@ -255,15 +338,15 @@ export default function Dashboard() {
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5">
           <StatsCard
             title="Total Members"
-            value={STATS.totalMembers}
-            change="+12 this month"
+            value={stats.totalMembers}
+            change={`+${stats.newThisMonth || 0} this month`}
             changeType="up"
             icon={Users}
             color="purple"
           />
           <StatsCard
             title="Today's Attendance"
-            value={STATS.todayAttendance}
+            value={stats.todayAttendance}
             change="+8% vs last Sunday"
             changeType="up"
             icon={UserCheck}
@@ -271,7 +354,7 @@ export default function Dashboard() {
           />
           <StatsCard
             title="Total Offerings"
-            value={formatCurrency(STATS.totalOfferings, STATS.currency)}
+            value={formatCurrency(stats.totalOfferings, stats.currency)}
             change="+LRD 14,250"
             changeType="up"
             icon={DollarSign}
@@ -279,7 +362,7 @@ export default function Dashboard() {
           />
           <StatsCard
             title="First-Time Visitors"
-            value={STATS.firstTimeVisitors}
+            value={stats.firstTimeVisitors}
             change="+2 vs last week"
             changeType="up"
             icon={UserPlus}
@@ -295,7 +378,7 @@ export default function Dashboard() {
             <SectionHeader title="Attendance Overview" actionLabel="Full Report" action={() => {}} />
             <p className="text-xs text-slate-400 mb-5">Last 7 Sunday services</p>
             <ResponsiveContainer width="100%" height={220}>
-              <AreaChart data={attendanceChartData} margin={{ top: 5, right: 5, left: -20, bottom: 0 }}>
+              <AreaChart data={chartData} margin={{ top: 5, right: 5, left: -20, bottom: 0 }}>
                 <defs>
                   <linearGradient id="purpleGrad" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor={CHART_COLORS.purple} stopOpacity={0.25} />
@@ -448,7 +531,8 @@ export default function Dashboard() {
             <SectionHeader title="Upcoming Events" action={() => {}} />
             <div className="space-y-4">
               {upcomingEvents.map((evt) => {
-                const d = new Date(evt.date + 'T00:00:00')
+                const evtDate = evt.date || evt.event_date || ''
+                const d = new Date(evtDate + 'T00:00:00')
                 const dayNum = d.getDate()
                 const monthAbbr = d.toLocaleDateString('en-US', { month: 'short' })
                 return (
@@ -465,9 +549,9 @@ export default function Dashboard() {
                       <p className="text-sm font-semibold text-slate-800 leading-tight truncate group-hover:text-purple-700 transition-colors">
                         {evt.title}
                       </p>
-                      <p className="text-xs text-slate-400 mt-0.5 truncate">{evt.venue}</p>
+                      <p className="text-xs text-slate-400 mt-0.5 truncate">{evt.venue || evt.location || ''}</p>
                       <span className="inline-block mt-1 text-[10px] font-semibold uppercase tracking-wide text-purple-600 bg-purple-50 px-2 py-0.5 rounded-full border border-purple-100">
-                        {evt.type}
+                        {evt.type || evt.event_type || ''}
                       </span>
                     </div>
                   </div>
@@ -486,18 +570,23 @@ export default function Dashboard() {
             <p className="text-xs text-slate-400 mb-5">Members with birthdays this week</p>
             <div className="space-y-4">
               {displayBirthdays.map((member) => {
-                const bDay = new Date(member.dateOfBirth + 'T00:00:00')
-                const birthdayStr = bDay.toLocaleDateString('en-US', { month: 'long', day: 'numeric' })
+                const dob = member.dateOfBirth || member.date_of_birth
+                const bDay = dob ? new Date(dob + 'T00:00:00') : null
+                const birthdayStr = bDay
+                  ? bDay.toLocaleDateString('en-US', { month: 'long', day: 'numeric' })
+                  : '—'
+                const memberName = member.name || member.full_name || '—'
+                const dept = member.department || member.departments?.name || ''
                 return (
                   <div key={member.id} className="flex items-center gap-4 p-3 rounded-xl hover:bg-slate-50 transition-colors">
                     <Avatar
-                      src={member.profilePhoto}
-                      name={member.name}
+                      src={member.profilePhoto || member.profile_photo}
+                      name={memberName}
                       size="md"
                     />
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-semibold text-slate-800 truncate">{member.name}</p>
-                      <p className="text-xs text-slate-400">{member.department}</p>
+                      <p className="text-sm font-semibold text-slate-800 truncate">{memberName}</p>
+                      <p className="text-xs text-slate-400">{dept}</p>
                     </div>
                     <div className="flex flex-col items-end gap-1">
                       <span className="inline-flex items-center gap-1 text-xs font-semibold text-amber-700 bg-amber-50 px-2.5 py-1 rounded-full border border-amber-100">
@@ -515,31 +604,37 @@ export default function Dashboard() {
             <SectionHeader title="Prayer Requests" action={() => {}} />
             <p className="text-xs text-slate-400 mb-5">Recent open requests from members</p>
             <div className="space-y-4">
-              {openPrayers.map((req) => (
-                <div key={req.id} className="flex items-start gap-3 p-3 rounded-xl hover:bg-slate-50 transition-colors">
-                  <div className="flex-shrink-0 w-9 h-9 rounded-xl bg-gradient-to-br from-rose-100 to-pink-100 flex items-center justify-center">
-                    <Heart className="w-4.5 h-4.5 text-rose-500" style={{ width: '1.1rem', height: '1.1rem' }} />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between gap-2 mb-1">
-                      <p className="text-sm font-semibold text-slate-800">{req.memberName}</p>
-                      <Badge
-                        className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${
-                          req.type === 'public'
-                            ? 'bg-sky-50 text-sky-700 border border-sky-100'
-                            : req.type === 'pastor_only'
-                            ? 'bg-red-50 text-red-700 border border-red-100'
-                            : 'bg-slate-50 text-slate-600 border border-slate-100'
-                        }`}
-                      >
-                        {req.type === 'pastor_only' ? 'Pastor Only' : req.type}
-                      </Badge>
+              {openPrayers.map((req) => {
+                const reqMemberName = req.memberName || req.member_name || 'Anonymous'
+                const reqType = req.type || req.visibility || 'public'
+                const reqRequest = req.request || req.content || ''
+                const reqDate = req.date || req.submitted_at || ''
+                return (
+                  <div key={req.id} className="flex items-start gap-3 p-3 rounded-xl hover:bg-slate-50 transition-colors">
+                    <div className="flex-shrink-0 w-9 h-9 rounded-xl bg-gradient-to-br from-rose-100 to-pink-100 flex items-center justify-center">
+                      <Heart className="w-4.5 h-4.5 text-rose-500" style={{ width: '1.1rem', height: '1.1rem' }} />
                     </div>
-                    <p className="text-xs text-slate-500 leading-relaxed line-clamp-2">{req.request}</p>
-                    <p className="text-[11px] text-slate-400 mt-1">{formatDate(req.date)}</p>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between gap-2 mb-1">
+                        <p className="text-sm font-semibold text-slate-800">{reqMemberName}</p>
+                        <Badge
+                          className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${
+                            reqType === 'public'
+                              ? 'bg-sky-50 text-sky-700 border border-sky-100'
+                              : reqType === 'pastor_only'
+                              ? 'bg-red-50 text-red-700 border border-red-100'
+                              : 'bg-slate-50 text-slate-600 border border-slate-100'
+                          }`}
+                        >
+                          {reqType === 'pastor_only' ? 'Pastor Only' : reqType}
+                        </Badge>
+                      </div>
+                      <p className="text-xs text-slate-500 leading-relaxed line-clamp-2">{reqRequest}</p>
+                      <p className="text-[11px] text-slate-400 mt-1">{formatDate(reqDate)}</p>
+                    </div>
                   </div>
-                </div>
-              ))}
+                )
+              })}
             </div>
           </div>
         </div>

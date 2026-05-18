@@ -1,7 +1,7 @@
 // ============================================================
 // ChurchFlow Liberia — Finance & Offerings Page
 // ============================================================
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import {
   DollarSign,
   TrendingUp,
@@ -38,6 +38,8 @@ import {
 import { Button, StatsCard, Badge, Input, Modal, Avatar } from '../../components/ui'
 import { OFFERINGS, EXPENSES, MEMBERS } from '../../data/dummyData'
 import { formatCurrency, formatDate } from '../../utils/helpers'
+import { insforge } from '../../lib/insforge'
+import { useAuth } from '../../context/AuthContext'
 
 // ─── Palette ─────────────────────────────────────────────────
 const PURPLE = '#7C3AED'
@@ -116,10 +118,10 @@ const MONTHLY_SUMMARY = [
 ]
 
 // ─── Pie data from offerings ──────────────────────────────────
-function buildOfferingPie() {
+function buildOfferingPie(offeringsList = OFFERINGS) {
   const totals = {}
-  OFFERINGS.forEach((o) => {
-    const lrd = toLRD(o.amount, o.currency)
+  offeringsList.forEach((o) => {
+    const lrd = toLRD(o.amount, o.currency || 'LRD')
     totals[o.type] = (totals[o.type] || 0) + lrd
   })
   return Object.entries(totals).map(([type, value]) => ({
@@ -127,6 +129,25 @@ function buildOfferingPie() {
     value,
     color: OFFERING_TYPE_CONFIG[type]?.color || NAVY,
   }))
+}
+
+// ─── Normalise offering row (DB snake_case → camelCase) ───────
+function normOffering(o) {
+  return {
+    ...o,
+    member: o.member || o.member_name || 'Anonymous',
+    currency: o.currency || 'LRD',
+  }
+}
+
+// ─── Normalise expense row ────────────────────────────────────
+function normExpense(e) {
+  return {
+    ...e,
+    description: e.description || '',
+    approvedBy: e.approvedBy || e.approved_by || '—',
+    currency: e.currency || 'LRD',
+  }
 }
 
 // ─── Custom Tooltip ───────────────────────────────────────────
@@ -146,10 +167,12 @@ function ChartTooltip({ active, payload, label }) {
 }
 
 // ─── Add Transaction Modal ────────────────────────────────────
-function AddTransactionModal({ isOpen, onClose }) {
+function AddTransactionModal({ isOpen, onClose, onOfferingSaved, onExpenseSaved }) {
+  const { user } = useAuth()
   const [txTab, setTxTab]           = useState('Income')
   const [type, setType]             = useState('tithe')
   const [memberId, setMemberId]     = useState('')
+  const [memberName, setMemberName] = useState('')
   const [amount, setAmount]         = useState('')
   const [currency, setCurrency]     = useState('LRD')
   const [date, setDate]             = useState(new Date().toISOString().split('T')[0])
@@ -159,17 +182,51 @@ function AddTransactionModal({ isOpen, onClose }) {
   const [approvedBy, setApprovedBy] = useState('')
   const [saving, setSaving]         = useState(false)
 
-  const handleSave = () => {
+  const handleSave = async () => {
     setSaving(true)
-    if (txTab === 'Income') {
-      // TODO: connect to InsForge: db.offerings().insert([{ type, memberId, amount: Number(amount), currency, date, notes }])
-    } else {
-      // TODO: connect to InsForge: db.expenses().insert([{ category, description, amount: Number(amount), currency: 'LRD', date, approvedBy }])
-    }
-    setTimeout(() => {
+    const churchId = user?.churchId || user?.profile?.church_id
+    try {
+      if (txTab === 'Income') {
+        const selectedMember = MEMBERS.find((m) => m.id === memberId)
+        const mName = selectedMember?.name || selectedMember?.full_name || memberName || 'Anonymous'
+        const { data, error } = await insforge.database
+          .from('offerings')
+          .insert([{
+            church_id: churchId,
+            member_name: mName,
+            type,
+            amount: parseFloat(amount) || 0,
+            currency,
+            date,
+            notes,
+          }])
+          .select()
+          .single()
+        if (error) throw error
+        if (data && onOfferingSaved) onOfferingSaved(data)
+      } else {
+        const { data, error } = await insforge.database
+          .from('expenses')
+          .insert([{
+            church_id: churchId,
+            category,
+            description,
+            amount: parseFloat(amount) || 0,
+            currency: 'LRD',
+            date,
+            approved_by: approvedBy,
+          }])
+          .select()
+          .single()
+        if (error) throw error
+        if (data && onExpenseSaved) onExpenseSaved(data)
+      }
+    } catch (err) {
+      console.error('Save transaction error:', err)
+    } finally {
       setSaving(false)
       onClose()
-    }, 800)
+    }
   }
 
   const reset = () => {
@@ -362,23 +419,25 @@ function AddTransactionModal({ isOpen, onClose }) {
 }
 
 // ─── Income Tab ───────────────────────────────────────────────
-function IncomeTab() {
+function IncomeTab({ offerings = OFFERINGS }) {
   const [filterType, setFilterType]   = useState('all')
   const [search, setSearch]           = useState('')
 
+  const normalisedOfferings = useMemo(() => offerings.map(normOffering), [offerings])
+
   const filtered = useMemo(() =>
-    OFFERINGS.filter((o) => {
+    normalisedOfferings.filter((o) => {
       const matchType = filterType === 'all' || o.type === filterType
       const matchSearch =
-        o.member.toLowerCase().includes(search.toLowerCase()) ||
+        (o.member || '').toLowerCase().includes(search.toLowerCase()) ||
         (o.notes || '').toLowerCase().includes(search.toLowerCase())
       return matchType && matchSearch
     }),
-    [filterType, search]
+    [normalisedOfferings, filterType, search]
   )
 
   const totalLRD = useMemo(
-    () => filtered.reduce((s, o) => s + toLRD(o.amount, o.currency), 0),
+    () => filtered.reduce((s, o) => s + toLRD(o.amount, o.currency || 'LRD'), 0),
     [filtered]
   )
 
@@ -464,7 +523,7 @@ function IncomeTab() {
                       <CurrencyBadge currency={o.currency} />
                     </td>
                     <td className="px-4 py-3.5 font-semibold text-slate-700 whitespace-nowrap">
-                      {o.amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      {Number(o.amount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </td>
                     <td className="px-4 py-3.5 font-semibold text-emerald-700 whitespace-nowrap">
                       {formatCurrency(lrdAmt, 'LRD')}
@@ -503,24 +562,26 @@ function IncomeTab() {
 }
 
 // ─── Expenses Tab ─────────────────────────────────────────────
-function ExpensesTab() {
+function ExpensesTab({ expenses = EXPENSES }) {
   const [search, setSearch] = useState('')
   const [filterCat, setFilterCat] = useState('all')
 
+  const normalisedExpenses = useMemo(() => expenses.map(normExpense), [expenses])
+
   const filtered = useMemo(
     () =>
-      EXPENSES.filter((e) => {
+      normalisedExpenses.filter((e) => {
         const matchCat = filterCat === 'all' || e.category === filterCat
         const matchSearch =
-          e.description.toLowerCase().includes(search.toLowerCase()) ||
-          e.approvedBy.toLowerCase().includes(search.toLowerCase())
+          (e.description || '').toLowerCase().includes(search.toLowerCase()) ||
+          (e.approvedBy || '').toLowerCase().includes(search.toLowerCase())
         return matchCat && matchSearch
       }),
-    [search, filterCat]
+    [normalisedExpenses, search, filterCat]
   )
 
   const totalLRD = useMemo(
-    () => filtered.reduce((s, e) => s + toLRD(e.amount, e.currency), 0),
+    () => filtered.reduce((s, e) => s + toLRD(e.amount, e.currency || 'LRD'), 0),
     [filtered]
   )
 
@@ -635,8 +696,8 @@ function ExpensesTab() {
 }
 
 // ─── Reports Tab ──────────────────────────────────────────────
-function ReportsTab() {
-  const pieData = useMemo(buildOfferingPie, [])
+function ReportsTab({ offerings = OFFERINGS }) {
+  const pieData = useMemo(() => buildOfferingPie(offerings), [offerings])
 
   return (
     <div className="space-y-6">
@@ -800,31 +861,46 @@ function ReportsTab() {
 
 // ─── Main Finance Page ────────────────────────────────────────
 export default function Finance() {
+  const { user } = useAuth()
   const [activeTab, setActiveTab] = useState('Income')
   const [modalOpen, setModalOpen] = useState(false)
+  const [offerings, setOfferings] = useState(OFFERINGS)
+  const [expenses, setExpenses]   = useState(EXPENSES)
+
+  // ── Load data from InsForge ────────────────────────────────
+  useEffect(() => {
+    async function load() {
+      const [oRes, eRes] = await Promise.all([
+        insforge.database.from('offerings').select('*').order('date', { ascending: false }),
+        insforge.database.from('expenses').select('*').order('date', { ascending: false }),
+      ])
+      if (oRes.data?.length) setOfferings(oRes.data)
+      if (eRes.data?.length) setExpenses(eRes.data)
+    }
+    load()
+  }, [])
 
   const TABS = ['Income', 'Expenses', 'Reports']
 
   // ── Aggregate stats ────────────────────────────────────────
   const totalIncomeLRD = useMemo(
-    () => OFFERINGS.reduce((s, o) => s + toLRD(o.amount, o.currency), 0),
-    []
+    () => offerings.reduce((s, o) => s + toLRD(o.amount, o.currency || 'LRD'), 0),
+    [offerings]
   )
   const totalExpenseLRD = useMemo(
-    () => EXPENSES.reduce((s, e) => s + toLRD(e.amount, e.currency), 0),
-    []
+    () => expenses.reduce((s, e) => s + toLRD(e.amount, e.currency || 'LRD'), 0),
+    [expenses]
   )
   const netBalance = totalIncomeLRD - totalExpenseLRD
 
-  // This month (May 2026)
-  const thisMonthIncome = useMemo(
-    () =>
-      OFFERINGS.filter((o) => o.date.startsWith('2026-05')).reduce(
-        (s, o) => s + toLRD(o.amount, o.currency),
-        0
-      ),
-    []
-  )
+  // This month
+  const thisMonthIncome = useMemo(() => {
+    const now = new Date()
+    const prefix = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
+    return offerings
+      .filter((o) => (o.date || '').startsWith(prefix))
+      .reduce((s, o) => s + toLRD(o.amount, o.currency || 'LRD'), 0)
+  }, [offerings])
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -945,16 +1021,21 @@ export default function Finance() {
 
           {/* Tab content */}
           <div className="p-6">
-            {activeTab === 'Income'   && <IncomeTab />}
-            {activeTab === 'Expenses' && <ExpensesTab />}
-            {activeTab === 'Reports'  && <ReportsTab />}
+            {activeTab === 'Income'   && <IncomeTab offerings={offerings} />}
+            {activeTab === 'Expenses' && <ExpensesTab expenses={expenses} />}
+            {activeTab === 'Reports'  && <ReportsTab offerings={offerings} />}
           </div>
         </div>
 
       </div>
 
       {/* Add Transaction Modal */}
-      <AddTransactionModal isOpen={modalOpen} onClose={() => setModalOpen(false)} />
+      <AddTransactionModal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        onOfferingSaved={(o) => setOfferings((prev) => [o, ...prev])}
+        onExpenseSaved={(e) => setExpenses((prev) => [e, ...prev])}
+      />
     </div>
   )
 }
