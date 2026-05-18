@@ -12,8 +12,10 @@ const Input = ({
   disabled = false,
   required = false,
   className = '',
+  inputClassName = '',
   id,
   name,
+  autoComplete,
   ...rest
 }) => {
   const inputId = id || (label ? label.toLowerCase().replace(/\s+/g, '-') : undefined)
@@ -56,10 +58,12 @@ const Input = ({
           placeholder={placeholder}
           disabled={disabled}
           required={required}
+          autoComplete={autoComplete}
           aria-invalid={!!error}
           aria-describedby={error ? `${inputId}-error` : undefined}
           className={[
             'w-full rounded-xl border text-sm text-slate-800 bg-white',
+            inputClassName,
             'placeholder:text-slate-400',
             'transition-all duration-200 ease-in-out',
             'focus:outline-none focus:ring-2 focus:ring-offset-0',
