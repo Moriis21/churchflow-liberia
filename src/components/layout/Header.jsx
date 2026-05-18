@@ -195,7 +195,8 @@ function UserDropdown({ user, onLogout, isSuperAdmin }) {
   const ref = useRef(null)
   const navigate = useNavigate()
 
-  const userName = user?.profile?.full_name ?? user?.name ?? user?.user_metadata?.name ?? 'User'
+  const userName  = user?.profile?.full_name ?? user?.name ?? user?.user_metadata?.name ?? 'User'
+  const avatarUrl = user?.profile?.avatar_url ?? null
 
   useEffect(() => {
     if (!open) return
@@ -225,7 +226,7 @@ function UserDropdown({ user, onLogout, isSuperAdmin }) {
         aria-haspopup="menu"
         aria-expanded={open}
       >
-        <Avatar name={userName} size="sm" />
+        <Avatar name={userName} src={avatarUrl} size="sm" />
         <div className="hidden sm:block text-left leading-tight">
           <p className="text-sm font-semibold text-slate-800 truncate max-w-[120px]">{userName}</p>
         </div>

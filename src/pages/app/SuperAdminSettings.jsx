@@ -2783,6 +2783,289 @@ function LegalSection() {
 }
 
 // ═══════════════════════════════════════════════════════════════
+// SECTION 13b: MEMBERS (Platform-wide member management)
+// ═══════════════════════════════════════════════════════════════
+function MembersSection() {
+  const [members, setMembers]       = useState([])
+  const [churches, setChurches]     = useState([])
+  const [loading, setLoading]       = useState(true)
+  const [search, setSearch]         = useState('')
+  const [churchFilter, setChurchFilter] = useState('all')
+  const [statusFilter, setStatusFilter] = useState('all')
+  const [selectedMember, setSelectedMember] = useState(null)
+
+  useEffect(() => { fetchData() }, [])
+
+  async function fetchData() {
+    setLoading(true)
+    try {
+      const [membRes, churchRes] = await Promise.all([
+        insforge.database
+          .from('members')
+          .select('*, churches(name)')
+          .order('created_at', { ascending: false }),
+        insforge.database
+          .from('churches')
+          .select('id, name')
+          .order('name'),
+      ])
+      setMembers(membRes.data || [])
+      setChurches(churchRes.data || [])
+    } catch {
+      toast.error('Failed to load members.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  async function toggleActive(id, current) {
+    const { error } = await insforge.database
+      .from('members')
+      .update({ status: current === 'active' ? 'inactive' : 'active' })
+      .eq('id', id)
+    if (error) { toast.error('Failed to update status.'); return }
+    setMembers(prev => prev.map(m =>
+      m.id === id ? { ...m, status: current === 'active' ? 'inactive' : 'active' } : m
+    ))
+    toast.success('Member status updated.')
+  }
+
+  const filtered = members.filter(m => {
+    const nameMatch = !search ||
+      m.full_name?.toLowerCase().includes(search.toLowerCase()) ||
+      m.email?.toLowerCase().includes(search.toLowerCase()) ||
+      m.phone?.includes(search)
+    const churchMatch = churchFilter === 'all' || m.church_id === churchFilter
+    const statusMatch = statusFilter === 'all' || m.status === statusFilter
+    return nameMatch && churchMatch && statusMatch
+  })
+
+  const totalMembers   = members.length
+  const activeMembers  = members.filter(m => m.status !== 'inactive').length
+  const newThisMonth   = members.filter(m => {
+    const d = new Date(m.created_at)
+    const now = new Date()
+    return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear()
+  }).length
+
+  return (
+    <div className="space-y-5">
+      {/* Stats row */}
+      <div className="grid grid-cols-3 gap-4">
+        {[
+          { label: 'Total Members',   value: totalMembers,  color: 'text-[#1E1B4B]' },
+          { label: 'Active Members',  value: activeMembers, color: 'text-green-600' },
+          { label: 'New This Month',  value: newThisMonth,  color: 'text-purple-600' },
+        ].map(s => (
+          <div key={s.label} className="bg-white rounded-2xl border border-slate-100 shadow-sm p-4 text-center">
+            <p className={`text-2xl font-extrabold ${s.color}`}>{s.value}</p>
+            <p className="text-xs text-slate-500 mt-0.5">{s.label}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* Filters */}
+      <div className="flex flex-wrap gap-3 items-center">
+        <div className="relative flex-1 min-w-[180px] max-w-xs">
+          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+          <input
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            placeholder="Search members…"
+            className="w-full pl-9 pr-3 py-2 border border-slate-200 rounded-xl text-sm
+              focus:outline-none focus:ring-2 focus:ring-purple-400"
+          />
+        </div>
+        <select
+          value={churchFilter}
+          onChange={e => setChurchFilter(e.target.value)}
+          className="border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-400"
+        >
+          <option value="all">All Churches</option>
+          {churches.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+        </select>
+        <select
+          value={statusFilter}
+          onChange={e => setStatusFilter(e.target.value)}
+          className="border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-400"
+        >
+          <option value="all">All Statuses</option>
+          <option value="active">Active</option>
+          <option value="inactive">Inactive</option>
+        </select>
+        <button onClick={fetchData}
+          className="p-2 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-500 transition-colors"
+          title="Refresh"
+        >
+          <RefreshCw size={15} />
+        </button>
+        <span className="text-xs text-slate-400 ml-auto">
+          {filtered.length} of {totalMembers} members
+        </span>
+      </div>
+
+      {/* Table */}
+      <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+        {loading ? (
+          <div className="flex items-center justify-center py-16">
+            <div className="w-8 h-8 border-2 border-purple-500 border-t-transparent rounded-full animate-spin" />
+          </div>
+        ) : filtered.length === 0 ? (
+          <EmptyState
+            icon={Users}
+            title={members.length === 0 ? 'No members yet' : 'No matches found'}
+            description={members.length === 0
+              ? 'Members will appear here once churches start adding people.'
+              : 'Try a different search or filter.'}
+          />
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-slate-100 bg-slate-50">
+                  {['Member', 'Church', 'Phone', 'Email', 'Status', 'Joined', 'Actions'].map(h => (
+                    <th key={h} className="text-left px-5 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide whitespace-nowrap">
+                      {h}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-50">
+                {filtered.map(m => (
+                  <tr key={m.id} className="hover:bg-slate-50/50 transition-colors">
+                    <td className="px-5 py-3.5">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-indigo-600
+                          flex items-center justify-center text-white font-bold text-xs flex-shrink-0">
+                          {m.full_name?.charAt(0)?.toUpperCase() || '?'}
+                        </div>
+                        <div>
+                          <p className="font-semibold text-slate-800 leading-snug">{m.full_name || '—'}</p>
+                          {m.member_id && (
+                            <p className="text-[10px] text-slate-400 font-mono">{m.member_id}</p>
+                          )}
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-5 py-3.5 text-slate-600 text-xs">
+                      {m.churches?.name || '—'}
+                    </td>
+                    <td className="px-5 py-3.5 text-slate-500 text-xs whitespace-nowrap">
+                      {m.phone || '—'}
+                    </td>
+                    <td className="px-5 py-3.5 text-slate-500 text-xs">
+                      {m.email || '—'}
+                    </td>
+                    <td className="px-5 py-3.5">
+                      <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold
+                        ${m.status === 'inactive'
+                          ? 'bg-slate-100 text-slate-500'
+                          : 'bg-green-100 text-green-700'}`}>
+                        {m.status === 'inactive' ? 'Inactive' : 'Active'}
+                      </span>
+                    </td>
+                    <td className="px-5 py-3.5 text-slate-500 text-xs whitespace-nowrap">
+                      {m.created_at ? new Date(m.created_at).toLocaleDateString() : '—'}
+                    </td>
+                    <td className="px-5 py-3.5">
+                      <div className="flex items-center gap-1">
+                        <button
+                          onClick={() => setSelectedMember(m)}
+                          title="View details"
+                          className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition-colors"
+                        >
+                          <Eye size={14} />
+                        </button>
+                        <button
+                          onClick={() => toggleActive(m.id, m.status)}
+                          title={m.status === 'inactive' ? 'Activate' : 'Deactivate'}
+                          className={`px-2.5 py-1 rounded-lg text-white text-xs font-semibold transition-colors
+                            ${m.status === 'inactive'
+                              ? 'bg-green-500 hover:bg-green-600'
+                              : 'bg-orange-500 hover:bg-orange-600'}`}
+                        >
+                          {m.status === 'inactive' ? 'Activate' : 'Deactivate'}
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+
+        {filtered.length > 0 && (
+          <div className="px-5 py-3 border-t border-slate-50 text-xs text-slate-400">
+            Showing {filtered.length} member{filtered.length !== 1 ? 's' : ''}
+            {churchFilter !== 'all' && ` from ${churches.find(c => c.id === churchFilter)?.name || 'selected church'}`}
+          </div>
+        )}
+      </div>
+
+      {/* Member detail modal */}
+      {selectedMember && (
+        <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4"
+          onClick={() => setSelectedMember(null)}>
+          <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl"
+            onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-5">
+              <h4 className="font-bold text-[#1E1B4B] text-base">Member Details</h4>
+              <button onClick={() => setSelectedMember(null)}
+                className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 transition-colors">
+                <XCircle size={18} />
+              </button>
+            </div>
+            <div className="flex items-center gap-4 mb-5 pb-5 border-b border-slate-100">
+              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-purple-500 to-indigo-600
+                flex items-center justify-center text-white font-black text-xl flex-shrink-0">
+                {selectedMember.full_name?.charAt(0)?.toUpperCase() || '?'}
+              </div>
+              <div>
+                <p className="font-bold text-slate-800 text-base">{selectedMember.full_name || '—'}</p>
+                <p className="text-sm text-slate-500">{selectedMember.churches?.name || 'No church'}</p>
+                <span className={`inline-flex items-center mt-1 px-2 py-0.5 rounded-full text-xs font-semibold
+                  ${selectedMember.status === 'inactive' ? 'bg-slate-100 text-slate-500' : 'bg-green-100 text-green-700'}`}>
+                  {selectedMember.status === 'inactive' ? 'Inactive' : 'Active'}
+                </span>
+              </div>
+            </div>
+            <div className="space-y-3 text-sm">
+              {[
+                { label: 'Email',      value: selectedMember.email },
+                { label: 'Phone',      value: selectedMember.phone },
+                { label: 'Member ID',  value: selectedMember.member_id },
+                { label: 'Gender',     value: selectedMember.gender },
+                { label: 'Address',    value: selectedMember.address },
+                { label: 'Joined',     value: selectedMember.created_at ? new Date(selectedMember.created_at).toLocaleDateString() : null },
+              ].map(({ label, value }) => value ? (
+                <div key={label} className="flex items-start justify-between gap-4">
+                  <span className="text-slate-400 font-medium flex-shrink-0">{label}</span>
+                  <span className="text-slate-700 text-right">{value}</span>
+                </div>
+              ) : null)}
+            </div>
+            <div className="flex gap-3 mt-6">
+              <button onClick={() => { toggleActive(selectedMember.id, selectedMember.status); setSelectedMember(null) }}
+                className={`flex-1 py-2 rounded-xl text-sm font-semibold transition-colors
+                  ${selectedMember.status === 'inactive'
+                    ? 'bg-green-500 hover:bg-green-600 text-white'
+                    : 'bg-orange-500 hover:bg-orange-600 text-white'}`}>
+                {selectedMember.status === 'inactive' ? 'Activate Member' : 'Deactivate Member'}
+              </button>
+              <button onClick={() => setSelectedMember(null)}
+                className="px-5 py-2 border border-slate-200 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-50 transition-colors">
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ═══════════════════════════════════════════════════════════════
 // SECTION 14: API KEYS
 // ═══════════════════════════════════════════════════════════════
 function ApiSection() {

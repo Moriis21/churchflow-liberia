@@ -227,9 +227,10 @@ export default function Sidebar({ isOpen, onClose }) {
   const { church, branches, currentBranch, switchBranch } = useChurch()
   const navigate = useNavigate()
 
-  const userName = user?.profile?.full_name ?? user?.name ?? user?.user_metadata?.name ?? 'User'
-  const userRole = user?.role ?? user?.profile?.role ?? user?.user_metadata?.role ?? ''
+  const userName  = user?.profile?.full_name ?? user?.name ?? user?.user_metadata?.name ?? 'User'
+  const userRole  = user?.role ?? user?.profile?.role ?? user?.user_metadata?.role ?? ''
   const userEmail = user?.email ?? ''
+  const avatarUrl = user?.profile?.avatar_url ?? null
 
   // Pick the correct nav structure
   const navSections = isSuperAdmin ? SUPER_ADMIN_NAV_SECTIONS : CHURCH_NAV_SECTIONS
@@ -333,7 +334,7 @@ export default function Sidebar({ isOpen, onClose }) {
       {/* ── User footer ──────────────────────────────────── */}
       <div className="flex-shrink-0 border-t border-white/10 px-4 py-4">
         <div className="flex items-center gap-3">
-          <Avatar name={userName} size="sm" />
+          <Avatar name={userName} src={avatarUrl} size="sm" />
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2 flex-wrap">
               <p className="text-sm font-semibold text-white truncate leading-tight">{userName}</p>
