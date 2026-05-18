@@ -19,6 +19,136 @@ import { useAuth } from '../../context/AuthContext'
 import { Input, Button } from '../../components/ui'
 import { insforge } from '../../lib/insforge'
 
+// ─── Church Building SVG Illustration ────────────────────────
+// Matches the white church with steeple, cross, arched windows & steps
+function ChurchIllustration() {
+  return (
+    <div className="relative flex items-end justify-center w-full max-w-[300px] mx-auto mb-6 drop-shadow-2xl">
+      {/* Soft glow behind building */}
+      <div className="absolute inset-0 rounded-full bg-white/10 blur-3xl scale-75" />
+
+      <svg
+        viewBox="0 0 300 280"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        className="relative w-full"
+        aria-label="Church building illustration"
+      >
+        {/* ── Ground shadow ── */}
+        <ellipse cx="150" cy="272" rx="110" ry="8" fill="rgba(0,0,0,0.18)" />
+
+        {/* ══ LEFT WING / NAVE ══ */}
+        {/* Roof (pitched) */}
+        <polygon points="28,168 90,130 90,210 28,210" fill="#D4A96A" />
+        <polygon points="28,168 90,130 90,132 30,170" fill="#C49050" />
+        {/* Wall */}
+        <rect x="28" y="168" width="62" height="42" fill="white" />
+        {/* Arched window left */}
+        <rect x="42" y="175" width="20" height="22" rx="10" fill="#C8D8F0" stroke="#B0C4DE" strokeWidth="1.5" />
+        <rect x="51" y="175" width="2" height="22" fill="#A8B8D0" />
+        <rect x="42" y="185" width="20" height="2" fill="#A8B8D0" />
+        {/* Wall base shadow */}
+        <rect x="28" y="206" width="62" height="4" fill="#EEE" />
+
+        {/* ══ RIGHT WING / TRANSEPT ══ */}
+        {/* Roof */}
+        <polygon points="272,168 210,130 210,210 272,210" fill="#D4A96A" />
+        <polygon points="272,168 210,130 210,132 270,170" fill="#C49050" />
+        {/* Wall */}
+        <rect x="210" y="168" width="62" height="42" fill="white" />
+        {/* Arched window right */}
+        <rect x="238" y="175" width="20" height="22" rx="10" fill="#C8D8F0" stroke="#B0C4DE" strokeWidth="1.5" />
+        <rect x="247" y="175" width="2" height="22" fill="#A8B8D0" />
+        <rect x="238" y="185" width="20" height="2" fill="#A8B8D0" />
+        {/* Wall base shadow */}
+        <rect x="210" y="206" width="62" height="4" fill="#EEE" />
+
+        {/* ══ MAIN BODY / NAVE ══ */}
+        {/* Roof (wide pitched) */}
+        <polygon points="85,148 215,148 215,210 85,210" fill="white" />
+        {/* Roof slope left */}
+        <polygon points="75,158 150,115 150,118 80,161" fill="#D4A96A" />
+        {/* Roof slope right */}
+        <polygon points="225,158 150,115 150,118 220,161" fill="#C49050" />
+        {/* Roof main surface */}
+        <polygon points="80,160 150,116 220,160 215,160 150,120 85,160" fill="#D4A96A" />
+        {/* Main wall */}
+        <rect x="85" y="160" width="130" height="50" fill="white" />
+        {/* Front door arch */}
+        <rect x="130" y="175" width="40" height="35" rx="20" fill="#8B7355" />
+        <rect x="134" y="185" width="15" height="25" rx="3" fill="#6B5335" />
+        <rect x="151" y="185" width="15" height="25" rx="3" fill="#6B5335" />
+        {/* Door handle */}
+        <circle cx="149" cy="200" r="2" fill="#D4A96A" />
+        {/* Arched windows on nave */}
+        <rect x="93" y="168" width="22" height="26" rx="11" fill="#C8D8F0" stroke="#B0C4DE" strokeWidth="1.5" />
+        <rect x="103" y="168" width="2" height="26" fill="#A8B8D0" />
+        <rect x="93" y="180" width="22" height="2" fill="#A8B8D0" />
+        <rect x="185" y="168" width="22" height="26" rx="11" fill="#C8D8F0" stroke="#B0C4DE" strokeWidth="1.5" />
+        <rect x="195" y="168" width="2" height="26" fill="#A8B8D0" />
+        <rect x="185" y="180" width="22" height="2" fill="#A8B8D0" />
+        {/* Cornerstone lines */}
+        <line x1="85" y1="190" x2="87" y2="190" stroke="#DDD" strokeWidth="1" />
+        <line x1="213" y1="190" x2="215" y2="190" stroke="#DDD" strokeWidth="1" />
+        {/* Wall base shadow */}
+        <rect x="85" y="206" width="130" height="4" fill="#EEE" />
+
+        {/* ══ STEPS ══ */}
+        <rect x="120" y="210" width="60" height="7"  rx="1" fill="#D0CCC8" />
+        <rect x="114" y="217" width="72" height="7"  rx="1" fill="#C8C4C0" />
+        <rect x="108" y="224" width="84" height="8"  rx="1" fill="#C0BCB8" />
+        {/* Step shadows */}
+        <rect x="120" y="210" width="60" height="2" fill="rgba(0,0,0,0.06)" />
+        <rect x="114" y="217" width="72" height="2" fill="rgba(0,0,0,0.06)" />
+        <rect x="108" y="224" width="84" height="2" fill="rgba(0,0,0,0.06)" />
+
+        {/* ══ CENTRAL TOWER / STEEPLE ══ */}
+        {/* Tower base */}
+        <rect x="120" y="90" width="60" height="80" fill="white" />
+        {/* Tower sides shadow */}
+        <rect x="120" y="90" width="4" height="80" fill="rgba(0,0,0,0.05)" />
+        <rect x="176" y="90" width="4" height="80" fill="rgba(0,0,0,0.08)" />
+        {/* Louvered belfry openings */}
+        <rect x="128" y="110" width="18" height="28" rx="9" fill="#9BA8C0" stroke="#8090B0" strokeWidth="1" />
+        <line x1="137" y1="110" x2="137" y2="138" stroke="#7080A0" strokeWidth="1" />
+        <rect x="154" y="110" width="18" height="28" rx="9" fill="#9BA8C0" stroke="#8090B0" strokeWidth="1" />
+        <line x1="163" y1="110" x2="163" y2="138" stroke="#7080A0" strokeWidth="1" />
+        {/* Horizontal lines on belfry */}
+        <line x1="128" y1="124" x2="146" y2="124" stroke="#7080A0" strokeWidth="1" />
+        <line x1="154" y1="124" x2="172" y2="124" stroke="#7080A0" strokeWidth="1" />
+        {/* Tower cornice */}
+        <rect x="116" y="86" width="68" height="8" fill="#ECECEC" />
+        <rect x="116" y="86" width="68" height="2" fill="#DDD" />
+
+        {/* ══ STEEPLE PYRAMID ══ */}
+        {/* Pyramid body */}
+        <polygon points="150,12 116,86 184,86" fill="#E8E4E0" />
+        {/* Pyramid shading */}
+        <polygon points="150,12 116,86 150,86" fill="rgba(0,0,0,0.06)" />
+        {/* Steeple outline */}
+        <polygon points="150,12 116,86 184,86" stroke="#D0CCC8" strokeWidth="1" fill="none" />
+
+        {/* ══ CROSS (golden, prominent) ══ */}
+        {/* Vertical beam */}
+        <rect x="146" y="2" width="8" height="36" rx="4" fill="url(#goldGrad)" />
+        {/* Horizontal beam */}
+        <rect x="136" y="12" width="28" height="8" rx="4" fill="url(#goldGrad)" />
+        {/* Cross glow */}
+        <rect x="146.5" y="2.5" width="7" height="35" rx="3.5" fill="rgba(255,255,255,0.3)" />
+
+        {/* ══ GRADIENT DEFS ══ */}
+        <defs>
+          <linearGradient id="goldGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#FCD34D" />
+            <stop offset="50%" stopColor="#F59E0B" />
+            <stop offset="100%" stopColor="#D97706" />
+          </linearGradient>
+        </defs>
+      </svg>
+    </div>
+  )
+}
+
 // ─── Google SVG Icon ─────────────────────────────────────────
 function GoogleIcon({ size = 18 }) {
   return (
@@ -133,22 +263,9 @@ export default function Login() {
           </div>
         </div>
 
-        {/* Church image + headline */}
+        {/* Church illustration + headline */}
         <div className="relative z-10 flex flex-col items-center text-center">
-          {/* Church building image */}
-          <div className="relative w-full max-w-xs mx-auto mb-6">
-            <div className="absolute inset-0 rounded-2xl bg-white/5 blur-xl" />
-            <img
-              src="/church.png"
-              alt="Church"
-              className="relative w-full object-contain drop-shadow-2xl"
-              style={{ filter: 'brightness(1.05) contrast(1.02)' }}
-              onError={(e) => {
-                // Fallback: hide if image not found
-                e.target.style.display = 'none'
-              }}
-            />
-          </div>
+          <ChurchIllustration />
 
           <h1 className="text-2xl xl:text-3xl font-extrabold text-white leading-tight max-w-sm">
             Stop losing church records.{' '}
