@@ -143,31 +143,51 @@ export function AuthProvider({ children }) {
     }
   }, [])
 
-  // ── Fetch user_profiles + church for the authenticated user ─
+  // ── Fetch user_profiles for the authenticated user ───────────
+  // Uses two separate queries (no nested join) to avoid PostgREST
+  // FK traversal issues and circular RLS policy recursion.
   async function fetchUserProfile(userId) {
     try {
-      const { data } = await insforge.database
+      const { data, error } = await insforge.database
         .from('user_profiles')
-        .select('*, churches(*)')
+        .select('*')
         .eq('id', userId)
         .maybeSingle()
 
+      if (error) {
+        console.error('[AuthContext] fetchUserProfile error:', error.message)
+        return
+      }
+
       if (data) {
-        // Super admin has no church — skip setting church data
-        if (data.role === 'super_admin') {
-          setChurchData(null)
-        } else if (data.churches) {
-          setChurchData(data.churches)
-        }
+        // Merge role + churchId into user state immediately
         setUser((prev) => ({
           ...prev,
           profile: data,
           role: data.role,
           churchId: data.church_id,
         }))
+
+        // Super admin has no church — clear any stale church data
+        if (data.role === 'super_admin') {
+          setChurchData(null)
+          return
+        }
+
+        // Fetch church separately for non-super-admin users
+        if (data.church_id) {
+          const { data: churchRow } = await insforge.database
+            .from('churches')
+            .select('*')
+            .eq('id', data.church_id)
+            .maybeSingle()
+          if (churchRow) setChurchData(churchRow)
+        }
+      } else {
+        console.warn('[AuthContext] No user_profile found for userId:', userId)
       }
-    } catch {
-      // Non-fatal; church data will fall back to context defaults
+    } catch (err) {
+      console.error('[AuthContext] fetchUserProfile exception:', err.message)
     }
   }
 

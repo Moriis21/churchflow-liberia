@@ -90,8 +90,10 @@ export default function Layout() {
     )
   }
 
-  // ── Redirect super admin away from regular dashboard ──
-  if (isSuperAdmin && location.pathname === '/app/dashboard') {
+  // ── Super admin: keep on /app/super-admin, redirect away from
+  //    regular church pages (dashboard, members, etc.) ──────────
+  const SUPER_ADMIN_ROUTES = ['/app/super-admin', '/app/users', '/app/settings', '/app/reports', '/app/sermons', '/app/finance', '/app/members', '/app/branches']
+  if (isSuperAdmin && !SUPER_ADMIN_ROUTES.some(r => location.pathname.startsWith(r))) {
     return <Navigate to="/app/super-admin" replace />
   }
 
