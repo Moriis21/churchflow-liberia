@@ -48,21 +48,13 @@ export default function CompleteSetup() {
 
     setSaving(true)
     try {
-      // Get the user's JWT from the auth session
-      const { data: sessionData } = await insforge.auth.getCurrentUser()
-      const jwt = sessionData?.session?.access_token
-                || sessionData?.access_token
-                || sessionData?.user?.access_token
-                || null
-
-      // Call edge function directly (not via SDK) to avoid SDK URL resolution issues
+      // Pass userId + userEmail in the body — edge function verifies via service role
       const res = await fetch(`${FUNCTIONS_URL}/setup-church`, {
         method:  'POST',
-        headers: {
-          'Content-Type':  'application/json',
-          'Authorization': jwt ? `Bearer ${jwt}` : '',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          userId:     user?.id,
+          userEmail:  user?.email,
           churchName: form.churchName.trim(),
           fullName:   form.fullName.trim(),
           role:       'church_admin',

@@ -317,16 +317,14 @@ export function AuthProvider({ children }) {
                 || sessionData?.access_token
                 || null
 
-      // Call the setup-church edge function directly via fetch
-      // (avoids insforge.functions.invoke URL resolution issues)
+      // Call edge function via fetch — pass userId+email in body (no JWT needed)
       const FUNCTIONS_URL = 'https://nihu7zi9.functions.insforge.app'
       const res = await fetch(`${FUNCTIONS_URL}/setup-church`, {
         method:  'POST',
-        headers: {
-          'Content-Type':  'application/json',
-          'Authorization': jwt ? `Bearer ${jwt}` : '',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          userId:           authedUser.id,
+          userEmail:        authedUser.email || null,
           churchName:       churchName?.trim() || null,
           fullName:         name || authedUser.email,
           role:             role || ROLES.CHURCH_ADMIN,
