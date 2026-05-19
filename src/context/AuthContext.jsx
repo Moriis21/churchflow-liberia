@@ -300,35 +300,40 @@ export function AuthProvider({ children }) {
     })
   }
 
-  // ── Create church + profile after registration ────────────
+  // ── Create church + profile via Edge Function (bypasses RLS) ──
+  // Direct DB inserts from the browser fail because the InsForge SDK
+  // does not forward the user JWT to PostgREST, so auth.uid() = null
+  // in RLS policies. The edge function runs as service role and
+  // bypasses RLS entirely, guaranteeing the records are created.
   async function _createChurchAndProfile(authedUser, name, churchName, role, existingChurchId = null) {
     try {
-      let churchId = existingChurchId
-
-      if (!existingChurchId) {
-        if (!churchName?.trim()) throw new Error('Church name is required.')
-        const { data: newChurch, error: churchErr } = await insforge.database
-          .from('churches')
-          .insert([{ name: churchName.trim(), owner_id: authedUser.id, currency: 'LRD' }])
-          .select()
-          .single()
-        if (churchErr) throw churchErr
-        churchId = newChurch.id
-        setChurchData(newChurch)
+      if (!existingChurchId && !churchName?.trim()) {
+        throw new Error('Church name is required.')
       }
 
-      await insforge.database
-        .from('user_profiles')
-        .upsert([{
-          id:        authedUser.id,
-          email:     authedUser.email || null,
-          church_id: churchId,
-          full_name: name || authedUser.email,
-          role:      role || ROLES.CHURCH_ADMIN,
-          is_active: true,
-        }], { onConflict: 'id' })
+      // Get the current session JWT to pass to the edge function
+      const { data: sessionData } = await insforge.auth.getCurrentUser()
+      const jwt = sessionData?.session?.access_token
+                || sessionData?.access_token
+                || null
 
-      // Sync role to auth profile immediately on registration
+      // Call the setup-church edge function
+      const { data: result, error } = await insforge.functions.invoke('setup-church', {
+        body: {
+          churchName:      churchName?.trim() || null,
+          fullName:        name || authedUser.email,
+          role:            role || ROLES.CHURCH_ADMIN,
+          existingChurchId: existingChurchId || null,
+        },
+        headers: jwt ? { Authorization: `Bearer ${jwt}` } : undefined,
+      })
+
+      if (error) throw error
+      if (!result?.success) throw new Error(result?.error || 'Setup failed')
+
+      if (result.church) setChurchData(result.church)
+
+      // Sync role to auth profile so future logins work without DB
       await syncRoleToAuthProfile(role || ROLES.CHURCH_ADMIN, name || authedUser.email)
     } catch (err) {
       console.error('[AuthContext] _createChurchAndProfile error:', err.message)

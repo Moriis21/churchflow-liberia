@@ -101,6 +101,13 @@ export default function Layout() {
     return <Navigate to="/app/super-admin" replace />
   }
 
+  // ── Church user with no church: redirect to setup ─────────────
+  const churchId = user?.churchId || user?.profile?.church_id
+  const isChurchRoute = !isSuperAdmin && location.pathname !== '/complete-setup'
+  if (isChurchRoute && !churchId && user?.role !== 'super_admin') {
+    return <Navigate to="/complete-setup" replace />
+  }
+
   // ── Authenticated layout ──────────────────────────────
   return (
     <div className="min-h-screen bg-[#F8F7FF]">

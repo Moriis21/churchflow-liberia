@@ -31,6 +31,7 @@ const UserManagement = React.lazy(() => import('./pages/app/UserManagement'))
 const SuperAdminDashboard  = React.lazy(() => import('./pages/app/SuperAdminDashboard'))
 const SuperAdminSettings   = React.lazy(() => import('./pages/app/SuperAdminSettings'))
 const ProfilePage          = React.lazy(() => import('./pages/app/ProfilePage'))
+const CompleteSetup        = React.lazy(() => import('./pages/app/CompleteSetup'))
 
 const JoinChurchPage  = React.lazy(() => import('./pages/public/JoinChurchPage'))
 
@@ -117,6 +118,7 @@ function AppRoutes() {
         <Route path="/login"             element={<Login />} />
         <Route path="/register"          element={<Register />} />
         <Route path="/forgot-password"   element={<ForgotPassword />} />
+        <Route path="/complete-setup"     element={<CompleteSetup />} />
         <Route path="/join/:churchId" element={<JoinChurchPage />} />
         <Route path="/features"   element={<FeaturesPage />} />
         <Route path="/pricing"    element={<PricingPage />} />
