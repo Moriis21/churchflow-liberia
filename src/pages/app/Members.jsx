@@ -267,7 +267,7 @@ function DeleteConfirmModal({ member, onConfirm, onCancel }) {
 }
 
 // ─── Grid Card ────────────────────────────────────────────────
-function MemberCard({ member, onView, onEdit, onDelete }) {
+function MemberCard({ member, onView, onEdit, onDelete, showChurch = false }) {
   const deptColors = {
     Choir: 'bg-violet-100 text-violet-700', Ushering: 'bg-amber-100 text-amber-700',
     Media: 'bg-blue-100 text-blue-700', 'Youth Ministry': 'bg-pink-100 text-pink-700',
@@ -294,6 +294,7 @@ function MemberCard({ member, onView, onEdit, onDelete }) {
         </div>
         {mDept && <span className={['self-start inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold', deptClass].join(' ')}>{mDept}</span>}
         <div className="space-y-1.5 text-xs text-slate-500">
+          {showChurch && member.church_name && <div className="flex items-center gap-2 truncate"><span className="w-3.5 h-3.5 flex-shrink-0 text-purple-400">🏛</span><span className="truncate text-purple-700 font-medium">{member.church_name}</span></div>}
           {member.phone && <div className="flex items-center gap-2 truncate"><Phone className="w-3.5 h-3.5 flex-shrink-0 text-slate-400" /><span className="truncate">{formatPhone(member.phone)}</span></div>}
           {member.email && <div className="flex items-center gap-2 truncate"><Mail className="w-3.5 h-3.5 flex-shrink-0 text-slate-400" /><span className="truncate">{member.email}</span></div>}
         </div>
@@ -308,7 +309,7 @@ function MemberCard({ member, onView, onEdit, onDelete }) {
 }
 
 // ─── Table Row ────────────────────────────────────────────────
-function MemberRow({ member, onView, onEdit, onDelete }) {
+function MemberRow({ member, onView, onEdit, onDelete, showChurch = false }) {
   const mName     = member.name || member.full_name || '—'
   const mDept     = member.department || member.departments?.name || ''
   const mStatus   = member.membershipStatus || member.membership_status || 'active'
@@ -321,7 +322,13 @@ function MemberRow({ member, onView, onEdit, onDelete }) {
           <div><p className="text-sm font-semibold text-slate-800">{mName}</p><p className="text-xs text-slate-400 capitalize">{member.gender}</p></div>
         </div>
       </td>
-      <td className="px-4 py-3 whitespace-nowrap"><span className="text-xs text-slate-600">{mDept || '—'}</span></td>
+      {/* Second column: Church (SA) or Department (church role) */}
+      <td className="px-4 py-3 whitespace-nowrap">
+        {showChurch
+          ? <span className="text-xs font-medium text-purple-700 bg-purple-50 px-2 py-0.5 rounded-lg">{member.church_name || '—'}</span>
+          : <span className="text-xs text-slate-600">{mDept || '—'}</span>
+        }
+      </td>
       <td className="px-4 py-3 whitespace-nowrap"><span className="text-xs text-slate-600">{formatPhone(member.phone)}</span></td>
       <td className="px-4 py-3 whitespace-nowrap"><StatusBadge status={mStatus} /></td>
       <td className="px-4 py-3 whitespace-nowrap"><span className="text-xs text-slate-500">{formatDate(mJoinDate)}</span></td>
@@ -363,7 +370,7 @@ function Pagination({ page, totalPages, onPage }) {
 // ─── Main Component ───────────────────────────────────────────
 export default function Members() {
   const navigate = useNavigate()
-  const { user } = useAuth()
+  const { user, isSuperAdmin } = useAuth()
   const { church, currentBranch } = useChurch()
 
   const [members, setMembers]         = useState([])
@@ -383,9 +390,34 @@ export default function Members() {
   const [formErrors, setFormErrors]   = useState({})
   const [saving, setSaving]           = useState(false)
   const [toastMsg, setToastMsg]       = useState(null)
+  // ── Super Admin platform-scope extras ────────────────────
+  const [filterChurch, setFilterChurch] = useState('')
+  const [allChurches, setAllChurches]   = useState([])
+  const [saChurchForAdd, setSaChurchForAdd] = useState('')
 
   // ── Load from InsForge ────────────────────────────────────
   async function loadData() {
+    // Super Admin: no church needed — load ALL platform members
+    if (isSuperAdmin) {
+      setDbLoading(true)
+      try {
+        const [mRes, cRes] = await Promise.all([
+          insforge.database.rpc('get_all_platform_members'),
+          insforge.database.rpc('get_all_churches_list'),
+        ])
+        if (mRes.error) throw mRes.error
+        setMembers(Array.isArray(mRes.data) ? mRes.data : [])
+        setAllChurches(Array.isArray(cRes.data) ? cRes.data : [])
+        setDepartments([])
+      } catch (err) {
+        showToast('Failed to load members. Please refresh.', 'error')
+      } finally {
+        setDbLoading(false)
+      }
+      return
+    }
+
+    // Church role: require church_id
     if (!church?.id) { setDbLoading(false); return }
     setDbLoading(true)
     try {
@@ -412,7 +444,7 @@ export default function Members() {
     }
   }
 
-  useEffect(() => { loadData() }, [church?.id])
+  useEffect(() => { loadData() }, [church?.id, isSuperAdmin])
 
   const deptNames = useMemo(() => departments.map(d => d.name), [departments])
 
@@ -435,13 +467,15 @@ export default function Members() {
     const mDept   = m.department || m.departments?.name || ''
     const mStatus = m.membershipStatus || m.membership_status || ''
     const mGender = m.gender || ''
+    const mChurch = m.church_id || ''
     return (
-      (!q || mName.toLowerCase().includes(q) || (m.email || '').toLowerCase().includes(q) || (m.phone || '').includes(q) || mDept.toLowerCase().includes(q)) &&
+      (!q || mName.toLowerCase().includes(q) || (m.email || '').toLowerCase().includes(q) || (m.phone || '').includes(q) || mDept.toLowerCase().includes(q) || (m.church_name || '').toLowerCase().includes(q)) &&
       (!filterDept   || mDept === filterDept) &&
       (!filterStatus || mStatus === filterStatus) &&
-      (!filterGender || mGender === filterGender)
+      (!filterGender || mGender === filterGender) &&
+      (!filterChurch || mChurch === filterChurch)
     )
-  }), [members, searchTerm, filterDept, filterStatus, filterGender])
+  }), [members, searchTerm, filterDept, filterStatus, filterGender, filterChurch])
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE))
   const safePage   = Math.min(page, totalPages)
@@ -470,9 +504,10 @@ export default function Members() {
     const errs = validate(form)
     if (Object.keys(errs).length) { setFormErrors(errs); return }
 
-    const churchId = church?.id
+    // Super Admin uses selected church; church role uses their church
+    const churchId = isSuperAdmin ? saChurchForAdd : church?.id
     if (!churchId) {
-      showToast('Church not configured. Please contact support.', 'error')
+      showToast(isSuperAdmin ? 'Please select a church before adding a member.' : 'Church not configured. Please contact support.', 'error')
       return
     }
     if (!form.email?.trim()) {
@@ -546,29 +581,27 @@ export default function Members() {
     }
   }
 
-  // ── Edit member ───────────────────────────────────────────
+  // ── Edit member — SECURITY DEFINER RPC (bypasses InsForge JWT issue) ──
   const handleSaveEdit = async () => {
     const errs = validate(form)
     if (Object.keys(errs).length) { setFormErrors(errs); return }
 
     setSaving(true)
     try {
-      const { error } = await insforge.database
-        .from('members')
-        .update({
-          full_name:         form.name,
-          gender:            form.gender,
-          phone:             form.phone,
-          email:             form.email || null,
-          address:           form.address || null,
-          date_of_birth:     form.dateOfBirth || null,
-          membership_status: form.membershipStatus || 'active',
-          baptism_status:    form.baptismStatus || false,
-          marital_status:    form.maritalStatus,
-          notes:             form.notes || null,
-          emergency_contact: form.emergencyContact || null,
-        })
-        .eq('id', editMember.id)
+      const { error } = await insforge.database.rpc('update_member', {
+        p_member_id:        editMember.id,
+        p_full_name:        form.name,
+        p_gender:           form.gender,
+        p_phone:            form.phone || null,
+        p_email:            form.email || null,
+        p_address:          form.address || null,
+        p_date_of_birth:    form.dateOfBirth || null,
+        p_membership_status: form.membershipStatus || 'active',
+        p_baptism_status:   form.baptismStatus || false,
+        p_marital_status:   form.maritalStatus,
+        p_notes:            form.notes || null,
+        p_emergency_contact: form.emergencyContact || null,
+      })
 
       if (error) throw error
       setEditMember(null)
@@ -581,11 +614,11 @@ export default function Members() {
     }
   }
 
-  // ── Delete ────────────────────────────────────────────────
+  // ── Delete — SECURITY DEFINER RPC ────────────────────────
   const handleConfirmDelete = async () => {
     const memberName = deleteMember.name || deleteMember.full_name || 'Member'
     try {
-      const { error } = await insforge.database.from('members').delete().eq('id', deleteMember.id)
+      const { error } = await insforge.database.rpc('delete_member', { p_member_id: deleteMember.id })
       if (error) throw error
       setDeleteMember(null)
       await loadData()
@@ -595,7 +628,7 @@ export default function Members() {
     }
   }
 
-  const handleOpenAdd  = () => { setForm(blankForm); setFormErrors({}); setShowAddModal(true) }
+  const handleOpenAdd  = () => { setForm(blankForm); setFormErrors({}); setSaChurchForAdd(''); setShowAddModal(true) }
   const handleOpenEdit = member => {
     setForm({
       name:             member.name || member.full_name || '',
@@ -617,8 +650,8 @@ export default function Members() {
   }
   const handleView = member => navigate(`/app/members/${member.id}`)
 
-  // ── No-church guard ───────────────────────────────────────
-  if (!church && !dbLoading) {
+  // ── No-church guard — only for church-level roles, NOT Super Admin ──
+  if (!isSuperAdmin && !church && !dbLoading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-4">
         <div className="w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center mb-4">
@@ -637,8 +670,15 @@ export default function Members() {
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 leading-tight">Members</h1>
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 leading-tight">
+              {isSuperAdmin ? 'All Members' : 'Members'}
+            </h1>
             <span className="inline-flex items-center justify-center px-3 py-1 rounded-full text-sm font-bold bg-gradient-to-r from-violet-600 to-purple-700 text-white shadow-sm">{totalCount}</span>
+            {isSuperAdmin && (
+              <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-800 border border-amber-200">
+                Platform View
+              </span>
+            )}
           </div>
           <Button variant="primary" icon={UserPlus} onClick={handleOpenAdd}>Add Member</Button>
         </div>
@@ -660,10 +700,19 @@ export default function Members() {
                 placeholder="Search by name, phone, email, department…"
                 className="w-full pl-10 pr-4 py-2.5 rounded-xl text-sm bg-white border border-slate-200 text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-100 focus:border-purple-500 hover:border-slate-300 transition-all" />
             </div>
-            <select value={filterDept}   onChange={e => handleDept(e.target.value)}   className="rounded-xl border border-slate-200 text-sm text-slate-700 bg-white px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-purple-100 focus:border-purple-500 hover:border-slate-300 transition-all min-w-[160px]">
-              <option value="">All Departments</option>
-              {deptNames.map(d => <option key={d} value={d}>{d}</option>)}
-            </select>
+            {/* Church filter — Super Admin only */}
+            {isSuperAdmin && (
+              <select value={filterChurch} onChange={e => { setFilterChurch(e.target.value); setPage(1) }} className="rounded-xl border border-amber-200 text-sm text-slate-700 bg-amber-50 px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-amber-100 focus:border-amber-400 hover:border-amber-300 transition-all min-w-[200px]">
+                <option value="">All Churches</option>
+                {allChurches.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+              </select>
+            )}
+            {!isSuperAdmin && (
+              <select value={filterDept} onChange={e => handleDept(e.target.value)} className="rounded-xl border border-slate-200 text-sm text-slate-700 bg-white px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-purple-100 focus:border-purple-500 hover:border-slate-300 transition-all min-w-[160px]">
+                <option value="">All Departments</option>
+                {deptNames.map(d => <option key={d} value={d}>{d}</option>)}
+              </select>
+            )}
             <select value={filterStatus} onChange={e => handleStatus(e.target.value)} className="rounded-xl border border-slate-200 text-sm text-slate-700 bg-white px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-purple-100 focus:border-purple-500 hover:border-slate-300 transition-all min-w-[140px]">
               <option value="">All Statuses</option>
               {STATUS_OPTIONS.map(s => <option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</option>)}
@@ -682,8 +731,8 @@ export default function Members() {
                 <List className="w-4 h-4" />
               </button>
             </div>
-            {(searchTerm || filterDept || filterStatus || filterGender) && (
-              <button onClick={() => { setSearchTerm(''); setFilterDept(''); setFilterStatus(''); setFilterGender(''); setPage(1) }}
+            {(searchTerm || filterDept || filterStatus || filterGender || filterChurch) && (
+              <button onClick={() => { setSearchTerm(''); setFilterDept(''); setFilterStatus(''); setFilterGender(''); setFilterChurch(''); setPage(1) }}
                 className="flex items-center gap-1.5 text-sm text-slate-500 hover:text-red-600 transition-colors flex-shrink-0">
                 <X className="w-4 h-4" /> Clear
               </button>
@@ -708,7 +757,7 @@ export default function Members() {
         ) : viewMode === 'grid' ? (
           <>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-              {paginated.map(member => <MemberCard key={member.id} member={member} onView={handleView} onEdit={handleOpenEdit} onDelete={setDeleteMember} />)}
+              {paginated.map(member => <MemberCard key={member.id} member={member} onView={handleView} onEdit={handleOpenEdit} onDelete={setDeleteMember} showChurch={isSuperAdmin} />)}
             </div>
             <Pagination page={safePage} totalPages={totalPages} onPage={setPage} />
           </>
@@ -718,13 +767,16 @@ export default function Members() {
               <table className="min-w-full divide-y divide-slate-100">
                 <thead>
                   <tr className="bg-slate-50">
-                    {['Member', 'Department', 'Phone', 'Status', 'Join Date', 'Actions'].map(h => (
+                    {(isSuperAdmin
+                      ? ['Member', 'Church', 'Phone', 'Status', 'Join Date', 'Actions']
+                      : ['Member', 'Department', 'Phone', 'Status', 'Join Date', 'Actions']
+                    ).map(h => (
                       <th key={h} className="px-4 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">{h}</th>
                     ))}
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-50">
-                  {paginated.map(member => <MemberRow key={member.id} member={member} onView={handleView} onEdit={handleOpenEdit} onDelete={setDeleteMember} />)}
+                  {paginated.map(member => <MemberRow key={member.id} member={member} onView={handleView} onEdit={handleOpenEdit} onDelete={setDeleteMember} showChurch={isSuperAdmin} />)}
                 </tbody>
               </table>
             </div>
@@ -738,6 +790,21 @@ export default function Members() {
       {/* Add Modal */}
       <Modal isOpen={showAddModal} onClose={() => setShowAddModal(false)} title="Add New Member" size="xl"
         footer={<div className="flex justify-end gap-3"><Button variant="secondary" onClick={() => setShowAddModal(false)} disabled={saving}>Cancel</Button><Button variant="primary" loading={saving} onClick={handleSaveAdd}>Save Member</Button></div>}>
+        {/* Super Admin must select a church before adding a member */}
+        {isSuperAdmin && (
+          <div className="mb-4 p-3 rounded-xl bg-amber-50 border border-amber-200">
+            <label className="block text-xs font-bold text-amber-800 mb-1.5">Select Church <span className="text-red-500">*</span></label>
+            <select
+              value={saChurchForAdd}
+              onChange={e => setSaChurchForAdd(e.target.value)}
+              className="w-full px-3 py-2 text-sm rounded-lg border border-amber-300 focus:border-amber-500 focus:ring-2 focus:ring-amber-100 outline-none bg-white"
+            >
+              <option value="">— Choose a church —</option>
+              {allChurches.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+            </select>
+            <p className="text-xs text-amber-600 mt-1">As Super Admin you must specify which church this member belongs to.</p>
+          </div>
+        )}
         <MemberForm form={form} onChange={setForm} errors={formErrors} deptNames={deptNames} />
       </Modal>
 
