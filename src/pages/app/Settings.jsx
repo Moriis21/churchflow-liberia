@@ -14,6 +14,8 @@ import { Button, Input, Badge } from '../../components/ui'
 import { useChurch } from '../../context/ChurchContext'
 import { useAuth } from '../../context/AuthContext'
 import { insforge } from '../../lib/insforge'
+import { uploadChurchLogo, getReadableUrl, validateImageFile } from '../../services/profilePhoto'
+import { createAuditLog, buildActor, AUDIT_ACTIONS } from '../../services/auditLog'
 
 // ─── Sidebar nav items ────────────────────────────────────────
 const NAV_ITEMS = [
@@ -78,26 +80,42 @@ function ChurchProfileSection({ church, onChurchUpdated }) {
 
   const [form, setForm] = useState({
     name: '', location: '', phone: '', email: '',
-    website: '', currency: 'LRD', founded: '',
+    website: '', currency: 'LRD', founded: '', description: '',
   })
   const [logoPreview, setLogoPreview] = useState(null)
   const [saving, setSaving] = useState(false)
   const [logoFile, setLogoFile] = useState(null)
+  const [logoErr, setLogoErr] = useState(null)
 
-  // ── Load real church data from context ────────────────────
+  // ── Load church data — use RPC to bypass RLS ──────────────
   useEffect(() => {
-    if (church) {
+    if (!church?.id) return
+    async function loadFresh() {
+      // Always refetch from DB via SECURITY DEFINER to get latest data
+      const { data } = await insforge.database
+        .rpc('get_church_by_id', { p_church_id: church.id })
+      const c = data || church
       setForm({
-        name:     church.name          || '',
-        location: church.location      || '',
-        phone:    church.phone         || '',
-        email:    church.email         || '',
-        website:  church.website       || '',
-        currency: church.currency      || 'LRD',
-        founded:  church.founded_date  || '',
+        name:        c.name          || '',
+        location:    c.location      || '',
+        phone:       c.phone         || '',
+        email:       c.email         || '',
+        website:     c.website       || '',
+        currency:    c.currency      || 'LRD',
+        founded:     c.founded_date  || '',
+        description: c.description   || '',
       })
-      setLogoPreview(church.logo_url || null)
+      // Resolve logo URL
+      let logoUrl = c.logo_url || null
+      if (logoUrl && !logoUrl.startsWith('http')) {
+        logoUrl = await getReadableUrl('church-logos', logoUrl)
+          || await getReadableUrl('church-assets', logoUrl)
+      }
+      setLogoPreview(logoUrl)
+      // Update context with freshest data
+      if (data) onChurchUpdated?.(data)
     }
+    loadFresh()
   }, [church?.id])
 
   const set = field => e => setForm(prev => ({ ...prev, [field]: e.target.value }))
@@ -105,7 +123,9 @@ function ChurchProfileSection({ church, onChurchUpdated }) {
   const handleLogoChange = e => {
     const file = e.target.files?.[0]
     if (!file) return
-    if (file.size > 5 * 1024 * 1024) { toast.error('Logo must be under 5MB.'); return }
+    const err = validateImageFile(file)
+    if (err) { setLogoErr(err); return }
+    setLogoErr(null)
     setLogoFile(file)
     setLogoPreview(URL.createObjectURL(file))
   }
@@ -118,48 +138,49 @@ function ChurchProfileSection({ church, onChurchUpdated }) {
     try {
       let logo_url = church.logo_url || null
 
-      // Upload logo if a new file was selected
+      // Upload logo via uploadChurchLogo service (handles fallback buckets)
       if (logoFile) {
-        const ext = logoFile.name.split('.').pop()
-        const path = `${church.id}/logo.${ext}`
-        const { error: uploadErr } = await insforge.storage
-          .from('church-assets')
-          .upload(path, logoFile, { upsert: true, contentType: logoFile.type })
-        if (uploadErr) throw uploadErr
-        const { data: urlData } = insforge.storage.from('church-assets').getPublicUrl(path)
-        logo_url = urlData?.publicUrl || logo_url
+        const result = await uploadChurchLogo({ file: logoFile, churchId: church.id })
+        logo_url = result.url || logo_url
+        setLogoFile(null)
       }
 
-      // Use SECURITY DEFINER RPC to bypass RLS for the update
+      // Save to InsForge via SECURITY DEFINER RPC
       const { data: updated, error } = await insforge.database
         .rpc('update_church', {
-          p_church_id:   church.id,
-          p_name:        form.name.trim(),
-          p_location:    form.location.trim() || null,
-          p_phone:       form.phone.trim()    || null,
-          p_email:       form.email.trim()    || null,
-          p_website:     form.website.trim()  || null,
-          p_currency:    form.currency,
-          p_founded_date: form.founded        || '',
-          p_logo_url:    logo_url             || null,
+          p_church_id:    church.id,
+          p_name:         form.name.trim(),
+          p_location:     form.location.trim()    || null,
+          p_phone:        form.phone.trim()        || null,
+          p_email:        form.email.trim()        || null,
+          p_website:      form.website.trim()      || null,
+          p_currency:     form.currency,
+          p_founded_date: form.founded             || '',
+          p_logo_url:     logo_url                 || null,
         })
 
       if (error) throw error
 
-      setLogoFile(null)
-      onChurchUpdated?.({
-        ...church,
-        name: form.name.trim(),
-        location: form.location.trim() || null,
-        phone: form.phone.trim() || null,
-        email: form.email.trim() || null,
-        website: form.website.trim() || null,
-        currency: form.currency,
-        founded_date: form.founded || null,
-        logo_url,
+      // Refetch from DB to confirm persistence
+      const { data: confirmed } = await insforge.database
+        .rpc('get_church_by_id', { p_church_id: church.id })
+
+      const fresh = confirmed || updated || { ...church, logo_url }
+      onChurchUpdated?.(fresh)
+      if (fresh.logo_url) setLogoPreview(fresh.logo_url)
+
+      // Audit log
+      await createAuditLog({
+        action:      AUDIT_ACTIONS.CHURCH_UPDATED,
+        actor:       buildActor(user, church),
+        entityType:  'church',
+        entityId:    church.id,
+        description: `Church profile updated: ${form.name}`,
       })
+
       toast.success('Church profile saved successfully.')
     } catch (err) {
+      console.error('[Settings save]', err)
       toast.error(err.message || 'Failed to save church profile.')
     } finally {
       setSaving(false)
@@ -203,6 +224,7 @@ function ChurchProfileSection({ church, onChurchUpdated }) {
             <input ref={logoInputRef} type="file" accept="image/*" className="hidden" onChange={handleLogoChange} />
           </label>
           {logoFile && <p className="text-xs text-emerald-600 mt-1">New logo selected — click Save to apply.</p>}
+          {logoErr && <p className="text-xs text-red-600 mt-1">{logoErr}</p>}
         </div>
       </div>
 

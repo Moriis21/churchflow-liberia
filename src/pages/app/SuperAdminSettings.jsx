@@ -1770,71 +1770,123 @@ function BillingSection() {
 }
 
 // ═══════════════════════════════════════════════════════════════
-// SECTION 4: FEATURE CONTROL
+// SECTION 4: FEATURE CONTROL — Real data from feature_flags table
 // ═══════════════════════════════════════════════════════════════
 function FeaturesSection() {
-  const FEATURE_DEFS = [
-    { id: 'members',       label: 'Members Management',   desc: 'Add, edit, and manage church members.',          enabled: true },
-    { id: 'attendance',    label: 'Attendance Tracking',  desc: 'Record and report on service attendance.',       enabled: true },
-    { id: 'finance',       label: 'Finance Module',       desc: 'Tithes, offerings, and budget management.',      enabled: true },
-    { id: 'events',        label: 'Events Management',    desc: 'Create and manage church events.',               enabled: true },
-    { id: 'prayer',        label: 'Prayer Requests',      desc: 'Collect and respond to prayer requests.',        enabled: true },
-    { id: 'sms',           label: 'SMS Notifications',    desc: 'Send SMS alerts to church members.',             enabled: true },
-    { id: 'streaming',     label: 'Live Streaming',       desc: 'Stream services via YouTube or Zoom integration.',enabled: true },
-    { id: 'reports',       label: 'Reports & Analytics',  desc: 'Detailed reports and data exports.',             enabled: true },
-    { id: 'multibranch',   label: 'Multi-Branch Support', desc: 'Manage multiple church branches from one account.',enabled: true },
-    { id: 'ai',            label: 'AI Transcription',     desc: 'Auto-transcribe sermons using AI.',              enabled: true },
-    { id: 'pwa',           label: 'PWA Mobile Access',    desc: 'Install app on mobile devices.',                 enabled: true },
-    { id: 'mobilemoney',   label: 'Mobile Money (MoMo)',  desc: 'Accept payments via Orange Money & Lonestar.',   enabled: false },
-    { id: 'whatsapp',      label: 'WhatsApp Bot',         desc: 'Automated WhatsApp messaging for churches.',     enabled: false },
-    { id: 'multicurrency', label: 'Multi-Currency Giving',desc: 'Accept giving in USD and LRD.',                  enabled: true },
-  ]
-  const PLAN_OPTIONS = ['Free', 'Starter', 'Growth', 'Pro']
-  const [features, setFeatures] = useState(
-    FEATURE_DEFS.map(f => ({ ...f, required_plan: 'Free' }))
-  )
+  const PLAN_OPTIONS = ['starter', 'growth', 'pro', 'enterprise']
 
-  function toggleFeature(id) {
-    setFeatures(prev => prev.map(f => f.id === id ? { ...f, enabled: !f.enabled } : f))
+  // Static features (not in DB — core features)
+  const STATIC_FEATURES = [
+    { id: 'members',       label: 'Members Management',    desc: 'Add, edit, and manage church members.',          enabled: true  },
+    { id: 'attendance',    label: 'Attendance Tracking',   desc: 'Record and report on service attendance.',       enabled: true  },
+    { id: 'finance',       label: 'Finance Module',        desc: 'Tithes, offerings, and budget management.',      enabled: true  },
+    { id: 'events',        label: 'Events Management',     desc: 'Create and manage church events.',               enabled: true  },
+    { id: 'prayer',        label: 'Prayer Requests',       desc: 'Collect and respond to prayer requests.',        enabled: true  },
+    { id: 'sms',           label: 'SMS Notifications',     desc: 'Send SMS alerts to church members.',             enabled: true  },
+    { id: 'reports',       label: 'Reports & Analytics',   desc: 'Detailed reports and data exports.',             enabled: true  },
+    { id: 'multibranch',   label: 'Multi-Branch Support',  desc: 'Manage multiple church branches.',               enabled: true  },
+    { id: 'pwa',           label: 'PWA Mobile Access',     desc: 'Install app on mobile devices.',                 enabled: true  },
+    { id: 'mobilemoney',   label: 'Mobile Money (MoMo)',   desc: 'Accept payments via Orange Money & Lonestar.',   enabled: false },
+  ]
+
+  const [dbFeatures, setDbFeatures] = useState([])
+  const [staticFeatures, setStaticFeatures] = useState(STATIC_FEATURES)
+  const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState(false)
+
+  useEffect(() => { loadFeatures() }, [])
+
+  async function loadFeatures() {
+    setLoading(true)
+    const { data } = await insforge.database.from('feature_flags').select('*').order('feature_label')
+    setDbFeatures(data || [])
+    setLoading(false)
   }
-  function setPlan(id, plan) {
-    setFeatures(prev => prev.map(f => f.id === id ? { ...f, required_plan: plan } : f))
+
+  async function toggleDbFeature(feature) {
+    const newVal = !feature.enabled_globally
+    setDbFeatures(prev => prev.map(f => f.id === feature.id ? { ...f, enabled_globally: newVal } : f))
+    const { error } = await insforge.database.from('feature_flags')
+      .update({ enabled_globally: newVal, updated_at: new Date().toISOString() })
+      .eq('id', feature.id)
+    if (error) {
+      toast.error('Failed to update feature: ' + error.message)
+      setDbFeatures(prev => prev.map(f => f.id === feature.id ? { ...f, enabled_globally: !newVal } : f))
+    } else {
+      toast.success(`${feature.feature_label} ${newVal ? 'enabled' : 'disabled'}.`)
+    }
+  }
+
+  async function updateDbPlan(feature, plan) {
+    setDbFeatures(prev => prev.map(f => f.id === feature.id ? { ...f, min_plan: plan } : f))
+    await insforge.database.from('feature_flags').update({ min_plan: plan }).eq('id', feature.id)
   }
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <p className="text-sm text-slate-500">Enable or disable platform features globally. Changes affect all churches.</p>
-        <button
-          onClick={() => toast.success('Feature flags saved.')}
-          className="flex items-center gap-2 bg-[#7C3AED] hover:bg-purple-700 text-white px-5 py-2 rounded-xl font-semibold text-sm transition-colors"
-        >
-          <Save size={15} /> Save Changes
-        </button>
-      </div>
-      <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
-        <div className="divide-y divide-slate-50">
-          {features.map(f => (
-            <div key={f.id} className="flex items-center justify-between px-5 py-4 hover:bg-slate-50/50 transition-colors">
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold text-slate-800">{f.label}</p>
-                <p className="text-xs text-slate-500 mt-0.5">{f.desc}</p>
-              </div>
-              <div className="flex items-center gap-4 ml-4">
-                <div>
-                  <label className="text-xs text-slate-500 mr-2">Min. Plan</label>
-                  <select
-                    value={f.required_plan}
-                    onChange={e => setPlan(f.id, e.target.value)}
-                    className="border border-slate-200 rounded-lg px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-purple-400"
-                  >
-                    {PLAN_OPTIONS.map(p => <option key={p}>{p}</option>)}
-                  </select>
+    <div className="space-y-5">
+      <p className="text-sm text-slate-500">
+        Enable or disable platform features globally. Media features (Live Streams, Audio, Devotionals, Transcription)
+        are stored in InsForge and take effect immediately.
+      </p>
+
+      {/* Media features from DB */}
+      <div>
+        <h3 className="text-sm font-bold text-slate-700 mb-3 flex items-center gap-2">
+          <span className="w-2 h-2 rounded-full bg-purple-500" />
+          Media & Streaming Features
+          <span className="text-xs font-normal text-slate-400">(stored in InsForge — instant effect)</span>
+        </h3>
+        {loading ? (
+          <div className="flex items-center justify-center py-8">
+            <div className="w-6 h-6 border-2 border-purple-500 border-t-transparent rounded-full animate-spin" />
+          </div>
+        ) : (
+          <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+            <div className="divide-y divide-slate-50">
+              {dbFeatures.map(f => (
+                <div key={f.id} className="flex items-center justify-between px-5 py-4 hover:bg-slate-50/50 transition-colors">
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold text-slate-800">{f.feature_label}</p>
+                    <p className="text-xs text-slate-500 mt-0.5">{f.description}</p>
+                  </div>
+                  <div className="flex items-center gap-4 ml-4">
+                    <div>
+                      <label className="text-xs text-slate-500 mr-2">Min. Plan</label>
+                      <select value={f.min_plan || 'starter'}
+                        onChange={e => updateDbPlan(f, e.target.value)}
+                        className="border border-slate-200 rounded-lg px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-purple-400">
+                        {PLAN_OPTIONS.map(p => <option key={p} value={p}>{p.charAt(0).toUpperCase() + p.slice(1)}</option>)}
+                      </select>
+                    </div>
+                    <Toggle enabled={f.enabled_globally} onChange={() => toggleDbFeature(f)} size="sm" />
+                  </div>
                 </div>
-                <Toggle enabled={f.enabled} onChange={() => toggleFeature(f.id)} size="sm" />
-              </div>
+              ))}
             </div>
-          ))}
+          </div>
+        )}
+      </div>
+
+      {/* Core features — static toggles */}
+      <div>
+        <h3 className="text-sm font-bold text-slate-700 mb-3 flex items-center gap-2">
+          <span className="w-2 h-2 rounded-full bg-blue-500" />
+          Core Platform Features
+        </h3>
+        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+          <div className="divide-y divide-slate-50">
+            {staticFeatures.map(f => (
+              <div key={f.id} className="flex items-center justify-between px-5 py-4 hover:bg-slate-50/50 transition-colors">
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold text-slate-800">{f.label}</p>
+                  <p className="text-xs text-slate-500 mt-0.5">{f.desc}</p>
+                </div>
+                <Toggle enabled={f.enabled}
+                  onChange={() => setStaticFeatures(prev => prev.map(x => x.id === f.id ? { ...x, enabled: !x.enabled } : x))}
+                  size="sm" />
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </div>

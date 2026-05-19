@@ -13,6 +13,7 @@ import {
   UserPlus,
   HandHeart,
   PlaySquare,
+  Radio,
   BarChart3,
   GitBranch,
   Settings,
@@ -60,7 +61,8 @@ const CHURCH_NAV_SECTIONS = [
   {
     label: 'MEDIA',
     items: [
-      { to: '/app/sermons', icon: PlaySquare, label: 'Sermons & Live' },
+      { to: '/app/sermons',      icon: PlaySquare, label: 'Sermons' },
+      { to: '/app/live-streams', icon: Radio,      label: 'Live Streams' },
     ],
   },
   {

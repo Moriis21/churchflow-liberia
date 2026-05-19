@@ -24,6 +24,7 @@ const Visitors       = React.lazy(() => import('./pages/app/Visitors'))
 const PrayerRequests = React.lazy(() => import('./pages/app/PrayerRequests'))
 const Departments    = React.lazy(() => import('./pages/app/Departments'))
 const Sermons        = React.lazy(() => import('./pages/app/Sermons'))
+const LiveStreams     = React.lazy(() => import('./pages/app/LiveStreams'))
 const Reports        = React.lazy(() => import('./pages/app/Reports'))
 const Branches       = React.lazy(() => import('./pages/app/Branches'))
 const Settings       = React.lazy(() => import('./pages/app/Settings'))
@@ -165,6 +166,7 @@ function AppRoutes() {
           <Route path="prayer-requests" element={<PrayerRequests />} />
           <Route path="departments"    element={<Departments />} />
           <Route path="sermons"        element={<Sermons />} />
+          <Route path="live-streams"   element={<LiveStreams />} />
           <Route path="reports"        element={<Reports />} />
           <Route path="branches"       element={<Branches />} />
           <Route path="settings"       element={<Settings />} />

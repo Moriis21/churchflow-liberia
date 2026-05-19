@@ -83,6 +83,12 @@ export function ChurchProvider({ children }) {
     if (!churchId) return
     setLoadingChurch(true)
     try {
+      // Also try to refresh church data via SECURITY DEFINER RPC
+      // This ensures logo_url and other fields persist after page reload
+      const { data: freshChurch } = await insforge.database
+        .rpc('get_church_by_id', { p_church_id: churchId })
+      if (freshChurch) setChurch(freshChurch)
+
       const { data } = await insforge.database
         .from('branches')
         .select('*')

@@ -21,6 +21,9 @@ import { Button, Badge, Avatar, Modal, Input } from '../../components/ui'
 import { insforge } from '../../lib/insforge'
 import { formatDate } from '../../utils/helpers'
 import { useAuth } from '../../context/AuthContext'
+import { useChurch } from '../../context/ChurchContext'
+import { sendPasswordResetEmail, canResetPassword } from '../../services/passwordReset'
+import toast from 'react-hot-toast'
 
 // ─── Role config ──────────────────────────────────────────────
 // ALL roles (used by super admin only)
@@ -190,12 +193,14 @@ function EditUserModal({ user, isOpen, onClose, onSave, roleConfig = ROLE_CONFIG
 
 // ─── Main Page ────────────────────────────────────────────────
 export default function UserManagement() {
-  const { isSuperAdmin } = useAuth()
+  const { user: currentUser, isSuperAdmin } = useAuth()
+  const { church } = useChurch()
   // Only super admin can see / assign platform-level roles
   const ROLE_CONFIG = isSuperAdmin ? ROLE_CONFIG_ALL : ROLE_CONFIG_CHURCH
   const VISIBLE_ROLES = Object.keys(ROLE_CONFIG)
 
   const [users, setUsers] = useState([])
+  const [resettingEmail, setResettingEmail] = useState(null)
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [roleFilter, setRoleFilter] = useState('all')
@@ -464,17 +469,40 @@ export default function UserManagement() {
                               }`}
                             >
                               {user.is_active ? (
-                                <>
-                                  <UserX className="w-3 h-3" />
-                                  Deactivate
-                                </>
+                                <><UserX className="w-3 h-3" />Deactivate</>
                               ) : (
-                                <>
-                                  <UserCheck className="w-3 h-3" />
-                                  Activate
-                                </>
+                                <><UserCheck className="w-3 h-3" />Activate</>
                               )}
                             </button>
+                            {/* Password Reset — role-gated */}
+                            {user.email && canResetPassword(
+                              currentUser?.role || currentUser?.profile?.role,
+                              user.role,
+                              currentUser?.profile?.church_id,
+                              user.church_id
+                            ) && (
+                              <button
+                                disabled={resettingEmail === user.email}
+                                onClick={async () => {
+                                  setResettingEmail(user.email)
+                                  try {
+                                    await sendPasswordResetEmail({
+                                      targetEmail: user.email,
+                                      actor: currentUser,
+                                      church,
+                                    })
+                                    toast.success('Password reset link sent successfully.')
+                                  } catch (err) {
+                                    toast.error(err.message || 'Password reset failed.')
+                                  } finally {
+                                    setResettingEmail(null)
+                                  }
+                                }}
+                                className="inline-flex items-center gap-1.5 text-xs font-semibold text-amber-700 border border-amber-100 bg-amber-50 hover:bg-amber-100 px-3 py-1.5 rounded-lg transition-colors disabled:opacity-50"
+                              >
+                                {resettingEmail === user.email ? '…' : '🔑 Reset Password'}
+                              </button>
+                            )}
                           </div>
                         </td>
                       </tr>

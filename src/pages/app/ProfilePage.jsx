@@ -13,7 +13,7 @@ import { insforge } from '../../lib/insforge'
 import { Input, Button } from '../../components/ui'
 import { formatDate } from '../../utils/helpers'
 import toast from 'react-hot-toast'
-import { uploadProfilePhoto, getProfilePhotoUrl, validatePhotoFile } from '../../services/profilePhoto'
+import { uploadProfilePhoto, getReadableUrl, validatePhotoFile, validateImageFile } from '../../services/profilePhoto'
 import { createAuditLog, buildActor, AUDIT_ACTIONS } from '../../services/auditLog'
 
 const ROLE_LABELS = {
@@ -83,7 +83,7 @@ export default function ProfilePage() {
   function handleFileChange(e) {
     const file = e.target.files?.[0]
     if (!file) return
-    const err = validatePhotoFile(file)
+    const err = validateImageFile(file)  // use robust validator
     if (err) { toast.error(err); return }
     setPhotoPreview({ url: URL.createObjectURL(file), file })
   }
