@@ -21,11 +21,21 @@ allowed_redirect_urls = [
   "https://churchflowliberia.vercel.app",
   "https://churchflowliberia.vercel.app/app/dashboard",
 
+  # Auth callback (email verification redirect for members)
+  "https://nihu7zi9.insforge.site/auth/callback",
+  "https://churchflowliberia.insforge.site/auth/callback",
+  "https://churchflow-liberia.vercel.app/auth/callback",
+  "https://churchflow-liberia-moriis21.vercel.app/auth/callback",
+  "https://churchflowliberia.vercel.app/auth/callback",
+
   # Local development
   "http://localhost:3000",
   "http://localhost:3000/app/dashboard",
+  "http://localhost:3000/app/super-admin",
+  "http://localhost:3000/auth/callback",
   "http://localhost:3000/login",
   "http://localhost:5173",
   "http://localhost:5173/app/dashboard",
+  "http://localhost:5173/auth/callback",
   "http://localhost:5173/login"
 ]

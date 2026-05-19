@@ -12,6 +12,7 @@ const Landing        = React.lazy(() => import('./pages/app/Landing'))
 const Login          = React.lazy(() => import('./pages/auth/Login'))
 const Register       = React.lazy(() => import('./pages/auth/Register'))
 const ForgotPassword = React.lazy(() => import('./pages/auth/ForgotPassword'))
+const AuthCallback   = React.lazy(() => import('./pages/auth/AuthCallback'))
 const Layout         = React.lazy(() => import('./components/layout/Layout'))
 const Dashboard      = React.lazy(() => import('./pages/app/Dashboard'))
 const Members        = React.lazy(() => import('./pages/app/Members'))
@@ -119,6 +120,7 @@ function AppRoutes() {
         <Route path="/register"          element={<Register />} />
         <Route path="/forgot-password"   element={<ForgotPassword />} />
         <Route path="/complete-setup"     element={<CompleteSetup />} />
+        <Route path="/auth/callback"      element={<AuthCallback />} />
         <Route path="/join/:churchId" element={<JoinChurchPage />} />
         <Route path="/features"   element={<FeaturesPage />} />
         <Route path="/pricing"    element={<PricingPage />} />

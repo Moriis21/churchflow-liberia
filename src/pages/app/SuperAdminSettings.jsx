@@ -2419,83 +2419,173 @@ function BackupSection() {
 }
 
 // ═══════════════════════════════════════════════════════════════
-// SECTION 10: AUDIT LOGS
+// SECTION 10: AUDIT LOGS — Real data from audit_logs table
+// Super Admin sees ALL platform logs. Church Admin sees own church.
 // ═══════════════════════════════════════════════════════════════
 function AuditSection() {
-  const [dateFrom, setDateFrom] = useState('')
-  const [dateTo, setDateTo] = useState('')
+  const [logs, setLogs]             = useState([])
+  const [loading, setLoading]       = useState(true)
+  const [dateFrom, setDateFrom]     = useState('')
+  const [dateTo, setDateTo]         = useState('')
   const [userSearch, setUserSearch] = useState('')
+  const [roleFilter, setRoleFilter] = useState('all')
   const [actionFilter, setActionFilter] = useState('all')
+  const [churchFilter, setChurchFilter] = useState('all')
+  const [churches, setChurches]     = useState([])
+  const [total, setTotal]           = useState(0)
+  const PAGE = 50
 
-  const SAMPLE_LOGS = [
-    { id: 1, timestamp: new Date().toISOString(), user: 'Morris L. Dorley Jr', church: 'Platform', action: 'platform_login', ip: '197.x.x.x', status: 'success' },
-  ]
+  useEffect(() => { fetchLogs(); fetchChurches() }, [])
 
-  const actionColors = {
-    church_created:   'bg-green-100 text-green-700',
-    church_suspended: 'bg-red-100 text-red-700',
-    plan_changed:     'bg-blue-100 text-blue-700',
-    payment_approved: 'bg-green-100 text-green-700',
-    platform_login:   'bg-slate-100 text-slate-600',
-    role_changed:     'bg-orange-100 text-orange-700',
-    record_deleted:   'bg-red-100 text-red-700',
-    feature_changed:  'bg-purple-100 text-purple-700',
+  async function fetchChurches() {
+    const { data } = await insforge.database.from('churches').select('id, name').order('name')
+    setChurches(data || [])
   }
+
+  async function fetchLogs() {
+    setLoading(true)
+    try {
+      let query = insforge.database
+        .from('audit_logs')
+        .select('*', { count: 'exact' })
+        .order('created_at', { ascending: false })
+        .limit(PAGE)
+
+      if (dateFrom) query = query.gte('created_at', dateFrom + 'T00:00:00Z')
+      if (dateTo)   query = query.lte('created_at', dateTo   + 'T23:59:59Z')
+      if (roleFilter   !== 'all') query = query.eq('actor_role', roleFilter)
+      if (actionFilter !== 'all') query = query.eq('action', actionFilter)
+      if (churchFilter !== 'all') query = query.eq('church_id', churchFilter)
+      if (userSearch.trim()) {
+        query = query.or(`actor_name.ilike.%${userSearch}%,description.ilike.%${userSearch}%`)
+      }
+
+      const { data, count, error } = await query
+      if (error) throw error
+      setLogs(data || [])
+      setTotal(count || 0)
+    } catch (err) {
+      console.error('[AuditLogs]', err.message)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const ACTION_COLORS = {
+    login:               'bg-blue-100 text-blue-700',
+    logout:              'bg-slate-100 text-slate-600',
+    failed_login:        'bg-red-100 text-red-700',
+    member_created:      'bg-green-100 text-green-700',
+    member_updated:      'bg-yellow-100 text-yellow-700',
+    member_deleted:      'bg-red-100 text-red-700',
+    church_created:      'bg-emerald-100 text-emerald-700',
+    church_updated:      'bg-blue-100 text-blue-700',
+    department_created:  'bg-purple-100 text-purple-700',
+    finance_record_created: 'bg-amber-100 text-amber-700',
+    profile_update:      'bg-indigo-100 text-indigo-700',
+    profile_photo_upload:'bg-pink-100 text-pink-700',
+    settings_changed:    'bg-orange-100 text-orange-700',
+    role_changed:        'bg-violet-100 text-violet-700',
+    password_reset:      'bg-rose-100 text-rose-700',
+    email_verified:      'bg-teal-100 text-teal-700',
+  }
+
+  const ALL_ACTIONS = Object.keys(ACTION_COLORS)
+  const ALL_ROLES = ['super_admin','church_admin','pastor','treasurer','secretary','dept_leader','member']
 
   return (
     <div className="space-y-5">
-      <div className="flex flex-wrap gap-3">
-        <input type="date" value={dateFrom} onChange={e => setDateFrom(e.target.value)} className="border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-400" />
-        <input type="date" value={dateTo} onChange={e => setDateTo(e.target.value)} className="border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-400" />
+      {/* Filters */}
+      <div className="flex flex-wrap gap-2">
+        <input type="date" value={dateFrom} onChange={e => setDateFrom(e.target.value)}
+          className="border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-400" />
+        <input type="date" value={dateTo} onChange={e => setDateTo(e.target.value)}
+          className="border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-400" />
+        <select value={roleFilter} onChange={e => setRoleFilter(e.target.value)}
+          className="border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-400">
+          <option value="all">All Roles</option>
+          {ALL_ROLES.map(r => <option key={r} value={r}>{r.replace(/_/g,' ')}</option>)}
+        </select>
+        <select value={actionFilter} onChange={e => setActionFilter(e.target.value)}
+          className="border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-400">
+          <option value="all">All Actions</option>
+          {ALL_ACTIONS.map(a => <option key={a} value={a}>{a.replace(/_/g,' ')}</option>)}
+        </select>
+        <select value={churchFilter} onChange={e => setChurchFilter(e.target.value)}
+          className="border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-400">
+          <option value="all">All Churches</option>
+          {churches.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+        </select>
         <div className="relative">
           <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-          <input value={userSearch} onChange={e => setUserSearch(e.target.value)} placeholder="Search user..." className="pl-9 pr-3 border border-slate-200 rounded-xl py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-400" />
+          <input value={userSearch} onChange={e => setUserSearch(e.target.value)}
+            placeholder="Search name or description..."
+            className="pl-9 pr-3 border border-slate-200 rounded-xl py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-400 min-w-[200px]" />
         </div>
-        <select value={actionFilter} onChange={e => setActionFilter(e.target.value)} className="border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-400">
-          <option value="all">All Actions</option>
-          <option value="church_created">Church Created</option>
-          <option value="church_suspended">Church Suspended</option>
-          <option value="platform_login">Platform Login</option>
-          <option value="plan_changed">Plan Changed</option>
-          <option value="payment_approved">Payment Approved</option>
-          <option value="role_changed">Role Changed</option>
-          <option value="record_deleted">Record Deleted</option>
-          <option value="feature_changed">Feature Changed</option>
-        </select>
+        <button onClick={fetchLogs}
+          className="flex items-center gap-1.5 px-4 py-2 bg-[#7C3AED] hover:bg-purple-700 text-white rounded-xl text-sm font-semibold transition-colors">
+          <RefreshCw size={13} /> Apply
+        </button>
       </div>
 
+      {/* Table */}
       <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-slate-100 bg-slate-50">
-                {['Timestamp', 'User', 'Church', 'Action', 'IP Address', 'Status'].map(h => (
-                  <th key={h} className="text-left px-5 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-50">
-              {SAMPLE_LOGS.map(log => (
-                <tr key={log.id} className="hover:bg-slate-50/50 transition-colors">
-                  <td className="px-5 py-3.5 text-slate-500 text-xs whitespace-nowrap">
-                    {new Date(log.timestamp).toLocaleString()}
-                  </td>
-                  <td className="px-5 py-3.5 font-medium text-slate-800">{log.user}</td>
-                  <td className="px-5 py-3.5 text-slate-600">{log.church}</td>
-                  <td className="px-5 py-3.5">
-                    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold ${actionColors[log.action] || 'bg-slate-100 text-slate-600'}`}>
-                      {log.action.replace(/_/g, ' ')}
-                    </span>
-                  </td>
-                  <td className="px-5 py-3.5 text-slate-500 text-xs font-mono">{log.ip}</td>
-                  <td className="px-5 py-3.5"><StatusBadge status={log.status} /></td>
+        {loading ? (
+          <div className="flex items-center justify-center py-16">
+            <div className="w-8 h-8 border-2 border-purple-500 border-t-transparent rounded-full animate-spin" />
+          </div>
+        ) : logs.length === 0 ? (
+          <EmptyState icon={FileText} title="No audit logs yet"
+            description="Actions across the platform will appear here as users interact with ChurchFlow." />
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-slate-100 bg-slate-50">
+                  {['Timestamp','Actor','Role','Church','Action','Description','Browser'].map(h => (
+                    <th key={h} className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide whitespace-nowrap">{h}</th>
+                  ))}
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-        <div className="px-5 py-3 border-t border-slate-50 text-xs text-slate-400">
-          Showing {SAMPLE_LOGS.length} log entries. Full audit logging activates as actions occur.
+              </thead>
+              <tbody className="divide-y divide-slate-50">
+                {logs.map(log => (
+                  <tr key={log.id} className="hover:bg-slate-50/50 transition-colors">
+                    <td className="px-4 py-3 text-slate-400 text-xs whitespace-nowrap">
+                      {new Date(log.created_at).toLocaleString('en-US', { month:'short', day:'numeric', year:'numeric', hour:'2-digit', minute:'2-digit' })}
+                    </td>
+                    <td className="px-4 py-3 font-medium text-slate-800 whitespace-nowrap">
+                      {log.actor_name || '—'}
+                    </td>
+                    <td className="px-4 py-3">
+                      {log.actor_role && (
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-slate-100 text-slate-600 capitalize">
+                          {log.actor_role.replace(/_/g,' ')}
+                        </span>
+                      )}
+                    </td>
+                    <td className="px-4 py-3 text-slate-500 text-xs whitespace-nowrap">
+                      {log.church_name || '—'}
+                    </td>
+                    <td className="px-4 py-3 whitespace-nowrap">
+                      <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold ${ACTION_COLORS[log.action] || 'bg-slate-100 text-slate-600'}`}>
+                        {log.action?.replace(/_/g,' ')}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-slate-500 text-xs max-w-xs truncate">
+                      {log.description || '—'}
+                    </td>
+                    <td className="px-4 py-3 text-slate-400 text-xs">{log.browser || '—'}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+        <div className="px-5 py-3 border-t border-slate-50 flex items-center justify-between text-xs text-slate-400">
+          <span>Showing {logs.length} of {total} log entries</span>
+          {total > PAGE && (
+            <span className="text-amber-600 font-medium">Showing latest {PAGE} — use date filters to narrow results</span>
+          )}
         </div>
       </div>
     </div>

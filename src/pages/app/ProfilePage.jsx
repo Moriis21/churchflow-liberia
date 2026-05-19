@@ -13,6 +13,8 @@ import { insforge } from '../../lib/insforge'
 import { Input, Button } from '../../components/ui'
 import { formatDate } from '../../utils/helpers'
 import toast from 'react-hot-toast'
+import { uploadProfilePhoto, getProfilePhotoUrl, validatePhotoFile } from '../../services/profilePhoto'
+import { createAuditLog, buildActor, AUDIT_ACTIONS } from '../../services/auditLog'
 
 const ROLE_LABELS = {
   super_admin:  'Super Admin',
@@ -55,17 +57,22 @@ export default function ProfilePage() {
   const initials  = userName.split(/\s+/).filter(Boolean).map(w => w[0]).join('').slice(0, 2).toUpperCase() || 'U'
   const avatarUrl = profile?.avatar_url || user?.profile?.avatar_url || null
 
-  // ── Fetch fresh profile from DB ───────────────────────────
+  // ── Fetch fresh profile via SECURITY DEFINER RPC ─────────
   useEffect(() => {
     async function load() {
       if (!user?.id) return
-      const { data } = await insforge.database
-        .from('user_profiles')
-        .select('*')
-        .eq('id', user.id)
-        .maybeSingle()
+      // Use get_my_profile RPC (bypasses RLS) for reliable read
+      const { data: rpcResult } = await insforge.database
+        .rpc('get_my_profile', { p_user_id: user.id })
+      const data = rpcResult?.profile || null
       if (data) {
-        setProfile(data)
+        // Resolve avatar URL with fallback
+        let resolvedUrl = data.avatar_url || null
+        if (resolvedUrl && resolvedUrl.includes('/')) {
+          // It might be a path, try to get a proper URL
+          resolvedUrl = await getProfilePhotoUrl(resolvedUrl) || resolvedUrl
+        }
+        setProfile({ ...data, avatar_url: resolvedUrl })
         setForm({ full_name: data.full_name || '', phone: data.phone || '' })
       }
     }
@@ -76,61 +83,44 @@ export default function ProfilePage() {
   function handleFileChange(e) {
     const file = e.target.files?.[0]
     if (!file) return
-
-    if (!ALLOWED_TYPES.includes(file.type)) {
-      toast.error('Only JPG, PNG, and WEBP images are allowed.')
-      return
-    }
-    if (file.size > MAX_SIZE_MB * 1024 * 1024) {
-      toast.error(`Image must be under ${MAX_SIZE_MB}MB.`)
-      return
-    }
-
-    // Show local preview immediately
-    const url = URL.createObjectURL(file)
-    setPhotoPreview({ url, file })
+    const err = validatePhotoFile(file)
+    if (err) { toast.error(err); return }
+    setPhotoPreview({ url: URL.createObjectURL(file), file })
   }
 
-  // ── Upload photo to InsForge storage ──────────────────────
+  // ── Upload photo — public URL → signed URL → fallback ────
   async function handlePhotoUpload() {
     if (!photoPreview?.file || !user?.id) return
     setUploadingPhoto(true)
-
     try {
-      const file = photoPreview.file
-      const ext  = file.name.split('.').pop().toLowerCase()
-      const path = `${user.id}/avatar.${ext}`
+      const { url, path } = await uploadProfilePhoto({
+        file:     photoPreview.file,
+        userId:   user.id,
+        churchId: profile?.church_id || church?.id,
+      })
 
-      // Upload to InsForge storage bucket
-      const { error: uploadError } = await insforge.storage
-        .from('profile-photos')
-        .upload(path, file, { upsert: true, contentType: file.type })
+      // Save URL via SECURITY DEFINER RPC (bypasses RLS)
+      await insforge.database.rpc('update_profile_avatar', {
+        p_user_id:    user.id,
+        p_avatar_url: url,
+      })
 
-      if (uploadError) throw uploadError
-
-      // Get the public URL
-      const { data: urlData } = insforge.storage
-        .from('profile-photos')
-        .getPublicUrl(path)
-
-      const publicUrl = urlData?.publicUrl
-      if (!publicUrl) throw new Error('Could not get public URL.')
-
-      // Save URL to user_profiles
-      const { data, error: dbError } = await insforge.database
-        .from('user_profiles')
-        .update({ avatar_url: publicUrl })
-        .eq('id', user.id)
-        .select()
-        .single()
-
-      if (dbError) throw dbError
-
-      setProfile(data)
+      setProfile(prev => ({ ...prev, avatar_url: url }))
       setPhotoPreview(null)
-      toast.success('Profile photo updated!')
+
+      // Audit log
+      await createAuditLog({
+        action:     AUDIT_ACTIONS.PROFILE_PHOTO_UPLOAD,
+        actor:      buildActor(user, church),
+        entityType: 'user_profile',
+        entityId:   user.id,
+        description: 'Profile photo updated',
+      })
+
+      toast.success('Profile photo updated successfully.')
     } catch (err) {
-      toast.error('Photo upload failed: ' + (err.message || 'Unknown error'))
+      console.error('[ProfilePhoto]', err)
+      toast.error('Photo upload failed. Please check file type, size, or storage permissions.')
     } finally {
       setUploadingPhoto(false)
     }
@@ -138,12 +128,11 @@ export default function ProfilePage() {
 
   // ── Remove photo ──────────────────────────────────────────
   async function handleRemovePhoto() {
-    if (!user?.id || !profile?.avatar_url) return
-    const { error } = await insforge.database
-      .from('user_profiles')
-      .update({ avatar_url: null })
-      .eq('id', user.id)
-    if (error) { toast.error('Failed to remove photo.'); return }
+    if (!user?.id) return
+    await insforge.database.rpc('update_profile_avatar', {
+      p_user_id:    user.id,
+      p_avatar_url: null,
+    })
     setProfile(prev => ({ ...prev, avatar_url: null }))
     setPhotoPreview(null)
     toast.success('Profile photo removed.')
@@ -153,21 +142,26 @@ export default function ProfilePage() {
   async function handleSave() {
     if (!form.full_name.trim()) { toast.error('Full name is required.'); return }
     setSaving(true)
-    // Use upsert to handle both insert (first time) and update
-    const { data, error } = await insforge.database
-      .from('user_profiles')
-      .upsert({
-        id: user.id,
-        full_name: form.full_name.trim(),
-        phone: form.phone,
-      }, { onConflict: 'id' })
-      .select()
-      .maybeSingle()
+    // Use SECURITY DEFINER RPC — update_my_profile bypasses RLS
+    const { data: finalData, error } = await insforge.database
+      .rpc('update_my_profile', {
+        p_user_id:  user.id,
+        p_full_name: form.full_name.trim(),
+        p_phone:    form.phone || null,
+      })
     if (error) {
       toast.error('Failed to update profile: ' + error.message)
     } else {
-      setProfile(data)
-      setForm({ full_name: data.full_name || '', phone: data.phone || '' })
+      const updated = finalData || profile
+      setProfile(prev => ({ ...prev, ...updated }))
+      setForm({ full_name: updated?.full_name || '', phone: updated?.phone || '' })
+      await createAuditLog({
+        action:     AUDIT_ACTIONS.PROFILE_UPDATE,
+        actor:      buildActor(user, church),
+        entityType: 'user_profile',
+        entityId:   user.id,
+        description: 'Profile name/phone updated',
+      })
       toast.success('Profile updated successfully.')
       setEditMode(false)
     }

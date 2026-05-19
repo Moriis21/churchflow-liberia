@@ -18,6 +18,8 @@ import { insforge } from '../../lib/insforge'
 import { useAuth } from '../../context/AuthContext'
 import { useChurch } from '../../context/ChurchContext'
 import toast from 'react-hot-toast'
+import { createMemberWithAuth } from '../../services/memberAuth'
+import { createAuditLog, buildActor, AUDIT_ACTIONS } from '../../services/auditLog'
 
 // ─── Constants ───────────────────────────────────────────────
 const PAGE_SIZE = 10
@@ -30,6 +32,7 @@ const blankForm = {
   dateOfBirth: '', department: '', membershipStatus: 'active',
   baptismStatus: false, maritalStatus: 'single',
   emergencyContact: '', notes: '', profilePhoto: '',
+  password: '',
 }
 
 // ─── Toast ───────────────────────────────────────────────────
@@ -186,6 +189,16 @@ function MemberForm({ form, onChange, errors, deptNames = [] }) {
         <Input label="Email" type="email" value={form.email} onChange={handleField('email')}
           placeholder="email@example.com" />
       </div>
+
+      <Input
+        label="Temporary Password"
+        type="password"
+        value={form.password}
+        onChange={handleField('password')}
+        placeholder="Min. 8 characters — member will be asked to verify via email"
+        required
+        error={errors?.password}
+      />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <Input label="Date of Birth" type="date" value={form.dateOfBirth} onChange={handleField('dateOfBirth')} />
@@ -448,6 +461,7 @@ export default function Members() {
     const errs = {}
     if (!f.name.trim())  errs.name  = 'Full name is required'
     if (!f.phone.trim()) errs.phone = 'Phone number is required'
+    // Note: email+password validated separately in handleSaveAdd for the auth flow
     return errs
   }
 
@@ -457,49 +471,54 @@ export default function Members() {
     if (Object.keys(errs).length) { setFormErrors(errs); return }
 
     const churchId = church?.id
-    if (!churchId) { showToast('Church not configured. Please contact support.', 'error'); return }
+    if (!churchId) {
+      showToast('Church not configured. Please contact support.', 'error')
+      return
+    }
+    if (!form.email?.trim()) {
+      setFormErrors({ email: 'Member email is required for account creation.' })
+      return
+    }
+    if (!form.password?.trim() || form.password.length < 8) {
+      setFormErrors({ password: 'Password must be at least 8 characters.' })
+      return
+    }
 
     setSaving(true)
     try {
-      // Use SECURITY DEFINER RPC — direct INSERT is blocked by RLS
-      const { data, error } = await insforge.database
-        .rpc('insert_member', {
-          p_church_id:        churchId,
-          p_branch_id:        currentBranch?.id || null,
-          p_full_name:        form.name,
-          p_gender:           form.gender,
-          p_phone:            form.phone,
-          p_email:            form.email || null,
-          p_address:          form.address || null,
-          p_date_of_birth:    form.dateOfBirth || null,
-          p_membership_status: form.membershipStatus || 'active',
-          p_baptism_status:   form.baptismStatus || false,
-          p_marital_status:   form.maritalStatus,
-          p_join_date:        new Date().toISOString().split('T')[0],
-          p_notes:            form.notes || null,
-          p_emergency_contact: form.emergencyContact || null,
-        })
+      const result = await createMemberWithAuth({
+        email:            form.email.trim(),
+        password:         form.password.trim(),
+        fullName:         form.name.trim(),
+        phone:            form.phone,
+        gender:           form.gender,
+        address:          form.address,
+        dateOfBirth:      form.dateOfBirth || null,
+        membershipStatus: form.membershipStatus || 'active',
+        baptismStatus:    form.baptismStatus || false,
+        maritalStatus:    form.maritalStatus,
+        emergencyContact: form.emergencyContact,
+        notes:            form.notes,
+        churchId,
+        branchId:         currentBranch?.id || null,
+      })
 
-      if (error) throw error
-
-      // Generate invitation
-      const token      = crypto.randomUUID().replace(/-/g, '')
-      const inviteLink = `${window.location.origin}/member/register?token=${token}`
-      await insforge.database.from('member_invitations').insert([{
-        church_id:    churchId,
-        member_id:    data.id,
-        invite_token: token,
-        invite_link:  inviteLink,
-        created_by:   user?.id || null,
-      }])
+      // Audit log
+      await createAuditLog({
+        action:      AUDIT_ACTIONS.MEMBER_CREATED,
+        actor:       buildActor(user, church),
+        entityType:  'member',
+        entityId:    result.memberId,
+        description: `Member "${form.name}" created with email ${form.email}`,
+      })
 
       setShowAddModal(false)
       setForm(blankForm)
-      await loadData()                        // always refetch — no fake local data
-      setInviteModal({ member: data, inviteLink, token })
-      showToast(`${form.name} added successfully.`)
+      await loadData()
+      showToast(result.message || `${form.name} created. Verification email sent.`)
     } catch (err) {
-      showToast(err.message || 'Failed to add member. Please try again.', 'error')
+      showToast(err.message || 'Failed to create member. Please try again.', 'error')
+      console.error('createMemberWithAuth error:', err)
     } finally {
       setSaving(false)
     }

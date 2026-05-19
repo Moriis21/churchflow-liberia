@@ -7,6 +7,7 @@
 // ============================================================
 import { createContext, useContext, useEffect, useState } from 'react'
 import { insforge } from '../lib/insforge'
+import { createAuditLog, AUDIT_ACTIONS } from '../services/auditLog'
 
 // ─── Role constants ───────────────────────────────────────────
 export const ROLES = {
@@ -226,8 +227,19 @@ export function AuthProvider({ children }) {
       const { data, error } = await insforge.auth.signInWithPassword({ email, password })
       if (error) throw error
       await resolveUser(data.user)
+      // Non-blocking audit log
+      createAuditLog({
+        action:      AUDIT_ACTIONS.LOGIN,
+        actor:       { id: data.user.id, name: email, role: data.user.profile?.role || 'unknown' },
+        description: `Signed in: ${email}`,
+      })
       return { data, error: null }
     } catch (error) {
+      createAuditLog({
+        action:      AUDIT_ACTIONS.FAILED_LOGIN,
+        actor:       { id: null, name: email, role: 'unknown' },
+        description: `Failed login: ${email} — ${error?.message || ''}`,
+      })
       return { data: null, error }
     } finally {
       setLoading(false)
@@ -333,6 +345,14 @@ export function AuthProvider({ children }) {
   // ── Logout ────────────────────────────────────────────────
   async function logout() {
     setLoading(true)
+    // Log before clearing state
+    if (user) {
+      createAuditLog({
+        action:      AUDIT_ACTIONS.LOGOUT,
+        actor:       { id: user.id, name: user.email, role: user.role || user.profile?.role },
+        description: `Signed out: ${user.email}`,
+      })
+    }
     try {
       await insforge.auth.signOut()
     } catch (err) {
