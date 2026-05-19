@@ -20,19 +20,33 @@ import {
 import { Button, Badge, Avatar, Modal, Input } from '../../components/ui'
 import { insforge } from '../../lib/insforge'
 import { formatDate } from '../../utils/helpers'
+import { useAuth } from '../../context/AuthContext'
 
 // ─── Role config ──────────────────────────────────────────────
-const ROLE_CONFIG = {
-  super_admin:   { label: 'Super Admin',  variant: 'danger',   icon: ShieldCheck },
-  church_admin:  { label: 'Church Admin', variant: 'purple',   icon: ShieldCheck },
-  pastor:        { label: 'Pastor',       variant: 'gold',     icon: Shield },
-  treasurer:     { label: 'Treasurer',    variant: 'success',  icon: Shield },
-  secretary:     { label: 'Secretary',    variant: 'info',     icon: Shield },
-  dept_leader:   { label: 'Dept Leader',  variant: 'warning',  icon: Shield },
-  member:        { label: 'Member',       variant: 'gray',     icon: Shield },
+// ALL roles (used by super admin only)
+const ROLE_CONFIG_ALL = {
+  super_admin:   { label: 'Super Admin',     variant: 'danger',   icon: ShieldCheck },
+  church_admin:  { label: 'Church Admin',    variant: 'purple',   icon: ShieldCheck },
+  pastor:        { label: 'Pastor',          variant: 'gold',     icon: Shield },
+  treasurer:     { label: 'Treasurer',       variant: 'success',  icon: Shield },
+  secretary:     { label: 'Secretary',       variant: 'info',     icon: Shield },
+  dept_leader:   { label: 'Dept Leader',     variant: 'warning',  icon: Shield },
+  member:        { label: 'Member',          variant: 'gray',     icon: Shield },
 }
 
-const ROLES = Object.keys(ROLE_CONFIG)
+// Church-level roles (visible to pastors / church admins)
+const ROLE_CONFIG_CHURCH = {
+  church_admin:  { label: 'Church Admin',    variant: 'purple',   icon: ShieldCheck },
+  pastor:        { label: 'Pastor',          variant: 'gold',     icon: Shield },
+  treasurer:     { label: 'Treasurer',       variant: 'success',  icon: Shield },
+  secretary:     { label: 'Secretary',       variant: 'info',     icon: Shield },
+  dept_leader:   { label: 'Dept Leader',     variant: 'warning',  icon: Shield },
+  member:        { label: 'Member',          variant: 'gray',     icon: Shield },
+}
+
+// Use the right config based on viewer's role (set later via hook)
+let ROLE_CONFIG = ROLE_CONFIG_CHURCH
+const ROLES = Object.keys(ROLE_CONFIG_ALL)
 
 // ─── Role Badge ────────────────────────────────────────────────
 function RoleBadge({ role }) {
@@ -99,7 +113,7 @@ function InviteUserModal({ isOpen, onClose }) {
 }
 
 // ─── Edit User Modal ───────────────────────────────────────────
-function EditUserModal({ user, isOpen, onClose, onSave }) {
+function EditUserModal({ user, isOpen, onClose, onSave, roleConfig = ROLE_CONFIG_CHURCH }) {
   const [role, setRole] = useState(user?.role || 'member')
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState(null)
@@ -161,8 +175,8 @@ function EditUserModal({ user, isOpen, onClose, onSave }) {
             onChange={(e) => setRole(e.target.value)}
             className="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-200 focus:border-purple-400 focus:ring-2 focus:ring-purple-100 outline-none transition-all"
           >
-            {ROLES.map((r) => (
-              <option key={r} value={r}>{ROLE_CONFIG[r].label}</option>
+            {Object.entries(roleConfig).map(([r, cfg]) => (
+              <option key={r} value={r}>{cfg.label}</option>
             ))}
           </select>
           <p className="text-xs text-slate-400 mt-1 flex items-center gap-1.5">
@@ -176,6 +190,11 @@ function EditUserModal({ user, isOpen, onClose, onSave }) {
 
 // ─── Main Page ────────────────────────────────────────────────
 export default function UserManagement() {
+  const { isSuperAdmin } = useAuth()
+  // Only super admin can see / assign platform-level roles
+  const ROLE_CONFIG = isSuperAdmin ? ROLE_CONFIG_ALL : ROLE_CONFIG_CHURCH
+  const VISIBLE_ROLES = Object.keys(ROLE_CONFIG)
+
   const [users, setUsers] = useState([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
@@ -289,8 +308,8 @@ export default function UserManagement() {
               className="appearance-none pl-3.5 pr-8 py-2.5 text-sm rounded-xl border border-slate-200 focus:border-purple-400 focus:ring-2 focus:ring-purple-100 outline-none transition-all bg-white font-medium text-slate-700"
             >
               <option value="all">All Roles</option>
-              {ROLES.map((r) => (
-                <option key={r} value={r}>{ROLE_CONFIG[r].label}</option>
+              {VISIBLE_ROLES.map((r) => (
+                <option key={r} value={r}>{ROLE_CONFIG[r]?.label}</option>
               ))}
             </select>
             <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
@@ -493,6 +512,7 @@ export default function UserManagement() {
         isOpen={!!editUser}
         onClose={() => setEditUser(null)}
         onSave={handleSave}
+        roleConfig={ROLE_CONFIG}
       />
     </div>
   )

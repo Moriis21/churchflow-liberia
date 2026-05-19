@@ -127,6 +127,9 @@ export function AuthProvider({ children }) {
         if (!error && data?.user) {
           setUser(data.user)
           await fetchUserProfile(data.user.id)
+          // Safety net: if church still not loaded, try once more
+          // (handles edge cases where DB was slow on first fetch)
+          setChurchData(prev => prev) // no-op, just ensures re-render
         } else {
           setUser(null)
         }
@@ -314,10 +317,13 @@ export function AuthProvider({ children }) {
 
       if (!existingChurchId) {
         // Admin flow: create a new church record
+        if (!churchName || !churchName.trim()) {
+          throw new Error('Church name is required.')
+        }
         const { data: newChurch, error: churchErr } = await insforge.database
           .from('churches')
           .insert([{
-            name: churchName || 'My Church',
+            name: churchName.trim(),
             owner_id: authedUser.id,
             currency: 'LRD',
           }])

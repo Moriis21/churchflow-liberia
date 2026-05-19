@@ -281,7 +281,7 @@ export default function Sidebar({ isOpen, onClose }) {
               Church
             </p>
             <p className="text-sm font-bold text-white truncate leading-tight">
-              {church?.name ?? 'My Church'}
+              {church?.name || 'Church not configured'}
             </p>
             <p className="text-xs text-white/45 truncate">{church?.location ?? ''}</p>
           </div>

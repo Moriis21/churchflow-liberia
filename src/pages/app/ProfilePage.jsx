@@ -152,12 +152,16 @@ export default function ProfilePage() {
   async function handleSave() {
     if (!form.full_name.trim()) { toast.error('Full name is required.'); return }
     setSaving(true)
+    // Use upsert to handle both insert (first time) and update
     const { data, error } = await insforge.database
       .from('user_profiles')
-      .update({ full_name: form.full_name.trim(), phone: form.phone })
-      .eq('id', user.id)
+      .upsert({
+        id: user.id,
+        full_name: form.full_name.trim(),
+        phone: form.phone,
+      }, { onConflict: 'id' })
       .select()
-      .single()
+      .maybeSingle()
     if (error) {
       toast.error('Failed to update profile: ' + error.message)
     } else {
