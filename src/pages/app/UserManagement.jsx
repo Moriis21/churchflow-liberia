@@ -18,6 +18,7 @@ import {
   Link as LinkIcon,
 } from 'lucide-react'
 import { Button, Badge, Avatar, Modal, Input } from '../../components/ui'
+import { addApiKey } from '../../services/profilePhoto'
 import { insforge } from '../../lib/insforge'
 import { formatDate } from '../../utils/helpers'
 import { useAuth } from '../../context/AuthContext'
@@ -133,10 +134,10 @@ function EditUserModal({ user, isOpen, onClose, onSave, roleConfig = ROLE_CONFIG
   const handleSave = async () => {
     setSaving(true)
     setError(null)
+    // SECURITY DEFINER RPC — direct .update() fails because InsForge
+    // browser SDK doesn't forward JWT to PostgREST DB requests
     const { error: err } = await insforge.database
-      .from('user_profiles')
-      .update({ role })
-      .eq('id', user.id)
+      .rpc('update_user_role', { p_user_id: user.id, p_role: role })
     setSaving(false)
     if (err) { setError(err.message); return }
     onSave(user.id, { role })
@@ -259,11 +260,10 @@ export default function UserManagement() {
 
   const handleToggleActive = async (user) => {
     const newActive = !user.is_active
+    // SECURITY DEFINER RPC — direct .update() fails due to InsForge JWT issue
     const { error } = await insforge.database
-      .from('user_profiles')
-      .update({ is_active: newActive })
-      .eq('id', user.id)
-    if (error) { console.error('[UserManagement toggle]', error.message); return }
+      .rpc('toggle_user_active', { p_user_id: user.id, p_is_active: newActive })
+    if (error) { console.error('[UserManagement toggle]', error.message); toast.error('Failed to update status.'); return }
     setUsers((prev) => prev.map((u) => (u.id === user.id ? { ...u, is_active: newActive } : u)))
   }
 
@@ -430,7 +430,7 @@ export default function UserManagement() {
                         <td className="px-5 py-4">
                           <div className="flex items-center gap-3">
                             <div className="relative flex-shrink-0">
-                              <Avatar name={user.full_name} src={user.avatar_url} size="md" />
+                              <Avatar name={user.full_name} src={addApiKey(user.avatar_url)} size="md" />
                               <span
                                 className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-white ${
                                   user.is_active ? 'bg-emerald-400' : 'bg-slate-300'

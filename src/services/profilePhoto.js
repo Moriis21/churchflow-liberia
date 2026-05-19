@@ -13,6 +13,19 @@ const MAX_SIZE_BYTES  = 5 * 1024 * 1024   // 5 MB
 const ALLOWED_TYPES   = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp']
 const SIGNED_URL_TTL  = 3600              // 1 hour
 
+// ─── Append InsForge anon key to storage URLs ─────────────────
+// InsForge storage requires the apikey query param for browser img tag
+// requests (which cannot send custom auth headers).
+export function addApiKey(url) {
+  if (!url) return url
+  const anonKey = import.meta.env.VITE_INSFORGE_ANON_KEY
+  if (!anonKey) return url
+  // Only modify InsForge storage URLs
+  if (!url.includes('insforge.app') && !url.includes('insforge.site')) return url
+  if (url.includes('apikey=')) return url   // already has it
+  return url + (url.includes('?') ? '&' : '?') + 'apikey=' + anonKey
+}
+
 // ─── Validation ───────────────────────────────────────────────
 export function validateImageFile(file) {
   if (!file) return 'No file selected.'
@@ -54,7 +67,7 @@ export async function getReadableUrl(bucket, path) {
     const { data } = insforge.storage.from(bucket).getPublicUrl(path)
     const url = data?.publicUrl || data?.url
     if (url && !url.includes('undefined') && !url.includes('null')) {
-      return url
+      return addApiKey(url)
     }
   } catch { /* fall through */ }
 
@@ -64,7 +77,7 @@ export async function getReadableUrl(bucket, path) {
       .from(bucket)
       .createSignedUrl(path, SIGNED_URL_TTL)
     if (!error && (data?.signedUrl || data?.signed_url)) {
-      return data.signedUrl || data.signed_url
+      return addApiKey(data.signedUrl || data.signed_url)
     }
   } catch { /* fall through */ }
 
@@ -101,7 +114,7 @@ export async function uploadProfilePhoto({ file, userId, churchId }) {
     // Last resort: construct URL manually using InsForge URL pattern
     const base = import.meta.env.VITE_INSFORGE_URL || ''
     if (base) {
-      const manual = `${base}/storage/v1/object/public/${PROFILE_BUCKET}/${uploadedPath}`
+      const manual = addApiKey(`${base}/storage/v1/object/public/${PROFILE_BUCKET}/${uploadedPath}`)
       return { url: manual, path: uploadedPath }
     }
     throw new Error('Upload succeeded but could not retrieve photo URL. Please try again.')
@@ -145,7 +158,7 @@ export async function uploadChurchLogo({ file, churchId }) {
   const url = await getReadableUrl(LOGO_BUCKET, uploadedPath)
 
   // Manual URL if getReadableUrl fails
-  const finalUrl = url || (
+  const finalUrl = url || addApiKey(
     `${import.meta.env.VITE_INSFORGE_URL}/storage/v1/object/public/${LOGO_BUCKET}/${uploadedPath}`
   )
 

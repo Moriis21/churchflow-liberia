@@ -14,7 +14,7 @@ import { Button, Input, Badge } from '../../components/ui'
 import { useChurch } from '../../context/ChurchContext'
 import { useAuth } from '../../context/AuthContext'
 import { insforge } from '../../lib/insforge'
-import { uploadChurchLogo, getReadableUrl, validateImageFile } from '../../services/profilePhoto'
+import { uploadChurchLogo, getReadableUrl, validateImageFile, addApiKey } from '../../services/profilePhoto'
 import { createAuditLog, buildActor, AUDIT_ACTIONS } from '../../services/auditLog'
 
 // ─── Sidebar nav items ────────────────────────────────────────
@@ -105,13 +105,13 @@ function ChurchProfileSection({ church, onChurchUpdated }) {
         founded:     c.founded_date  || '',
         description: c.description   || '',
       })
-      // Resolve logo URL
+      // Resolve logo URL — add apikey for InsForge storage browser access
       let logoUrl = c.logo_url || null
       if (logoUrl && !logoUrl.startsWith('http')) {
         logoUrl = await getReadableUrl('church-logos', logoUrl)
           || await getReadableUrl('church-assets', logoUrl)
       }
-      setLogoPreview(logoUrl)
+      setLogoPreview(addApiKey(logoUrl))
       // Update context with freshest data
       if (data) onChurchUpdated?.(data)
     }
@@ -167,7 +167,7 @@ function ChurchProfileSection({ church, onChurchUpdated }) {
 
       const fresh = confirmed || updated || { ...church, logo_url }
       onChurchUpdated?.(fresh)
-      if (fresh.logo_url) setLogoPreview(fresh.logo_url)
+      if (fresh.logo_url) setLogoPreview(addApiKey(fresh.logo_url))
 
       // Audit log
       await createAuditLog({

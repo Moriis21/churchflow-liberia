@@ -13,7 +13,7 @@ import { insforge } from '../../lib/insforge'
 import { Input, Button } from '../../components/ui'
 import { formatDate } from '../../utils/helpers'
 import toast from 'react-hot-toast'
-import { uploadProfilePhoto, getReadableUrl, validatePhotoFile, validateImageFile } from '../../services/profilePhoto'
+import { uploadProfilePhoto, getReadableUrl, validatePhotoFile, validateImageFile, addApiKey } from '../../services/profilePhoto'
 import { createAuditLog, buildActor, AUDIT_ACTIONS } from '../../services/auditLog'
 
 const ROLE_LABELS = {
@@ -66,13 +66,13 @@ export default function ProfilePage() {
         .rpc('get_my_profile', { p_user_id: user.id })
       const data = rpcResult?.profile || null
       if (data) {
-        // Resolve avatar URL with fallback
+        // Resolve avatar URL — add apikey so <img> tag can load from InsForge storage
         let resolvedUrl = data.avatar_url || null
-        if (resolvedUrl && resolvedUrl.includes('/')) {
-          // It might be a path, try to get a proper URL
-          resolvedUrl = await getProfilePhotoUrl(resolvedUrl) || resolvedUrl
+        if (resolvedUrl && !resolvedUrl.startsWith('http')) {
+          // It's a path, not a full URL — resolve it
+          resolvedUrl = await getReadableUrl('profile-photos', resolvedUrl) || resolvedUrl
         }
-        setProfile({ ...data, avatar_url: resolvedUrl })
+        setProfile({ ...data, avatar_url: addApiKey(resolvedUrl) })
         setForm({ full_name: data.full_name || '', phone: data.phone || '' })
       }
     }
@@ -105,7 +105,7 @@ export default function ProfilePage() {
         p_avatar_url: url,
       })
 
-      setProfile(prev => ({ ...prev, avatar_url: url }))
+      setProfile(prev => ({ ...prev, avatar_url: addApiKey(url) }))
       setPhotoPreview(null)
 
       // Audit log
