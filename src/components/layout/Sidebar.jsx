@@ -1,80 +1,23 @@
 // ============================================================
-// ChurchFlow Liberia — Sidebar
+// ChurchFlow Liberia — Sidebar (role-based navigation)
 // ============================================================
 import React, { useState, useRef, useEffect } from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
 import {
-  LayoutDashboard,
-  Users,
-  ClipboardCheck,
-  Layers,
-  Wallet,
-  CalendarDays,
-  UserPlus,
-  HandHeart,
-  PlaySquare,
-  Radio,
-  BarChart3,
-  GitBranch,
-  Settings,
-  ShieldCheck,
   LogOut,
   ChevronDown,
   Check,
   X,
   Building2,
+  ShieldCheck,
 } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { useChurch } from '../../context/ChurchContext'
 import Avatar from '../ui/Avatar'
+import { getNavSections, CHURCH_ADMIN_NAV } from '../../utils/permissions'
 
-// ─── Church navigation (for pastors, admins, staff) ──────────
-const CHURCH_NAV_SECTIONS = [
-  {
-    label: 'OVERVIEW',
-    items: [
-      { to: '/app/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-    ],
-  },
-  {
-    label: 'MINISTRY',
-    items: [
-      { to: '/app/members', icon: Users, label: 'Members' },
-      { to: '/app/attendance', icon: ClipboardCheck, label: 'Attendance' },
-      { to: '/app/departments', icon: Layers, label: 'Departments' },
-    ],
-  },
-  {
-    label: 'FINANCES',
-    items: [
-      { to: '/app/finance', icon: Wallet, label: 'Finance' },
-    ],
-  },
-  {
-    label: 'OUTREACH',
-    items: [
-      { to: '/app/events', icon: CalendarDays, label: 'Events' },
-      { to: '/app/visitors', icon: UserPlus, label: 'Visitors' },
-      { to: '/app/prayer-requests', icon: HandHeart, label: 'Prayer Requests' },
-    ],
-  },
-  {
-    label: 'MEDIA',
-    items: [
-      { to: '/app/sermons',      icon: PlaySquare, label: 'Sermons' },
-      { to: '/app/live-streams', icon: Radio,      label: 'Live Streams' },
-    ],
-  },
-  {
-    label: 'MANAGEMENT',
-    items: [
-      { to: '/app/reports', icon: BarChart3, label: 'Reports' },
-      { to: '/app/branches', icon: GitBranch, label: 'Branches' },
-      { to: '/app/settings', icon: Settings, label: 'Settings' },
-      { to: '/app/users', icon: ShieldCheck, label: 'User Management' },
-    ],
-  },
-]
+// Role-specific nav is now defined in src/utils/permissions.js
+// CHURCH_ADMIN_NAV is imported as the fallback for unknown church roles.
 
 // ─── Super admin navigation (platform owner) ─────────────────
 const SUPER_ADMIN_NAV_SECTIONS = [
@@ -234,8 +177,11 @@ export default function Sidebar({ isOpen, onClose }) {
   const userEmail = user?.email ?? ''
   const avatarUrl = user?.profile?.avatar_url ?? null
 
-  // Pick the correct nav structure
-  const navSections = isSuperAdmin ? SUPER_ADMIN_NAV_SECTIONS : CHURCH_NAV_SECTIONS
+  // Pick the correct nav structure based on role
+  // Super Admin → platform nav | Church roles → role-specific nav from permissions.js
+  const navSections = isSuperAdmin
+    ? SUPER_ADMIN_NAV_SECTIONS
+    : getNavSections(userRole)
 
   async function handleLogout() {
     await logout()
@@ -344,6 +290,12 @@ export default function Sidebar({ isOpen, onClose }) {
                 <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold
                   bg-amber-400/20 text-amber-300 border border-amber-400/30 whitespace-nowrap">
                   Super Admin
+                </span>
+              )}
+              {!isSuperAdmin && userRole === 'member' && (
+                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold
+                  bg-teal-400/15 text-teal-300 border border-teal-400/25 whitespace-nowrap">
+                  Member
                 </span>
               )}
             </div>

@@ -8,13 +8,14 @@ import { AuthProvider, useAuth } from './context/AuthContext'
 import { ChurchProvider } from './context/ChurchContext'
 
 // ─── Lazy page imports ────────────────────────────────────────
-const Landing        = React.lazy(() => import('./pages/app/Landing'))
-const Login          = React.lazy(() => import('./pages/auth/Login'))
-const Register       = React.lazy(() => import('./pages/auth/Register'))
-const ForgotPassword = React.lazy(() => import('./pages/auth/ForgotPassword'))
-const AuthCallback   = React.lazy(() => import('./pages/auth/AuthCallback'))
-const Layout         = React.lazy(() => import('./components/layout/Layout'))
-const Dashboard      = React.lazy(() => import('./pages/app/Dashboard'))
+const Landing          = React.lazy(() => import('./pages/app/Landing'))
+const Login            = React.lazy(() => import('./pages/auth/Login'))
+const Register         = React.lazy(() => import('./pages/auth/Register'))
+const ForgotPassword   = React.lazy(() => import('./pages/auth/ForgotPassword'))
+const AuthCallback     = React.lazy(() => import('./pages/auth/AuthCallback'))
+const Layout           = React.lazy(() => import('./components/layout/Layout'))
+const Dashboard        = React.lazy(() => import('./pages/app/Dashboard'))
+const MemberDashboard  = React.lazy(() => import('./pages/app/MemberDashboard'))
 const Members        = React.lazy(() => import('./pages/app/Members'))
 const MemberProfile  = React.lazy(() => import('./pages/app/MemberProfile'))
 const Attendance     = React.lazy(() => import('./pages/app/Attendance'))
@@ -34,6 +35,9 @@ const SuperAdminDashboard  = React.lazy(() => import('./pages/app/SuperAdminDash
 const SuperAdminSettings   = React.lazy(() => import('./pages/app/SuperAdminSettings'))
 const ProfilePage          = React.lazy(() => import('./pages/app/ProfilePage'))
 const CompleteSetup        = React.lazy(() => import('./pages/app/CompleteSetup'))
+
+// ─── Route guards ─────────────────────────────────────────────
+import PermissionGuard from './components/auth/PermissionGuard'
 
 const JoinChurchPage  = React.lazy(() => import('./pages/public/JoinChurchPage'))
 
@@ -95,16 +99,19 @@ function AuthSkeleton() {
 // ─── Protected route wrapper ──────────────────────────────────
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth()
-
-  if (loading) {
-    return <AuthSkeleton />
-  }
-
-  if (!user) {
-    return <Navigate to="/login" replace />
-  }
-
+  if (loading) return <AuthSkeleton />
+  if (!user)   return <Navigate to="/login" replace />
   return children
+}
+
+// ─── Role-aware dashboard ─────────────────────────────────────
+// Members see their personal MemberDashboard.
+// All other church roles see the main admin Dashboard.
+function RoleDashboard() {
+  const { user } = useAuth()
+  const role = user?.profile?.role || user?.role || user?.user_metadata?.role || 'member'
+  if (role === 'member') return <MemberDashboard />
+  return <Dashboard />
 }
 
 // ─── Inner router (needs AuthContext) ────────────────────────
@@ -150,27 +157,62 @@ function AppRoutes() {
             </ProtectedRoute>
           }
         >
-          {/* Default /app → dashboard */}
+          {/* Default /app → role-aware dashboard */}
           <Route index element={<Navigate to="/app/dashboard" replace />} />
 
-          <Route path="dashboard"            element={<Dashboard />} />
-          <Route path="super-admin"         element={<SuperAdminDashboard />} />
+          {/* Dashboard — members see MemberDashboard, others see full Dashboard */}
+          <Route path="dashboard" element={<RoleDashboard />} />
+
+          {/* Super Admin only */}
+          <Route path="super-admin"          element={<SuperAdminDashboard />} />
           <Route path="super-admin-settings" element={<SuperAdminSettings />} />
-          <Route path="profile"             element={<ProfilePage />} />
-          <Route path="members"        element={<Members />} />
-          <Route path="members/:id"    element={<MemberProfile />} />
-          <Route path="attendance"     element={<Attendance />} />
-          <Route path="finance"        element={<Finance />} />
-          <Route path="events"         element={<Events />} />
-          <Route path="visitors"       element={<Visitors />} />
+
+          {/* Available to all authenticated users */}
+          <Route path="profile"         element={<ProfilePage />} />
+          <Route path="events"          element={<Events />} />
           <Route path="prayer-requests" element={<PrayerRequests />} />
-          <Route path="departments"    element={<Departments />} />
-          <Route path="sermons"        element={<Sermons />} />
-          <Route path="live-streams"   element={<LiveStreams />} />
-          <Route path="reports"        element={<Reports />} />
-          <Route path="branches"       element={<Branches />} />
-          <Route path="settings"       element={<Settings />} />
-          <Route path="users"          element={<UserManagement />} />
+          <Route path="sermons"         element={<Sermons />} />
+          <Route path="live-streams"    element={<LiveStreams />} />
+
+          {/* Church staff only (NOT members) */}
+          <Route path="members" element={
+            <PermissionGuard routeKey="members"><Members /></PermissionGuard>
+          } />
+          <Route path="members/:id" element={
+            <PermissionGuard routeKey="members/:id"><MemberProfile /></PermissionGuard>
+          } />
+          <Route path="attendance" element={
+            <PermissionGuard routeKey="attendance"><Attendance /></PermissionGuard>
+          } />
+          <Route path="departments" element={
+            <PermissionGuard routeKey="departments"><Departments /></PermissionGuard>
+          } />
+          <Route path="visitors" element={
+            <PermissionGuard routeKey="visitors"><Visitors /></PermissionGuard>
+          } />
+
+          {/* Finance — church_admin + treasurer only */}
+          <Route path="finance" element={
+            <PermissionGuard routeKey="finance"><Finance /></PermissionGuard>
+          } />
+
+          {/* Reports — church_admin, pastor, treasurer only */}
+          <Route path="reports" element={
+            <PermissionGuard routeKey="reports"><Reports /></PermissionGuard>
+          } />
+
+          {/* Church Admin + Pastor */}
+          <Route path="users" element={
+            <PermissionGuard routeKey="users"><UserManagement /></PermissionGuard>
+          } />
+
+          {/* Church Admin only */}
+          <Route path="settings" element={
+            <PermissionGuard routeKey="settings"><Settings /></PermissionGuard>
+          } />
+          <Route path="branches" element={
+            <PermissionGuard routeKey="branches"><Branches /></PermissionGuard>
+          } />
         </Route>
 
         {/* Catch-all */}
