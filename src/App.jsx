@@ -11,6 +11,7 @@ import { ChurchProvider } from './context/ChurchContext'
 const Landing        = React.lazy(() => import('./pages/app/Landing'))
 const Login          = React.lazy(() => import('./pages/auth/Login'))
 const Register       = React.lazy(() => import('./pages/auth/Register'))
+const ForgotPassword = React.lazy(() => import('./pages/auth/ForgotPassword'))
 const Layout         = React.lazy(() => import('./components/layout/Layout'))
 const Dashboard      = React.lazy(() => import('./pages/app/Dashboard'))
 const Members        = React.lazy(() => import('./pages/app/Members'))
@@ -112,9 +113,10 @@ function AppRoutes() {
         <Route path="/" element={<Navigate to="/landing" replace />} />
 
         {/* Public pages */}
-        <Route path="/landing"    element={<Landing />} />
-        <Route path="/login"      element={<Login />} />
-        <Route path="/register"   element={<Register />} />
+        <Route path="/landing"           element={<Landing />} />
+        <Route path="/login"             element={<Login />} />
+        <Route path="/register"          element={<Register />} />
+        <Route path="/forgot-password"   element={<ForgotPassword />} />
         <Route path="/join/:churchId" element={<JoinChurchPage />} />
         <Route path="/features"   element={<FeaturesPage />} />
         <Route path="/pricing"    element={<PricingPage />} />
