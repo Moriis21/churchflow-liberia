@@ -102,9 +102,14 @@ export default function Layout() {
   }
 
   // ── Church user with no church: redirect to setup ─────────────
-  const churchId = user?.churchId || user?.profile?.church_id
+  // Only redirect if we have confirmed the profile loaded (role is set)
+  // and there is genuinely no church_id. Avoid redirecting during
+  // the brief window when auth is hydrating.
+  const churchId  = user?.churchId || user?.profile?.church_id
+  const userRole  = user?.role || user?.profile?.role
+  const profileLoaded = !!userRole  // profile has been resolved if role exists
   const isChurchRoute = !isSuperAdmin && location.pathname !== '/complete-setup'
-  if (isChurchRoute && !churchId && user?.role !== 'super_admin') {
+  if (isChurchRoute && profileLoaded && !churchId && userRole !== 'super_admin') {
     return <Navigate to="/complete-setup" replace />
   }
 

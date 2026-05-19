@@ -9,13 +9,12 @@ import { Church, MapPin, Phone, Mail, User, ChevronRight, CheckCircle } from 'lu
 import toast from 'react-hot-toast'
 import { insforge } from '../../lib/insforge'
 import { useAuth } from '../../context/AuthContext'
+import { useChurch } from '../../context/ChurchContext'
 import { Button } from '../../components/ui'
-
-// No edge function needed — using SECURITY DEFINER SQL function via RPC
-// which runs inside InsForge DB, bypasses RLS, no CORS issues
 
 export default function CompleteSetup() {
   const { user, logout } = useAuth()
+  const { updateChurch } = useChurch()
   const navigate = useNavigate()
 
   const [step, setStep]     = useState(1)
@@ -62,29 +61,30 @@ export default function CompleteSetup() {
       if (error) throw error
       if (!result?.success) throw new Error(result?.error || 'Setup failed')
 
-      // Update church additional fields if provided
+      // Update additional church fields if provided
       if (result.church?.id && (form.location || form.phone || form.email)) {
-        await insforge.database
-          .from('churches')
-          .update({
-            location: form.location.trim() || null,
-            phone:    form.phone.trim()    || null,
-            email:    form.email.trim()    || null,
-          })
-          .eq('id', result.church.id)
+        await insforge.database.from('churches').update({
+          location: form.location.trim() || null,
+          phone:    form.phone.trim()    || null,
+          email:    form.email.trim()    || null,
+        }).eq('id', result.church.id)
       }
 
-      // Sync name to auth profile
+      // Store role + church_id in auth JWT so future logins work without DB
       await insforge.auth.setProfile({
-        name: form.fullName.trim(),
-        role: 'church_admin',
+        name:      form.fullName.trim(),
+        role:      'church_admin',
+        church_id: result.church?.id || null,
       })
 
-      toast.success('Church setup complete! Welcome to ChurchFlow.')
+      // Update the ChurchContext immediately — no page reload needed
+      if (result.church) updateChurch(result.church)
+
+      toast.success(`${form.churchName} is all set! Welcome to ChurchFlow.`)
       setStep(2)
 
-      // Reload the page so AuthContext re-hydrates with the new church
-      setTimeout(() => window.location.href = '/app/dashboard', 1500)
+      // Hard navigate to flush all auth state and reload with real data
+      setTimeout(() => { window.location.replace('/app/dashboard') }, 1500)
     } catch (err) {
       toast.error(err.message || 'Setup failed. Please try again.')
     } finally {

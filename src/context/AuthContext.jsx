@@ -133,57 +133,54 @@ export function AuthProvider({ children }) {
   }
 
   // ── DB profile lookup (Layer 2) ───────────────────────────
-  // Tries 3 paths. If ALL fail (RLS/JWT issue), the earlyRole from
-  // Layer 1 is still in place so the user is NOT stuck as "member".
+  // Uses SECURITY DEFINER RPC as primary path — bypasses RLS,
+  // works even when InsForge SDK doesn't forward JWT to PostgREST.
   async function fetchUserProfile(userId, userEmail, knownRole) {
     try {
       let profileData = null
+      let churchData_  = null
 
-      // Path A: by primary key (works when JWT is correctly forwarded)
-      const { data: byId } = await insforge.database
-        .from('user_profiles')
-        .select('*')
-        .eq('id', userId)
-        .maybeSingle()
-      profileData = byId || null
+      // Path A: get_my_profile RPC (SECURITY DEFINER — always works)
+      const { data: rpcResult } = await insforge.database
+        .rpc('get_my_profile', { p_user_id: userId })
 
-      // Path B: by email column (fallback for OAuth ID mismatch)
-      if (!profileData && userEmail) {
-        const { data: byEmail } = await insforge.database
-          .from('user_profiles')
-          .select('*')
-          .eq('email', userEmail)
-          .maybeSingle()
-        if (byEmail) {
-          profileData = byEmail
-          // Repair ID mismatch so Path A works next time
-          if (byEmail.id !== userId) {
-            const { data: repaired } = await insforge.database
-              .from('user_profiles')
-              .update({ id: userId })
-              .eq('email', userEmail)
-              .select()
-              .maybeSingle()
-            if (repaired) profileData = repaired
-          }
-        }
+      if (rpcResult?.profile) {
+        profileData = rpcResult.profile
+        churchData_  = rpcResult.church || null
       }
 
-      // Path C: upsert (creates profile if genuinely missing)
+      // Path B: direct query fallback (if RPC is unavailable)
+      if (!profileData) {
+        const { data: byId } = await insforge.database
+          .from('user_profiles').select('*').eq('id', userId).maybeSingle()
+        profileData = byId || null
+      }
+
+      // Path C: email lookup fallback
+      if (!profileData && userEmail) {
+        const { data: byEmail } = await insforge.database
+          .from('user_profiles').select('*').eq('email', userEmail).maybeSingle()
+        if (byEmail) profileData = byEmail
+      }
+
+      // Path D: create profile via RPC if still nothing
       if (!profileData && userId) {
         const emailIsSuperAdmin = userEmail?.toLowerCase() === SUPER_ADMIN_EMAIL.toLowerCase()
-        const { data: upserted } = await insforge.database
-          .from('user_profiles')
-          .upsert([{
-            id:        userId,
-            email:     userEmail || null,
-            full_name: userEmail?.split('@')[0] || 'User',
-            role:      emailIsSuperAdmin ? ROLES.SUPER_ADMIN : (knownRole || ROLES.MEMBER),
-            is_active: true,
-          }], { onConflict: 'id' })
-          .select()
-          .maybeSingle()
-        if (upserted) profileData = upserted
+        if (!emailIsSuperAdmin) {
+          // For regular users with no profile, create one without a church
+          // They'll be sent to /complete-setup to finish
+          const { data: upserted } = await insforge.database
+            .from('user_profiles')
+            .upsert([{
+              id:        userId,
+              email:     userEmail || null,
+              full_name: userEmail?.split('@')[0] || 'User',
+              role:      knownRole || ROLES.MEMBER,
+              is_active: true,
+            }], { onConflict: 'id' })
+            .select().maybeSingle()
+          if (upserted) profileData = upserted
+        }
       }
 
       // ── Apply DB profile ───────────────────────────────────
@@ -206,12 +203,12 @@ export function AuthProvider({ children }) {
           return
         }
 
-        if (profileData.church_id) {
+        // Use church from RPC result if available, otherwise fetch
+        if (churchData_) {
+          setChurchData(churchData_)
+        } else if (profileData.church_id) {
           const { data: churchRow } = await insforge.database
-            .from('churches')
-            .select('*')
-            .eq('id', profileData.church_id)
-            .maybeSingle()
+            .from('churches').select('*').eq('id', profileData.church_id).maybeSingle()
           if (churchRow) setChurchData(churchRow)
         }
       }

@@ -104,10 +104,13 @@ export default function ForgotPassword() {
 
     setStep2Loading(true)
     try {
-      const { error } = await insforge.auth.resetPassword({
-        otp:         trimCode,
-        newPassword: newPw,
-      })
+      // Pass email alongside otp — InsForge needs it to look up
+      // which account this OTP belongs to, even though TypeScript
+      // definition doesn't show it as required
+      // Pass email alongside otp — InsForge needs it internally
+      // even though the TypeScript definition doesn't show it
+      const resetPayload = { otp: trimCode, newPassword: newPw, email: email.trim().toLowerCase() }
+      const { error } = await insforge.auth.resetPassword(resetPayload)
       if (error) throw error
       setStep(3)
     } catch (err) {
