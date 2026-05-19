@@ -35,6 +35,7 @@ const SuperAdminDashboard  = React.lazy(() => import('./pages/app/SuperAdminDash
 const SuperAdminSettings   = React.lazy(() => import('./pages/app/SuperAdminSettings'))
 const ProfilePage          = React.lazy(() => import('./pages/app/ProfilePage'))
 const CompleteSetup        = React.lazy(() => import('./pages/app/CompleteSetup'))
+const MemberSettings       = React.lazy(() => import('./pages/app/MemberSettings'))
 
 // ─── Route guards ─────────────────────────────────────────────
 import PermissionGuard from './components/auth/PermissionGuard'
@@ -212,6 +213,15 @@ function AppRoutes() {
           } />
           <Route path="branches" element={
             <PermissionGuard routeKey="branches"><Branches /></PermissionGuard>
+          } />
+
+          {/* Member-only personal pages */}
+          <Route path="member-settings" element={
+            <PermissionGuard routeKey="member-settings"><MemberSettings /></PermissionGuard>
+          } />
+          {/* My Attendance — member sees only their own records (uses Attendance in read-only mode) */}
+          <Route path="member-attendance" element={
+            <PermissionGuard routeKey="member-attendance"><Attendance /></PermissionGuard>
           } />
         </Route>
 

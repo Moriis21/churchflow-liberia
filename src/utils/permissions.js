@@ -24,6 +24,7 @@ import {
   ShieldCheck,
   User,
   Building2,
+  SlidersHorizontal,
 } from 'lucide-react'
 
 // ─── Route keys each role may access ─────────────────────────
@@ -64,6 +65,8 @@ export const ROLE_ROUTES = {
     'dashboard','profile',
     'events','prayer-requests',
     'sermons','live-streams',
+    'member-settings',  // personal settings page (not church Settings)
+    'member-attendance', // personal attendance view
   ],
 }
 
@@ -286,10 +289,11 @@ export const MEMBER_NAV = [
   {
     label: 'MY CHURCH',
     items: [
-      { to: '/app/dashboard',       icon: LayoutDashboard, label: 'My Dashboard' },
-      { to: '/app/profile',         icon: User,            label: 'My Profile' },
-      { to: '/app/events',          icon: CalendarDays,    label: 'Events' },
-      { to: '/app/prayer-requests', icon: HandHeart,       label: 'Prayer Requests' },
+      { to: '/app/dashboard',          icon: LayoutDashboard, label: 'My Dashboard' },
+      { to: '/app/profile',            icon: User,            label: 'My Profile' },
+      { to: '/app/member-attendance',  icon: ClipboardCheck,  label: 'My Attendance' },
+      { to: '/app/events',             icon: CalendarDays,    label: 'Events' },
+      { to: '/app/prayer-requests',    icon: HandHeart,       label: 'Prayer Requests' },
     ],
   },
   {
@@ -297,6 +301,12 @@ export const MEMBER_NAV = [
     items: [
       { to: '/app/sermons',      icon: PlaySquare, label: 'Sermons' },
       { to: '/app/live-streams', icon: Radio,      label: 'Live Streams' },
+    ],
+  },
+  {
+    label: 'ACCOUNT',
+    items: [
+      { to: '/app/member-settings', icon: SlidersHorizontal, label: 'My Settings' },
     ],
   },
 ]

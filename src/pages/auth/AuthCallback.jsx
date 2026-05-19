@@ -9,16 +9,14 @@ import { insforge } from '../../lib/insforge'
 import { createAuditLog, AUDIT_ACTIONS } from '../../services/auditLog'
 
 // ─── Role → route mapping ─────────────────────────────────────
+// All church roles go to /app/dashboard which uses RoleDashboard
+// to render the correct content per role (MemberDashboard for members,
+// full Dashboard for church admins/pastors/etc.)
 export function getRoleRoute(role) {
   switch (role) {
     case 'super_admin':  return '/app/super-admin'
-    case 'church_admin': return '/app/dashboard'
-    case 'pastor':       return '/app/dashboard'
-    case 'treasurer':    return '/app/finance'
-    case 'secretary':    return '/app/dashboard'
-    case 'dept_leader':  return '/app/dashboard'
-    case 'member':       return '/app/dashboard'
-    default:             return '/app/dashboard'
+    case 'treasurer':    return '/app/finance'    // direct to finance
+    default:             return '/app/dashboard'  // RoleDashboard handles the rest
   }
 }
 

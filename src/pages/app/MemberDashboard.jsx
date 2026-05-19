@@ -8,7 +8,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   CalendarDays, HandHeart, PlaySquare, Radio,
-  User, ChevronRight, Clock, Users, Loader2,
+  User, ChevronRight, Clock, Users, Loader2, ClipboardCheck,
 } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { useChurch } from '../../context/ChurchContext'
@@ -162,11 +162,12 @@ export default function MemberDashboard() {
         <div>
           <h2 className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-4">Quick Access</h2>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 gap-3 sm:gap-4">
-            <QuickLink to="/app/profile"         icon={User}        color="purple" label="My Profile"       description="View & edit your profile" />
-            <QuickLink to="/app/events"          icon={CalendarDays} color="amber"  label="Events"          description="Upcoming church events" />
-            <QuickLink to="/app/prayer-requests" icon={HandHeart}   color="rose"   label="Prayer Requests"  description="Submit & view prayers" />
-            <QuickLink to="/app/sermons"         icon={PlaySquare}  color="teal"   label="Sermons"          description="Listen to sermons" />
-            <QuickLink to="/app/live-streams"    icon={Radio}       color="indigo" label="Live Streams"     description="Watch live services" />
+            <QuickLink to="/app/profile"             icon={User}         color="purple" label="My Profile"       description="View & edit your profile" />
+            <QuickLink to="/app/member-attendance"   icon={ClipboardCheck} color="green"  label="My Attendance"   description="View your attendance record" />
+            <QuickLink to="/app/events"              icon={CalendarDays}  color="amber"  label="Events"           description="Upcoming church events" />
+            <QuickLink to="/app/prayer-requests"     icon={HandHeart}     color="rose"   label="Prayer Requests"  description="Submit & view prayers" />
+            <QuickLink to="/app/sermons"             icon={PlaySquare}    color="teal"   label="Sermons"          description="Listen to sermons" />
+            <QuickLink to="/app/live-streams"        icon={Radio}         color="indigo" label="Live Streams"     description="Watch live services" />
           </div>
         </div>
 

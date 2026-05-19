@@ -218,14 +218,16 @@ export default function Login() {
         }
       } else {
         // Role-based redirect
+        // /app/dashboard uses RoleDashboard which renders MemberDashboard
+        // for members and the full Dashboard for staff/admin roles.
         const role = data?.user?.profile?.role || data?.user?.role
         toast.success('Welcome back!')
         if (role === 'super_admin') {
           navigate('/app/super-admin')
-        } else if (role === 'member') {
-          navigate('/app/dashboard')
+        } else if (role === 'treasurer') {
+          navigate('/app/finance')
         } else {
-          navigate('/app/dashboard')
+          navigate('/app/dashboard')  // MemberDashboard for members, full Dashboard for others
         }
       }
     } catch (err) {
