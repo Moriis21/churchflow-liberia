@@ -130,20 +130,19 @@ function ChurchProfileSection({ church, onChurchUpdated }) {
         logo_url = urlData?.publicUrl || logo_url
       }
 
-      // Save to InsForge churches table
-      const { error } = await insforge.database
-        .from('churches')
-        .update({
-          name:         form.name.trim(),
-          location:     form.location.trim() || null,
-          phone:        form.phone.trim()    || null,
-          email:        form.email.trim()    || null,
-          website:      form.website.trim()  || null,
-          currency:     form.currency,
-          founded_date: form.founded        || null,
-          logo_url,
+      // Use SECURITY DEFINER RPC to bypass RLS for the update
+      const { data: updated, error } = await insforge.database
+        .rpc('update_church', {
+          p_church_id:   church.id,
+          p_name:        form.name.trim(),
+          p_location:    form.location.trim() || null,
+          p_phone:       form.phone.trim()    || null,
+          p_email:       form.email.trim()    || null,
+          p_website:     form.website.trim()  || null,
+          p_currency:    form.currency,
+          p_founded_date: form.founded        || '',
+          p_logo_url:    logo_url             || null,
         })
-        .eq('id', church.id)
 
       if (error) throw error
 

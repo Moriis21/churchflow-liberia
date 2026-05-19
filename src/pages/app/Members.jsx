@@ -461,26 +461,24 @@ export default function Members() {
 
     setSaving(true)
     try {
+      // Use SECURITY DEFINER RPC — direct INSERT is blocked by RLS
       const { data, error } = await insforge.database
-        .from('members')
-        .insert([{
-          church_id:         churchId,
-          branch_id:         currentBranch?.id || null,
-          full_name:         form.name,
-          gender:            form.gender,
-          phone:             form.phone,
-          email:             form.email || null,
-          address:           form.address || null,
-          date_of_birth:     form.dateOfBirth || null,
-          membership_status: form.membershipStatus || 'active',
-          baptism_status:    form.baptismStatus || false,
-          marital_status:    form.maritalStatus,
-          join_date:         new Date().toISOString().split('T')[0],
-          notes:             form.notes || null,
-          emergency_contact: form.emergencyContact || null,
-        }])
-        .select()
-        .single()
+        .rpc('insert_member', {
+          p_church_id:        churchId,
+          p_branch_id:        currentBranch?.id || null,
+          p_full_name:        form.name,
+          p_gender:           form.gender,
+          p_phone:            form.phone,
+          p_email:            form.email || null,
+          p_address:          form.address || null,
+          p_date_of_birth:    form.dateOfBirth || null,
+          p_membership_status: form.membershipStatus || 'active',
+          p_baptism_status:   form.baptismStatus || false,
+          p_marital_status:   form.maritalStatus,
+          p_join_date:        new Date().toISOString().split('T')[0],
+          p_notes:            form.notes || null,
+          p_emergency_contact: form.emergencyContact || null,
+        })
 
       if (error) throw error
 

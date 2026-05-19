@@ -219,16 +219,15 @@ function AddDeptModal({ isOpen, onClose, onSaved, churchId, branchId, userId }) 
       return
     }
     setSaving(true)
+    // Use SECURITY DEFINER RPC — direct INSERT blocked by RLS
     const { data: newDept, error } = await insforge.database
-      .from('departments')
-      .insert([{
-        church_id: churchId_prop,
-        branch_id: branchId || null,
-        name: form.name,
-        description: form.description,
-        color: form.color,
-        created_by: userId,
-      }])
+      .rpc('insert_department', {
+        p_church_id:   churchId_prop,
+        p_branch_id:   branchId || null,
+        p_name:        form.name,
+        p_description: form.description,
+        p_color:       form.color,
+      })
       .select()
       .single()
     setSaving(false)
