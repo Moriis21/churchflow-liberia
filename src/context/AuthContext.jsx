@@ -300,44 +300,27 @@ export function AuthProvider({ children }) {
     })
   }
 
-  // ── Create church + profile via Edge Function (bypasses RLS) ──
-  // Direct DB inserts from the browser fail because the InsForge SDK
-  // does not forward the user JWT to PostgREST, so auth.uid() = null
-  // in RLS policies. The edge function runs as service role and
-  // bypasses RLS entirely, guaranteeing the records are created.
+  // ── Create church + profile via SECURITY DEFINER SQL function ──
+  // Direct DB inserts fail (RLS blocks them — auth.uid() = null from browser).
+  // The create_church_setup() function is SECURITY DEFINER so it runs as
+  // postgres user and bypasses RLS. Called via insforge.database.rpc()
+  // which works from the browser with no CORS issues.
   async function _createChurchAndProfile(authedUser, name, churchName, role, existingChurchId = null) {
     try {
       if (!existingChurchId && !churchName?.trim()) {
         throw new Error('Church name is required.')
       }
 
-      // Get the current session JWT to pass to the edge function
-      const { data: sessionData } = await insforge.auth.getCurrentUser()
-      const jwt = sessionData?.session?.access_token
-                || sessionData?.access_token
-                || null
+      const { data: result, error: rpcErr } = await insforge.database
+        .rpc('create_church_setup', {
+          p_user_id:    authedUser.id,
+          p_user_email: authedUser.email || null,
+          p_church_name: churchName?.trim() || null,
+          p_full_name:   name || authedUser.email,
+          p_role:        role || ROLES.CHURCH_ADMIN,
+        })
 
-      // Call edge function via fetch — pass userId+email in body (no JWT needed)
-      const FUNCTIONS_URL = 'https://nihu7zi9.functions.insforge.app'
-      const res = await fetch(`${FUNCTIONS_URL}/setup-church`, {
-        method:  'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          userId:           authedUser.id,
-          userEmail:        authedUser.email || null,
-          churchName:       churchName?.trim() || null,
-          fullName:         name || authedUser.email,
-          role:             role || ROLES.CHURCH_ADMIN,
-          existingChurchId: existingChurchId || null,
-        }),
-      })
-
-      if (!res.ok) {
-        const errText = await res.text()
-        throw new Error(`Church setup failed (${res.status}): ${errText}`)
-      }
-
-      const result = await res.json()
+      if (rpcErr) throw rpcErr
       if (!result?.success) throw new Error(result?.error || 'Setup failed')
 
       if (result.church) setChurchData(result.church)

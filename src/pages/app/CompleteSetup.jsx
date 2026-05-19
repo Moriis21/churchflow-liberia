@@ -11,8 +11,8 @@ import { insforge } from '../../lib/insforge'
 import { useAuth } from '../../context/AuthContext'
 import { Button } from '../../components/ui'
 
-// Functions URL — hardcoded so it never fails even if SDK can't derive it
-const FUNCTIONS_URL = 'https://nihu7zi9.functions.insforge.app'
+// No edge function needed — using SECURITY DEFINER SQL function via RPC
+// which runs inside InsForge DB, bypasses RLS, no CORS issues
 
 export default function CompleteSetup() {
   const { user, logout } = useAuth()
@@ -48,25 +48,18 @@ export default function CompleteSetup() {
 
     setSaving(true)
     try {
-      // Pass userId + userEmail in the body — edge function verifies via service role
-      const res = await fetch(`${FUNCTIONS_URL}/setup-church`, {
-        method:  'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          userId:     user?.id,
-          userEmail:  user?.email,
-          churchName: form.churchName.trim(),
-          fullName:   form.fullName.trim(),
-          role:       'church_admin',
-        }),
-      })
+      // Use SECURITY DEFINER SQL function — runs inside InsForge DB,
+      // bypasses RLS entirely, no CORS, no edge function needed
+      const { data: result, error } = await insforge.database
+        .rpc('create_church_setup', {
+          p_user_id:    user?.id,
+          p_user_email: user?.email || null,
+          p_church_name: form.churchName.trim(),
+          p_full_name:   form.fullName.trim(),
+          p_role:        'church_admin',
+        })
 
-      if (!res.ok) {
-        const errText = await res.text()
-        throw new Error(`Setup failed (${res.status}): ${errText}`)
-      }
-
-      const result = await res.json()
+      if (error) throw error
       if (!result?.success) throw new Error(result?.error || 'Setup failed')
 
       // Update church additional fields if provided
