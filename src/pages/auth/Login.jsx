@@ -213,12 +213,30 @@ export default function Login() {
   async function handleGoogleLogin() {
     setGoogleLoading(true)
     try {
-      await insforge.auth.signInWithOAuth({
+      // redirectTo uses the current origin so it works on any deployment:
+      // nihu7zi9.insforge.site, churchflow-liberia.vercel.app, localhost, etc.
+      const redirectTo = `${window.location.origin}/app/dashboard`
+
+      const result = await insforge.auth.signInWithOAuth({
         provider: 'google',
-        redirectTo: `${window.location.origin}/app/dashboard`,
+        redirectTo,
       })
-    } catch {
-      toast.error('Google sign-in failed. Please try again.')
+
+      // signInWithOAuth normally redirects the browser — if it returns
+      // an error object without throwing, surface it here.
+      if (result?.error) {
+        toast.error(result.error.message || 'Google sign-in failed. Please try again.')
+        setGoogleLoading(false)
+      }
+      // On success the browser is redirected — no further action needed.
+    } catch (err) {
+      const msg = err?.message || 'Google sign-in failed. Please try again.'
+      // Common failure reasons:
+      // 1. redirectTo URL not in InsForge allowed_redirect_urls
+      // 2. Google OAuth not enabled in InsForge project
+      // 3. Network error
+      toast.error(msg)
+      console.error('[Google OAuth]', msg, err)
       setGoogleLoading(false)
     }
   }

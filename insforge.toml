@@ -1,9 +1,31 @@
 [auth]
 allowed_redirect_urls = [
-  "https://nihu7zi9.insforge.site/app/dashboard",
+  # InsForge hosting (primary production)
   "https://nihu7zi9.insforge.site",
-  "https://churchflowliberia.insforge.site/app/dashboard",
+  "https://nihu7zi9.insforge.site/app/dashboard",
+  "https://nihu7zi9.insforge.site/login",
+
+  # InsForge custom domain
   "https://churchflowliberia.insforge.site",
+  "https://churchflowliberia.insforge.site/app/dashboard",
+  "https://churchflowliberia.insforge.site/login",
+
+  # Vercel deployment — primary production URL
+  "https://churchflow-liberia.vercel.app",
+  "https://churchflow-liberia.vercel.app/app/dashboard",
+  "https://churchflow-liberia.vercel.app/login",
+
+  # Vercel deployment — with Vercel username prefix variants
+  "https://churchflow-liberia-moriis21.vercel.app",
+  "https://churchflow-liberia-moriis21.vercel.app/app/dashboard",
+  "https://churchflowliberia.vercel.app",
+  "https://churchflowliberia.vercel.app/app/dashboard",
+
+  # Local development
+  "http://localhost:3000",
   "http://localhost:3000/app/dashboard",
-  "http://localhost:3000"
+  "http://localhost:3000/login",
+  "http://localhost:5173",
+  "http://localhost:5173/app/dashboard",
+  "http://localhost:5173/login"
 ]
