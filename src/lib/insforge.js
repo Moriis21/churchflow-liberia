@@ -7,9 +7,25 @@ import { createClient } from '@insforge/sdk'
 //   VITE_INSFORGE_URL=https://your-project.insforge.app
 //   VITE_INSFORGE_ANON_KEY=your-anon-key
 
+// Derive the functions URL from the base URL:
+// baseUrl:      https://nihu7zi9.us-east.insforge.app
+// functionsUrl: https://nihu7zi9.functions.insforge.app
+function deriveFunctionsUrl(baseUrl) {
+  if (!baseUrl || baseUrl.includes('your-project')) return undefined
+  try {
+    const appKey = new URL(baseUrl).hostname.split('.')[0]
+    return `https://${appKey}.functions.insforge.app`
+  } catch {
+    return undefined
+  }
+}
+
+const BASE_URL = import.meta.env.VITE_INSFORGE_URL || 'https://your-project.insforge.app'
+
 export const insforge = createClient({
-  baseUrl: import.meta.env.VITE_INSFORGE_URL || 'https://your-project.insforge.app',
-  anonKey: import.meta.env.VITE_INSFORGE_ANON_KEY || 'your-anon-key',
+  baseUrl:      BASE_URL,
+  anonKey:      import.meta.env.VITE_INSFORGE_ANON_KEY || 'your-anon-key',
+  functionsUrl: deriveFunctionsUrl(BASE_URL),
 })
 
 // ─── Auth ──────────────────────────────────────────────────────

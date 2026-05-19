@@ -9,7 +9,10 @@ import { Church, MapPin, Phone, Mail, User, ChevronRight, CheckCircle } from 'lu
 import toast from 'react-hot-toast'
 import { insforge } from '../../lib/insforge'
 import { useAuth } from '../../context/AuthContext'
-import { Button, Input } from '../../components/ui'
+import { Button } from '../../components/ui'
+
+// Functions URL — hardcoded so it never fails even if SDK can't derive it
+const FUNCTIONS_URL = 'https://nihu7zi9.functions.insforge.app'
 
 export default function CompleteSetup() {
   const { user, logout } = useAuth()
@@ -45,22 +48,33 @@ export default function CompleteSetup() {
 
     setSaving(true)
     try {
-      // Get the JWT for the edge function
+      // Get the user's JWT from the auth session
       const { data: sessionData } = await insforge.auth.getCurrentUser()
       const jwt = sessionData?.session?.access_token
                 || sessionData?.access_token
+                || sessionData?.user?.access_token
                 || null
 
-      const { data: result, error } = await insforge.functions.invoke('setup-church', {
-        body: {
+      // Call edge function directly (not via SDK) to avoid SDK URL resolution issues
+      const res = await fetch(`${FUNCTIONS_URL}/setup-church`, {
+        method:  'POST',
+        headers: {
+          'Content-Type':  'application/json',
+          'Authorization': jwt ? `Bearer ${jwt}` : '',
+        },
+        body: JSON.stringify({
           churchName: form.churchName.trim(),
           fullName:   form.fullName.trim(),
           role:       'church_admin',
-        },
-        headers: jwt ? { Authorization: `Bearer ${jwt}` } : undefined,
+        }),
       })
 
-      if (error) throw error
+      if (!res.ok) {
+        const errText = await res.text()
+        throw new Error(`Setup failed (${res.status}): ${errText}`)
+      }
+
+      const result = await res.json()
       if (!result?.success) throw new Error(result?.error || 'Setup failed')
 
       // Update church additional fields if provided
@@ -121,10 +135,19 @@ export default function CompleteSetup() {
 
         {/* Logo */}
         <div className="flex items-center gap-2.5 mb-6">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-400 to-amber-500
-            flex items-center justify-center shadow-lg">
-            <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" strokeWidth={2.2}
-              viewBox="0 0 24 24">
+          <img
+            src="/logo.png"
+            alt="ChurchFlow Liberia"
+            className="w-10 h-10 rounded-xl object-contain flex-shrink-0"
+            onError={e => {
+              e.target.style.display = 'none'
+              e.target.nextSibling.style.display = 'flex'
+            }}
+          />
+          <div style={{ display: 'none' }}
+            className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-400 to-amber-500
+              items-center justify-center shadow-lg flex-shrink-0">
+            <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" strokeWidth={2.2} viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round"
                 d="M12 3v4m0 0L9 9m3-2l3 2M5 21h14M5 21V10.5M19 21V10.5M9 8V6a3 3 0 016 0v2M9 8h6" />
             </svg>

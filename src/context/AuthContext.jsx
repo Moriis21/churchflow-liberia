@@ -317,18 +317,29 @@ export function AuthProvider({ children }) {
                 || sessionData?.access_token
                 || null
 
-      // Call the setup-church edge function
-      const { data: result, error } = await insforge.functions.invoke('setup-church', {
-        body: {
-          churchName:      churchName?.trim() || null,
-          fullName:        name || authedUser.email,
-          role:            role || ROLES.CHURCH_ADMIN,
-          existingChurchId: existingChurchId || null,
+      // Call the setup-church edge function directly via fetch
+      // (avoids insforge.functions.invoke URL resolution issues)
+      const FUNCTIONS_URL = 'https://nihu7zi9.functions.insforge.app'
+      const res = await fetch(`${FUNCTIONS_URL}/setup-church`, {
+        method:  'POST',
+        headers: {
+          'Content-Type':  'application/json',
+          'Authorization': jwt ? `Bearer ${jwt}` : '',
         },
-        headers: jwt ? { Authorization: `Bearer ${jwt}` } : undefined,
+        body: JSON.stringify({
+          churchName:       churchName?.trim() || null,
+          fullName:         name || authedUser.email,
+          role:             role || ROLES.CHURCH_ADMIN,
+          existingChurchId: existingChurchId || null,
+        }),
       })
 
-      if (error) throw error
+      if (!res.ok) {
+        const errText = await res.text()
+        throw new Error(`Church setup failed (${res.status}): ${errText}`)
+      }
+
+      const result = await res.json()
       if (!result?.success) throw new Error(result?.error || 'Setup failed')
 
       if (result.church) setChurchData(result.church)
