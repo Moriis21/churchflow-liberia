@@ -485,6 +485,7 @@ export default function Members() {
     }
 
     setSaving(true)
+    const adminUserId = user?.id  // remember admin ID before signUp
     try {
       const result = await createMemberWithAuth({
         email:            form.email.trim(),
@@ -503,19 +504,40 @@ export default function Members() {
         branchId:         currentBranch?.id || null,
       })
 
-      // Audit log
-      await createAuditLog({
+      // ── Session guard ─────────────────────────────────────
+      // insforge.auth.signUp() with verification disabled may switch
+      // the active session to the new member. Detect and handle this.
+      const { data: currentSession } = await insforge.auth.getCurrentUser()
+      const sessionSwitched = currentSession?.user?.id &&
+                              currentSession.user.id !== adminUserId
+
+      // Audit log (using original admin actor — session may have switched)
+      createAuditLog({
         action:      AUDIT_ACTIONS.MEMBER_CREATED,
         actor:       buildActor(user, church),
         entityType:  'member',
         entityId:    result.memberId,
-        description: `Member "${form.name}" created with email ${form.email}`,
+        description: `Member "${form.name}" (${form.email}) created`,
       })
 
       setShowAddModal(false)
       setForm(blankForm)
-      await loadData()
-      showToast(result.message || `${form.name} created. Verification email sent.`)
+
+      if (sessionSwitched) {
+        // Sign out the member's session so admin can log back in
+        await insforge.auth.signOut()
+        showToast(
+          `✅ ${form.name} created successfully!\n` +
+          `They can log in with: ${form.email}\n` +
+          `⚠️ For security, please sign back in.`,
+          'success'
+        )
+        // Give toast time to show, then reload to login
+        setTimeout(() => { window.location.href = '/login' }, 3000)
+      } else {
+        await loadData()
+        showToast(result.message || `${form.name} created. They can log in immediately.`)
+      }
     } catch (err) {
       showToast(err.message || 'Failed to create member. Please try again.', 'error')
       console.error('createMemberWithAuth error:', err)

@@ -203,11 +203,34 @@ export default function Login() {
     setErrors({})
     setLoading(true)
     try {
-      const { error } = await login(email, password)
-      if (error) { toast.error(error.message || 'Invalid credentials. Please try again.') }
-      else { toast.success('Welcome back!'); navigate('/app/dashboard') }
-    } catch { toast.error('Something went wrong. Please try again.') }
-    finally { setLoading(false) }
+      const { data, error } = await login(email, password)
+      if (error) {
+        const msg = error.message || ''
+        // Provide helpful messages for common errors
+        if (msg.toLowerCase().includes('invalid') || msg.toLowerCase().includes('credentials') || msg.toLowerCase().includes('wrong')) {
+          toast.error('Incorrect email or password. Please try again.')
+        } else if (msg.toLowerCase().includes('verified') || msg.toLowerCase().includes('confirm')) {
+          toast.error('Please verify your email before logging in. Check your inbox for a verification link.')
+        } else if (msg.toLowerCase().includes('not found') || msg.toLowerCase().includes('no user')) {
+          toast.error('No account found with this email. Contact your church administrator.')
+        } else {
+          toast.error(msg || 'Login failed. Please try again.')
+        }
+      } else {
+        // Role-based redirect
+        const role = data?.user?.profile?.role || data?.user?.role
+        toast.success('Welcome back!')
+        if (role === 'super_admin') {
+          navigate('/app/super-admin')
+        } else if (role === 'member') {
+          navigate('/app/dashboard')
+        } else {
+          navigate('/app/dashboard')
+        }
+      }
+    } catch (err) {
+      toast.error(err?.message || 'Something went wrong. Please try again.')
+    } finally { setLoading(false) }
   }
 
   async function handleGoogleLogin() {

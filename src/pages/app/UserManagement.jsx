@@ -211,16 +211,35 @@ export default function UserManagement() {
   useEffect(() => {
     async function load() {
       setLoading(true)
-      const { data, error } = await insforge.database
-        .from('user_profiles')
-        .select('*, churches(name)')
-        .order('created_at', { ascending: false })
-      if (error) console.error('[UserManagement]', error.message)
-      setUsers(data || [])
-      setLoading(false)
+      try {
+        if (isSuperAdmin) {
+          // Super Admin: fetch ALL platform users via SECURITY DEFINER RPC
+          const { data, error } = await insforge.database
+            .rpc('get_all_platform_users')
+          if (error) throw error
+          setUsers(Array.isArray(data) ? data : [])
+        } else {
+          // Church Admin / Pastor: fetch ONLY users from their church
+          const churchId = currentUser?.profile?.church_id || church?.id
+          if (!churchId) { setUsers([]); return }
+          const { data, error } = await insforge.database
+            .rpc('get_church_users', { p_church_id: churchId })
+          if (error) throw error
+          // Exclude platform-level roles from church panel
+          const churchData = Array.isArray(data)
+            ? data.filter(u => !['super_admin'].includes(u.role))
+            : []
+          setUsers(churchData)
+        }
+      } catch (err) {
+        console.error('[UserManagement]', err.message)
+        toast.error('Failed to load users.')
+      } finally {
+        setLoading(false)
+      }
     }
     load()
-  }, [])
+  }, [isSuperAdmin, church?.id])
 
   // Filter
   const filtered = useMemo(() => {

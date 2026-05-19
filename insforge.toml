@@ -1,31 +1,32 @@
 [auth]
+# Disable email verification so admin-created members can log in immediately
+# with the password set by the church admin.
+require_email_verification = false
+
 allowed_redirect_urls = [
   # InsForge hosting (primary production)
   "https://nihu7zi9.insforge.site",
   "https://nihu7zi9.insforge.site/app/dashboard",
+  "https://nihu7zi9.insforge.site/app/super-admin",
   "https://nihu7zi9.insforge.site/login",
+  "https://nihu7zi9.insforge.site/auth/callback",
 
   # InsForge custom domain
   "https://churchflowliberia.insforge.site",
   "https://churchflowliberia.insforge.site/app/dashboard",
   "https://churchflowliberia.insforge.site/login",
+  "https://churchflowliberia.insforge.site/auth/callback",
 
-  # Vercel deployment — primary production URL
+  # Vercel deployments
   "https://churchflow-liberia.vercel.app",
   "https://churchflow-liberia.vercel.app/app/dashboard",
   "https://churchflow-liberia.vercel.app/login",
-
-  # Vercel deployment — with Vercel username prefix variants
+  "https://churchflow-liberia.vercel.app/auth/callback",
   "https://churchflow-liberia-moriis21.vercel.app",
   "https://churchflow-liberia-moriis21.vercel.app/app/dashboard",
+  "https://churchflow-liberia-moriis21.vercel.app/auth/callback",
   "https://churchflowliberia.vercel.app",
   "https://churchflowliberia.vercel.app/app/dashboard",
-
-  # Auth callback (email verification redirect for members)
-  "https://nihu7zi9.insforge.site/auth/callback",
-  "https://churchflowliberia.insforge.site/auth/callback",
-  "https://churchflow-liberia.vercel.app/auth/callback",
-  "https://churchflow-liberia-moriis21.vercel.app/auth/callback",
   "https://churchflowliberia.vercel.app/auth/callback",
 
   # Local development
