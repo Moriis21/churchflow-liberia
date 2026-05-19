@@ -1,133 +1,73 @@
 // ============================================================
 // ChurchFlow Liberia — Auth Context (InsForge SDK)
+// Role resolution order (JWT-first, no RLS dependency):
+//   1. data.user.profile.role  — InsForge auth profile (JWT claim)
+//   2. user_profiles DB row    — if RLS + JWT work correctly
+//   3. Email hard-guarantee    — morrisldorleyjr21@gmail.com = super_admin
 // ============================================================
 import { createContext, useContext, useEffect, useState } from 'react'
 import { insforge } from '../lib/insforge'
 
 // ─── Role constants ───────────────────────────────────────────
 export const ROLES = {
-  SUPER_ADMIN: 'super_admin',
+  SUPER_ADMIN:  'super_admin',
   CHURCH_ADMIN: 'church_admin',
-  PASTOR: 'pastor',
-  TREASURER: 'treasurer',
-  SECRETARY: 'secretary',
-  DEPT_LEADER: 'dept_leader',
-  MEMBER: 'member',
+  PASTOR:       'pastor',
+  TREASURER:    'treasurer',
+  SECRETARY:    'secretary',
+  DEPT_LEADER:  'dept_leader',
+  MEMBER:       'member',
 }
 
-// ─── Demo users (used when InsForge is not yet connected) ─────
+// ─── Platform super admin email — never changes ───────────────
+const SUPER_ADMIN_EMAIL = 'morrisldorleyjr21@gmail.com'
+
+// ─── Demo users (landing page only — no real DB) ─────────────
 const DEMO_USERS = {
-  [ROLES.SUPER_ADMIN]: {
-    id: 'demo-super-001',
-    email: 'superadmin@gracechurch.lr',
-    name: 'Super Admin',
-    user_metadata: {
-      role: ROLES.SUPER_ADMIN,
-      name: 'Super Admin',
-      churchId: 'church-001',
-    },
-  },
   [ROLES.CHURCH_ADMIN]: {
-    id: 'demo-admin-001',
-    email: 'admin@gracechurch.lr',
-    name: 'Pastor John Doe',
-    user_metadata: {
-      role: ROLES.CHURCH_ADMIN,
-      name: 'Pastor John Doe',
-      churchId: 'church-001',
-    },
+    id: 'demo-admin-001', email: 'admin@demo.lr', name: 'Pastor John Doe',
+    user_metadata: { role: ROLES.CHURCH_ADMIN, name: 'Pastor John Doe', churchId: 'church-demo' },
   },
   [ROLES.PASTOR]: {
-    id: 'demo-pastor-001',
-    email: 'pastor@gracechurch.lr',
-    name: 'Pastor John Doe',
-    user_metadata: {
-      role: ROLES.PASTOR,
-      name: 'Pastor John Doe',
-      churchId: 'church-001',
-    },
+    id: 'demo-pastor-001', email: 'pastor@demo.lr', name: 'Pastor John Doe',
+    user_metadata: { role: ROLES.PASTOR, name: 'Pastor John Doe', churchId: 'church-demo' },
   },
   [ROLES.TREASURER]: {
-    id: 'demo-treasurer-001',
-    email: 'treasurer@gracechurch.lr',
-    name: 'Deacon Peter Wreh',
-    user_metadata: {
-      role: ROLES.TREASURER,
-      name: 'Deacon Peter Wreh',
-      churchId: 'church-001',
-    },
-  },
-  [ROLES.SECRETARY]: {
-    id: 'demo-secretary-001',
-    email: 'secretary@gracechurch.lr',
-    name: 'Sister Agnes Moore',
-    user_metadata: {
-      role: ROLES.SECRETARY,
-      name: 'Sister Agnes Moore',
-      churchId: 'church-001',
-    },
-  },
-  [ROLES.DEPT_LEADER]: {
-    id: 'demo-deptleader-001',
-    email: 'dept@gracechurch.lr',
-    name: 'James Kollie',
-    user_metadata: {
-      role: ROLES.DEPT_LEADER,
-      name: 'James Kollie',
-      churchId: 'church-001',
-    },
+    id: 'demo-treasurer-001', email: 'treasurer@demo.lr', name: 'Deacon Peter Wreh',
+    user_metadata: { role: ROLES.TREASURER, name: 'Deacon Peter Wreh', churchId: 'church-demo' },
   },
   [ROLES.MEMBER]: {
-    id: 'demo-member-001',
-    email: 'member@gracechurch.lr',
-    name: 'Mary Dahn',
-    user_metadata: {
-      role: ROLES.MEMBER,
-      name: 'Mary Dahn',
-      churchId: 'church-001',
-    },
+    id: 'demo-member-001', email: 'member@demo.lr', name: 'Mary Dahn',
+    user_metadata: { role: ROLES.MEMBER, name: 'Mary Dahn', churchId: 'church-demo' },
   },
 }
 
-// ─── Context creation ─────────────────────────────────────────
+// ─── Context ──────────────────────────────────────────────────
 const AuthContext = createContext({
-  user: null,
-  loading: true,
-  churchData: null,
-  churchId: null,
-  isSuperAdmin: false,
-  pendingVerificationEmail: null,
-  login: async () => {},
-  register: async () => {},
-  verifyEmail: async () => {},
-  resendVerification: async () => {},
-  logout: async () => {},
-  demoLogin: () => {},
+  user: null, loading: true, churchData: null, churchId: null,
+  isSuperAdmin: false, pendingVerificationEmail: null,
+  login: async () => {}, register: async () => {},
+  verifyEmail: async () => {}, resendVerification: async () => {},
+  logout: async () => {}, demoLogin: () => {},
 })
 
-// ─── Provider ────────────────────────────────────────────────
+// ─── Provider ─────────────────────────────────────────────────
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null)
-  const [loading, setLoading] = useState(true)
+  const [user, setUser]           = useState(null)
+  const [loading, setLoading]     = useState(true)
   const [churchData, setChurchData] = useState(null)
-  // Holds email address while waiting for 6-digit verification code
   const [pendingVerificationEmail, setPendingVerificationEmail] = useState(null)
-  // Temporarily holds church/name info across the verify step
   const [pendingRegData, setPendingRegData] = useState(null)
 
-  // ── Hydrate session on mount ─────────────────────────────
+  // ── Hydrate on mount ─────────────────────────────────────
   useEffect(() => {
     let cancelled = false
-
     async function hydrateAuth() {
       try {
         const { data, error } = await insforge.auth.getCurrentUser()
         if (cancelled) return
-
         if (!error && data?.user) {
-          setUser(data.user)
-          // Pass the email so fetchUserProfile can use it as fallback
-          await fetchUserProfile(data.user.id, data.user.email)
+          await resolveUser(data.user)
         } else {
           setUser(null)
         }
@@ -137,64 +77,108 @@ export function AuthProvider({ children }) {
         if (!cancelled) setLoading(false)
       }
     }
-
     void hydrateAuth()
-    return () => {
-      cancelled = true
-    }
+    return () => { cancelled = true }
   }, [])
 
-  // ── Fetch user_profiles for the authenticated user ───────────
-  // Strategy:
-  //   1. Try by auth user ID (normal path — works when RLS + JWT are correct)
-  //   2. If not found, fall back to email lookup (covers Google OAuth / ID mismatch)
-  //   3. If still not found, upsert a minimal profile so user isn't stuck as "Member"
-  async function fetchUserProfile(userId, userEmail) {
+  // ── Core: resolve a logged-in auth user ──────────────────
+  // Layer 1: read role from InsForge auth JWT profile (instant, no DB)
+  // Layer 2: try DB lookup (works if RLS + JWT are functioning)
+  // Layer 3: email hard-guarantee for super admin
+  // Layer 4: sync role back to InsForge auth profile (self-healing)
+  async function resolveUser(authUser) {
+    const email = authUser.email || ''
+
+    // ── Layer 1: JWT profile role ──────────────────────────
+    // InsForge stores profile in auth.users.profile JSON column.
+    // After setProfile() is called, this is available in the JWT.
+    const jwtProfile = authUser.profile || {}
+    const jwtRole    = jwtProfile.role || authUser.metadata?.role
+
+    // Email guarantee — super admin email ALWAYS gets super_admin role
+    const emailIsSuperAdmin = email.toLowerCase() === SUPER_ADMIN_EMAIL.toLowerCase()
+    const guaranteedRole    = emailIsSuperAdmin ? ROLES.SUPER_ADMIN : null
+
+    // Apply the best known role immediately (before DB query)
+    const earlyRole = guaranteedRole || jwtRole || null
+    setUser({
+      ...authUser,
+      role:    earlyRole,
+      churchId: null,
+      profile: earlyRole ? { ...jwtProfile, role: earlyRole, full_name: jwtProfile.name || jwtProfile.full_name } : null,
+    })
+
+    // Super admin doesn't need church data — resolve early
+    if (earlyRole === ROLES.SUPER_ADMIN) {
+      setChurchData(null)
+      // Sync role to auth profile so Layer 1 always works on next login
+      await syncRoleToAuthProfile(ROLES.SUPER_ADMIN, jwtProfile.name || 'Morris L. Dorley Jr')
+      return
+    }
+
+    // ── Layer 2: DB lookup ─────────────────────────────────
+    await fetchUserProfile(authUser.id, email, earlyRole)
+  }
+
+  // ── Sync role into InsForge auth profile (JWT claim) ─────
+  // This stores role in auth.users.profile so it's returned by
+  // getCurrentUser() on every future login — no DB query needed.
+  async function syncRoleToAuthProfile(role, name) {
     try {
-      // ── Step 1: Try by user ID ────────────────────────────
-      const { data: byId, error: err1 } = await insforge.database
+      await insforge.auth.setProfile({ role, name: name || undefined })
+    } catch (e) {
+      // Non-fatal — will retry on next login
+      console.warn('[AuthContext] syncRoleToAuthProfile failed:', e?.message)
+    }
+  }
+
+  // ── DB profile lookup (Layer 2) ───────────────────────────
+  // Tries 3 paths. If ALL fail (RLS/JWT issue), the earlyRole from
+  // Layer 1 is still in place so the user is NOT stuck as "member".
+  async function fetchUserProfile(userId, userEmail, knownRole) {
+    try {
+      let profileData = null
+
+      // Path A: by primary key (works when JWT is correctly forwarded)
+      const { data: byId } = await insforge.database
         .from('user_profiles')
         .select('*')
         .eq('id', userId)
         .maybeSingle()
+      profileData = byId || null
 
-      if (err1) console.warn('[AuthContext] fetchUserProfile by-id error:', err1.message)
-
-      let profileData = byId || null
-
-      // ── Step 2: Fallback — try by email ───────────────────
+      // Path B: by email column (fallback for OAuth ID mismatch)
       if (!profileData && userEmail) {
         const { data: byEmail } = await insforge.database
           .from('user_profiles')
           .select('*')
           .eq('email', userEmail)
           .maybeSingle()
-
         if (byEmail) {
           profileData = byEmail
-          // If found by email but ID differs, update the ID to match auth UID
+          // Repair ID mismatch so Path A works next time
           if (byEmail.id !== userId) {
-            const { data: updated } = await insforge.database
+            const { data: repaired } = await insforge.database
               .from('user_profiles')
               .update({ id: userId })
               .eq('email', userEmail)
               .select()
               .maybeSingle()
-            if (updated) profileData = updated
+            if (repaired) profileData = repaired
           }
         }
       }
 
-      // ── Step 3: Still not found — upsert a profile ────────
+      // Path C: upsert (creates profile if genuinely missing)
       if (!profileData && userId) {
-        const isSuperAdminEmail = userEmail?.toLowerCase() === 'morrisldorleyjr21@gmail.com'
+        const emailIsSuperAdmin = userEmail?.toLowerCase() === SUPER_ADMIN_EMAIL.toLowerCase()
         const { data: upserted } = await insforge.database
           .from('user_profiles')
           .upsert([{
             id:        userId,
             email:     userEmail || null,
             full_name: userEmail?.split('@')[0] || 'User',
-            role:      isSuperAdminEmail ? 'super_admin' : 'member',
+            role:      emailIsSuperAdmin ? ROLES.SUPER_ADMIN : (knownRole || ROLES.MEMBER),
             is_active: true,
           }], { onConflict: 'id' })
           .select()
@@ -202,16 +186,22 @@ export function AuthProvider({ children }) {
         if (upserted) profileData = upserted
       }
 
-      // ── Apply profile to state ─────────────────────────────
+      // ── Apply DB profile ───────────────────────────────────
       if (profileData) {
-        setUser((prev) => ({
+        // DB role takes precedence over JWT role (DB is the source of truth)
+        const resolvedRole = profileData.role || knownRole
+
+        setUser(prev => ({
           ...prev,
           profile:  profileData,
-          role:     profileData.role,
-          churchId: profileData.church_id,
+          role:     resolvedRole,
+          churchId: profileData.church_id || null,
         }))
 
-        if (profileData.role === 'super_admin') {
+        // Sync role back to auth profile so future logins don't need DB
+        await syncRoleToAuthProfile(resolvedRole, profileData.full_name)
+
+        if (resolvedRole === ROLES.SUPER_ADMIN) {
           setChurchData(null)
           return
         }
@@ -224,31 +214,11 @@ export function AuthProvider({ children }) {
             .maybeSingle()
           if (churchRow) setChurchData(churchRow)
         }
-      } else {
-        console.error('[AuthContext] Could not load or create profile for:', userId, userEmail)
       }
+      // If profileData is null: earlyRole from resolveUser() is still active
     } catch (err) {
       console.error('[AuthContext] fetchUserProfile exception:', err.message)
-    }
-  }
-
-  // ── Fetch church data for the authenticated user (legacy fallback) ─
-  async function fetchChurchData(authedUser) {
-    try {
-      const cId = authedUser?.user_metadata?.churchId
-      if (!cId) return
-
-      const { data, error } = await insforge.database
-        .from('churches')
-        .select('*')
-        .eq('id', cId)
-        .single()
-
-      if (!error && data) {
-        setChurchData(data)
-      }
-    } catch {
-      // Non-fatal; church data will fall back to context defaults
+      // earlyRole from resolveUser() still protects the user
     }
   }
 
@@ -256,15 +226,9 @@ export function AuthProvider({ children }) {
   async function login(email, password) {
     setLoading(true)
     try {
-      const { data, error } = await insforge.auth.signInWithPassword({
-        email,
-        password,
-      })
-
+      const { data, error } = await insforge.auth.signInWithPassword({ email, password })
       if (error) throw error
-
-      setUser(data.user)
-      await fetchUserProfile(data.user.id, data.user.email)
+      await resolveUser(data.user)
       return { data, error: null }
     } catch (error) {
       return { data: null, error }
@@ -278,27 +242,21 @@ export function AuthProvider({ children }) {
     setLoading(true)
     try {
       const { data, error } = await insforge.auth.signUp({
-        email,
-        password,
-        name,
+        email, password, name,
         redirectTo: `${window.location.origin}/login`,
       })
-
       if (error) throw error
 
       if (data?.requireEmailVerification) {
-        // Code-based verification: show 6-digit OTP input on the same page
         setPendingVerificationEmail(email)
         setPendingRegData({ name, churchName, role, existingChurchId })
         return { data: { ...data, requireEmailVerification: true }, error: null }
       }
 
-      // No verification needed — user is already signed in
       if (data?.user) {
         await _createChurchAndProfile(data.user, name, churchName, role, existingChurchId)
-        setUser(data.user)
+        await resolveUser(data.user)
       }
-
       return { data, error: null }
     } catch (error) {
       return { data: null, error }
@@ -307,7 +265,7 @@ export function AuthProvider({ children }) {
     }
   }
 
-  // ── Verify email (6-digit OTP) ────────────────────────────
+  // ── Verify email OTP ──────────────────────────────────────
   async function verifyEmail(otp) {
     if (!pendingVerificationEmail) {
       return { data: null, error: new Error('No pending verification email') }
@@ -315,22 +273,16 @@ export function AuthProvider({ children }) {
     setLoading(true)
     try {
       const { data, error } = await insforge.auth.verifyEmail({
-        email: pendingVerificationEmail,
-        otp,
+        email: pendingVerificationEmail, otp,
       })
-
       if (error) throw error
-
-      // verifyEmail auto-signs in on success
       if (data?.user) {
         const { name, churchName, role, existingChurchId } = pendingRegData || {}
         await _createChurchAndProfile(data.user, name, churchName, role, existingChurchId)
-        setUser(data.user)
-        await fetchUserProfile(data.user.id, data.user.email)
+        await resolveUser(data.user)
         setPendingVerificationEmail(null)
         setPendingRegData(null)
       }
-
       return { data, error: null }
     } catch (error) {
       return { data: null, error }
@@ -339,7 +291,7 @@ export function AuthProvider({ children }) {
     }
   }
 
-  // ── Resend verification email ─────────────────────────────
+  // ── Resend verification ───────────────────────────────────
   async function resendVerification() {
     if (!pendingVerificationEmail) return
     await insforge.auth.resendVerificationEmail({
@@ -348,32 +300,23 @@ export function AuthProvider({ children }) {
     })
   }
 
-  // ── Internal: create church + user_profile after sign-up ─
+  // ── Create church + profile after registration ────────────
   async function _createChurchAndProfile(authedUser, name, churchName, role, existingChurchId = null) {
     try {
       let churchId = existingChurchId
 
       if (!existingChurchId) {
-        // Admin flow: create a new church record
-        if (!churchName || !churchName.trim()) {
-          throw new Error('Church name is required.')
-        }
+        if (!churchName?.trim()) throw new Error('Church name is required.')
         const { data: newChurch, error: churchErr } = await insforge.database
           .from('churches')
-          .insert([{
-            name: churchName.trim(),
-            owner_id: authedUser.id,
-            currency: 'LRD',
-          }])
+          .insert([{ name: churchName.trim(), owner_id: authedUser.id, currency: 'LRD' }])
           .select()
           .single()
-
         if (churchErr) throw churchErr
         churchId = newChurch.id
         setChurchData(newChurch)
       }
 
-      // Create the user_profile record linked to the church
       await insforge.database
         .from('user_profiles')
         .upsert([{
@@ -385,10 +328,11 @@ export function AuthProvider({ children }) {
           is_active: true,
         }], { onConflict: 'id' })
 
-      // Update the auth profile display name
-      await insforge.auth.setProfile({ name: name || authedUser.email })
+      // Sync role to auth profile immediately on registration
+      await syncRoleToAuthProfile(role || ROLES.CHURCH_ADMIN, name || authedUser.email)
     } catch (err) {
-      console.error('Failed to create church/profile:', err.message)
+      console.error('[AuthContext] _createChurchAndProfile error:', err.message)
+      throw err
     }
   }
 
@@ -396,10 +340,9 @@ export function AuthProvider({ children }) {
   async function logout() {
     setLoading(true)
     try {
-      const { error } = await insforge.auth.signOut()
-      if (error) throw error
-    } catch (error) {
-      console.error('Logout error:', error.message)
+      await insforge.auth.signOut()
+    } catch (err) {
+      console.error('Logout error:', err.message)
     } finally {
       setUser(null)
       setChurchData(null)
@@ -407,73 +350,57 @@ export function AuthProvider({ children }) {
     }
   }
 
-  // ── Demo login (works without InsForge backend) ───────────
-  /**
-   * Set a mock user so the app works entirely with dummy data.
-   * Default role is CHURCH_ADMIN (Pastor John Doe).
-   * @param {string} role  One of the ROLES constant values
-   */
+  // ── Demo login (landing page only — no real DB) ───────────
   function demoLogin(role = ROLES.CHURCH_ADMIN) {
-    const mockUser = DEMO_USERS[role] ?? DEMO_USERS[ROLES.CHURCH_ADMIN]
-    const demoChurchId = 'church-001'
+    const mockUser    = DEMO_USERS[role] ?? DEMO_USERS[ROLES.CHURCH_ADMIN]
+    const demoChurchId = 'church-demo'
     setUser({
       ...mockUser,
       churchId: demoChurchId,
-      role: mockUser.user_metadata.role,
+      role:     mockUser.user_metadata.role,
       profile: {
-        id: mockUser.id,
+        id:        mockUser.id,
         full_name: mockUser.name,
-        role: mockUser.user_metadata.role,
+        role:      mockUser.user_metadata.role,
         church_id: demoChurchId,
       },
     })
     setChurchData({
-      id: demoChurchId,
-      name: 'Grace Community Church',
-      location: 'Monrovia, Liberia',
-      currency: 'LRD',
-      logo: null,
+      id: demoChurchId, name: 'Grace Community Church',
+      location: 'Monrovia, Liberia', currency: 'LRD', logo: null,
     })
     setLoading(false)
   }
 
-  // ── Derived churchId ──────────────────────────────────────
+  // ── Derived values ────────────────────────────────────────
   const churchId = user?.churchId || user?.profile?.church_id || null
 
-  // ── Derived isSuperAdmin ───────────────────────────────────
-  const isSuperAdmin =
-    user?.role === 'super_admin' || user?.profile?.role === 'super_admin'
+  // isSuperAdmin checks ALL possible role storage locations
+  const isSuperAdmin = !!(
+    user?.role === ROLES.SUPER_ADMIN ||
+    user?.profile?.role === ROLES.SUPER_ADMIN ||
+    user?.metadata?.role === ROLES.SUPER_ADMIN ||
+    user?.user_metadata?.role === ROLES.SUPER_ADMIN ||
+    // Email hard-guarantee: even if all state is wrong, email never lies
+    user?.email?.toLowerCase() === SUPER_ADMIN_EMAIL.toLowerCase()
+  )
 
-  // ─────────────────────────────────────────────────────────
   return (
-    <AuthContext.Provider
-      value={{
-        user,
-        loading,
-        churchData,
-        churchId,
-        isSuperAdmin,
-        pendingVerificationEmail,
-        login,
-        register,
-        verifyEmail,
-        resendVerification,
-        logout,
-        demoLogin,
-      }}
-    >
+    <AuthContext.Provider value={{
+      user, loading, churchData, churchId, isSuperAdmin,
+      pendingVerificationEmail,
+      login, register, verifyEmail, resendVerification, logout, demoLogin,
+    }}>
       {children}
     </AuthContext.Provider>
   )
 }
 
-// ─── Hook ────────────────────────────────────────────────────
+// ─── Hook ─────────────────────────────────────────────────────
 export function useAuth() {
-  const context = useContext(AuthContext)
-  if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider')
-  }
-  return context
+  const ctx = useContext(AuthContext)
+  if (!ctx) throw new Error('useAuth must be used within an AuthProvider')
+  return ctx
 }
 
 export default AuthContext
