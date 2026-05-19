@@ -227,7 +227,7 @@ export default function Sidebar({ isOpen, onClose }) {
   const { church, branches, currentBranch, switchBranch } = useChurch()
   const navigate = useNavigate()
 
-  const userName  = user?.profile?.full_name ?? user?.name ?? user?.user_metadata?.name ?? 'User'
+  const userName  = user?.profile?.full_name ?? user?.name ?? user?.user_metadata?.name ?? user?.email?.split('@')[0] ?? 'User'
   const userRole  = user?.role ?? user?.profile?.role ?? user?.user_metadata?.role ?? ''
   const userEmail = user?.email ?? ''
   const avatarUrl = user?.profile?.avatar_url ?? null

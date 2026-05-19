@@ -195,7 +195,7 @@ function UserDropdown({ user, onLogout, isSuperAdmin }) {
   const ref = useRef(null)
   const navigate = useNavigate()
 
-  const userName  = user?.profile?.full_name ?? user?.name ?? user?.user_metadata?.name ?? 'User'
+  const userName  = user?.profile?.full_name ?? user?.name ?? user?.user_metadata?.name ?? user?.email?.split('@')[0] ?? 'User'
   const avatarUrl = user?.profile?.avatar_url ?? null
 
   useEffect(() => {

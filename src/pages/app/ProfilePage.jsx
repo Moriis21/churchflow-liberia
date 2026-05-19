@@ -49,10 +49,11 @@ export default function ProfilePage() {
   const [photoPreview, setPhotoPreview] = useState(null)  // local blob URL for preview
   const fileInputRef                    = useRef(null)
 
-  const role     = user?.role || user?.profile?.role || 'member'
-  const userName = profile?.full_name || user?.profile?.full_name || user?.email || 'User'
-  const initials = userName.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase()
-  const avatarUrl = profile?.avatar_url || null
+  // Resolve role — prioritise live profile state, then auth context, then default
+  const role      = profile?.role || user?.role || user?.profile?.role || 'member'
+  const userName  = profile?.full_name || user?.profile?.full_name || user?.name || user?.email || 'User'
+  const initials  = userName.split(/\s+/).filter(Boolean).map(w => w[0]).join('').slice(0, 2).toUpperCase() || 'U'
+  const avatarUrl = profile?.avatar_url || user?.profile?.avatar_url || null
 
   // ── Fetch fresh profile from DB ───────────────────────────
   useEffect(() => {

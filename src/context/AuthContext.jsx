@@ -126,10 +126,8 @@ export function AuthProvider({ children }) {
 
         if (!error && data?.user) {
           setUser(data.user)
-          await fetchUserProfile(data.user.id)
-          // Safety net: if church still not loaded, try once more
-          // (handles edge cases where DB was slow on first fetch)
-          setChurchData(prev => prev) // no-op, just ensures re-render
+          // Pass the email so fetchUserProfile can use it as fallback
+          await fetchUserProfile(data.user.id, data.user.email)
         } else {
           setUser(null)
         }
@@ -147,47 +145,87 @@ export function AuthProvider({ children }) {
   }, [])
 
   // ── Fetch user_profiles for the authenticated user ───────────
-  // Uses two separate queries (no nested join) to avoid PostgREST
-  // FK traversal issues and circular RLS policy recursion.
-  async function fetchUserProfile(userId) {
+  // Strategy:
+  //   1. Try by auth user ID (normal path — works when RLS + JWT are correct)
+  //   2. If not found, fall back to email lookup (covers Google OAuth / ID mismatch)
+  //   3. If still not found, upsert a minimal profile so user isn't stuck as "Member"
+  async function fetchUserProfile(userId, userEmail) {
     try {
-      const { data, error } = await insforge.database
+      // ── Step 1: Try by user ID ────────────────────────────
+      const { data: byId, error: err1 } = await insforge.database
         .from('user_profiles')
         .select('*')
         .eq('id', userId)
         .maybeSingle()
 
-      if (error) {
-        console.error('[AuthContext] fetchUserProfile error:', error.message)
-        return
+      if (err1) console.warn('[AuthContext] fetchUserProfile by-id error:', err1.message)
+
+      let profileData = byId || null
+
+      // ── Step 2: Fallback — try by email ───────────────────
+      if (!profileData && userEmail) {
+        const { data: byEmail } = await insforge.database
+          .from('user_profiles')
+          .select('*')
+          .eq('email', userEmail)
+          .maybeSingle()
+
+        if (byEmail) {
+          profileData = byEmail
+          // If found by email but ID differs, update the ID to match auth UID
+          if (byEmail.id !== userId) {
+            const { data: updated } = await insforge.database
+              .from('user_profiles')
+              .update({ id: userId })
+              .eq('email', userEmail)
+              .select()
+              .maybeSingle()
+            if (updated) profileData = updated
+          }
+        }
       }
 
-      if (data) {
-        // Merge role + churchId into user state immediately
+      // ── Step 3: Still not found — upsert a profile ────────
+      if (!profileData && userId) {
+        const isSuperAdminEmail = userEmail?.toLowerCase() === 'morrisldorleyjr21@gmail.com'
+        const { data: upserted } = await insforge.database
+          .from('user_profiles')
+          .upsert([{
+            id:        userId,
+            email:     userEmail || null,
+            full_name: userEmail?.split('@')[0] || 'User',
+            role:      isSuperAdminEmail ? 'super_admin' : 'member',
+            is_active: true,
+          }], { onConflict: 'id' })
+          .select()
+          .maybeSingle()
+        if (upserted) profileData = upserted
+      }
+
+      // ── Apply profile to state ─────────────────────────────
+      if (profileData) {
         setUser((prev) => ({
           ...prev,
-          profile: data,
-          role: data.role,
-          churchId: data.church_id,
+          profile:  profileData,
+          role:     profileData.role,
+          churchId: profileData.church_id,
         }))
 
-        // Super admin has no church — clear any stale church data
-        if (data.role === 'super_admin') {
+        if (profileData.role === 'super_admin') {
           setChurchData(null)
           return
         }
 
-        // Fetch church separately for non-super-admin users
-        if (data.church_id) {
+        if (profileData.church_id) {
           const { data: churchRow } = await insforge.database
             .from('churches')
             .select('*')
-            .eq('id', data.church_id)
+            .eq('id', profileData.church_id)
             .maybeSingle()
           if (churchRow) setChurchData(churchRow)
         }
       } else {
-        console.warn('[AuthContext] No user_profile found for userId:', userId)
+        console.error('[AuthContext] Could not load or create profile for:', userId, userEmail)
       }
     } catch (err) {
       console.error('[AuthContext] fetchUserProfile exception:', err.message)
@@ -226,7 +264,7 @@ export function AuthProvider({ children }) {
       if (error) throw error
 
       setUser(data.user)
-      await fetchUserProfile(data.user.id)
+      await fetchUserProfile(data.user.id, data.user.email)
       return { data, error: null }
     } catch (error) {
       return { data: null, error }
@@ -288,7 +326,7 @@ export function AuthProvider({ children }) {
         const { name, churchName, role, existingChurchId } = pendingRegData || {}
         await _createChurchAndProfile(data.user, name, churchName, role, existingChurchId)
         setUser(data.user)
-        await fetchUserProfile(data.user.id)
+        await fetchUserProfile(data.user.id, data.user.email)
         setPendingVerificationEmail(null)
         setPendingRegData(null)
       }
@@ -338,13 +376,14 @@ export function AuthProvider({ children }) {
       // Create the user_profile record linked to the church
       await insforge.database
         .from('user_profiles')
-        .insert([{
-          id: authedUser.id,
+        .upsert([{
+          id:        authedUser.id,
+          email:     authedUser.email || null,
           church_id: churchId,
           full_name: name || authedUser.email,
-          role: role || ROLES.CHURCH_ADMIN,
+          role:      role || ROLES.CHURCH_ADMIN,
           is_active: true,
-        }])
+        }], { onConflict: 'id' })
 
       // Update the auth profile display name
       await insforge.auth.setProfile({ name: name || authedUser.email })
