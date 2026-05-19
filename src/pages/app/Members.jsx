@@ -285,7 +285,7 @@ function MemberCard({ member, onView, onEdit, onDelete }) {
       <div className="h-1.5 w-full bg-gradient-to-r from-violet-600 to-purple-700" />
       <div className="p-5 flex flex-col gap-4 flex-1">
         <div className="flex items-start gap-3">
-          <Avatar src={member.profilePhoto || member.profile_photo_url} name={mName} size="lg" />
+          <Avatar src={member.profile_photo_path || member.profilePhoto || member.profile_photo_url} name={mName} size="lg" bucket="member-photos" />
           <div className="flex-1 min-w-0">
             <h3 className="text-sm font-bold text-slate-800 truncate">{mName}</h3>
             <p className="text-xs text-slate-400 mt-0.5 capitalize">{member.gender}</p>
@@ -317,7 +317,7 @@ function MemberRow({ member, onView, onEdit, onDelete }) {
     <tr className="hover:bg-slate-50 transition-colors group">
       <td className="px-4 py-3 whitespace-nowrap">
         <div className="flex items-center gap-3">
-          <Avatar src={member.profilePhoto || member.profile_photo_url} name={mName} size="sm" />
+          <Avatar src={member.profile_photo_path || member.profilePhoto || member.profile_photo_url} name={mName} size="sm" bucket="member-photos" />
           <div><p className="text-sm font-semibold text-slate-800">{mName}</p><p className="text-xs text-slate-400 capitalize">{member.gender}</p></div>
         </div>
       </td>

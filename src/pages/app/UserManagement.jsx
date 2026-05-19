@@ -18,7 +18,7 @@ import {
   Link as LinkIcon,
 } from 'lucide-react'
 import { Button, Badge, Avatar, Modal, Input } from '../../components/ui'
-import { addApiKey } from '../../services/profilePhoto'
+import { BUCKETS } from '../../services/imageStorage'
 import { insforge } from '../../lib/insforge'
 import { formatDate } from '../../utils/helpers'
 import { useAuth } from '../../context/AuthContext'
@@ -430,7 +430,7 @@ export default function UserManagement() {
                         <td className="px-5 py-4">
                           <div className="flex items-center gap-3">
                             <div className="relative flex-shrink-0">
-                              <Avatar name={user.full_name} src={addApiKey(user.avatar_url)} size="md" />
+                              <Avatar name={user.full_name} src={user.avatar_path || user.avatar_url} size="md" bucket={BUCKETS.PROFILE_PHOTOS} />
                               <span
                                 className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-white ${
                                   user.is_active ? 'bg-emerald-400' : 'bg-slate-300'

@@ -97,7 +97,13 @@ function MemberForm({ form, onChange, errors, departments }) {
         <div className="relative">
           <div className="w-24 h-24 rounded-full overflow-hidden bg-slate-100 border-2 border-dashed border-purple-300 flex items-center justify-center">
             {form.profile_photo_url ? (
-              <img src={form.profile_photo_url} alt="Preview" className="w-full h-full object-cover" />
+              <Avatar
+                src={form.profile_photo_url}
+                name={form.full_name}
+                size="xl"
+                bucket={form.profile_photo_url.startsWith('blob:') ? null : 'member-photos'}
+                className="!ring-0 !shadow-none"
+              />
             ) : (
               <span className="text-2xl font-bold text-purple-400">
                 {form.full_name ? getInitials(form.full_name) : '?'}
@@ -895,19 +901,13 @@ export default function MemberProfile() {
 
               <div className="px-6 pb-6 -mt-12 flex flex-col items-center text-center">
                 <div className="relative mb-3">
-                  {member.profile_photo_url ? (
-                    <img
-                      src={member.profile_photo_url}
-                      alt={member.full_name}
-                      className="w-24 h-24 rounded-full object-cover ring-4 ring-white shadow-lg"
-                    />
-                  ) : (
-                    <div className="w-24 h-24 rounded-full ring-4 ring-white shadow-lg bg-gradient-to-br from-violet-600 to-purple-700 flex items-center justify-center">
-                      <span className="text-2xl font-extrabold text-white">
-                        {getInitials(member.full_name)}
-                      </span>
-                    </div>
-                  )}
+                  <Avatar
+                    src={member.profile_photo_path || member.profile_photo_url}
+                    name={member.full_name}
+                    size="xl"
+                    bucket="member-photos"
+                    className="ring-4 ring-white shadow-lg"
+                  />
                   <button
                     onClick={handleOpenEdit}
                     className="absolute bottom-0 right-0 w-8 h-8 rounded-full bg-amber-400 text-amber-900 flex items-center justify-center shadow-md hover:bg-amber-500 transition-colors"

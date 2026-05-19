@@ -13,7 +13,7 @@ import { insforge } from '../../lib/insforge'
 import { Input, Button } from '../../components/ui'
 import { formatDate } from '../../utils/helpers'
 import toast from 'react-hot-toast'
-import { uploadProfilePhoto, getReadableUrl, validatePhotoFile, validateImageFile, addApiKey } from '../../services/profilePhoto'
+import { uploadProfilePhoto, getReadableFileUrl, validateImageUpload as validateImageFile, BUCKETS } from '../../services/imageStorage'
 import { createAuditLog, buildActor, AUDIT_ACTIONS } from '../../services/auditLog'
 
 const ROLE_LABELS = {
@@ -36,8 +36,27 @@ const ROLE_COLORS = {
   member:       'bg-slate-100 text-slate-700 border-slate-200',
 }
 
-const MAX_SIZE_MB = 5
-const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp']
+// Profile avatar with onError → initials fallback (no broken image icon)
+function ProfileAvatar({ src, initials }) {
+  const [err, setErr] = useState(false)
+  if (!src || err) {
+    return (
+      <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-amber-400 to-yellow-500
+        flex items-center justify-center text-[#1E1B4B] font-black text-2xl
+        shadow-lg ring-4 ring-white flex-shrink-0">
+        {initials}
+      </div>
+    )
+  }
+  return (
+    <img
+      src={src}
+      alt="Profile"
+      onError={() => setErr(true)}
+      className="w-20 h-20 rounded-2xl object-cover shadow-lg ring-4 ring-white flex-shrink-0"
+    />
+  )
+}
 
 export default function ProfilePage() {
   const { user } = useAuth()
@@ -66,13 +85,12 @@ export default function ProfilePage() {
         .rpc('get_my_profile', { p_user_id: user.id })
       const data = rpcResult?.profile || null
       if (data) {
-        // Resolve avatar URL — add apikey so <img> tag can load from InsForge storage
-        let resolvedUrl = data.avatar_url || null
-        if (resolvedUrl && !resolvedUrl.startsWith('http')) {
-          // It's a path, not a full URL — resolve it
-          resolvedUrl = await getReadableUrl('profile-photos', resolvedUrl) || resolvedUrl
-        }
-        setProfile({ ...data, avatar_url: addApiKey(resolvedUrl) })
+        // Resolve avatar — prefer stored path → generate fresh signed URL
+        const pathOrUrl = data.avatar_path || data.avatar_url || null
+        const resolvedUrl = pathOrUrl
+          ? await getReadableFileUrl(BUCKETS.PROFILE_PHOTOS, pathOrUrl)
+          : null
+        setProfile({ ...data, avatar_url: resolvedUrl })
         setForm({ full_name: data.full_name || '', phone: data.phone || '' })
       }
     }
@@ -88,24 +106,26 @@ export default function ProfilePage() {
     setPhotoPreview({ url: URL.createObjectURL(file), file })
   }
 
-  // ── Upload photo — public URL → signed URL → fallback ────
+  // ── Upload photo ─────────────────────────────────────────
   async function handlePhotoUpload() {
     if (!photoPreview?.file || !user?.id) return
     setUploadingPhoto(true)
     try {
+      // Upload → get back { path, url } — both stored in DB
       const { url, path } = await uploadProfilePhoto({
         file:     photoPreview.file,
         userId:   user.id,
         churchId: profile?.church_id || church?.id,
       })
 
-      // Save URL via SECURITY DEFINER RPC (bypasses RLS)
+      // Save BOTH path (permanent) and url (signed, 7-day) to DB
       await insforge.database.rpc('update_profile_avatar', {
-        p_user_id:    user.id,
-        p_avatar_url: url,
+        p_user_id:     user.id,
+        p_avatar_url:  url,
+        p_avatar_path: path,
       })
 
-      setProfile(prev => ({ ...prev, avatar_url: addApiKey(url) }))
+      setProfile(prev => ({ ...prev, avatar_url: url, avatar_path: path }))
       setPhotoPreview(null)
 
       // Audit log
@@ -196,19 +216,7 @@ export default function ProfilePage() {
 
             {/* ── Avatar with upload overlay ── */}
             <div className="relative group">
-              {displaySrc ? (
-                <img
-                  src={displaySrc}
-                  alt={userName}
-                  className="w-20 h-20 rounded-2xl object-cover shadow-lg ring-4 ring-white flex-shrink-0"
-                />
-              ) : (
-                <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-amber-400 to-yellow-500
-                  flex items-center justify-center text-[#1E1B4B] font-black text-2xl
-                  shadow-lg ring-4 ring-white flex-shrink-0">
-                  {initials}
-                </div>
-              )}
+              <ProfileAvatar src={displaySrc} initials={initials} />
 
               {/* Camera overlay (always shown on hover, or in edit mode) */}
               <button

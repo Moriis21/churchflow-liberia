@@ -14,7 +14,7 @@ import { Button, Input, Badge } from '../../components/ui'
 import { useChurch } from '../../context/ChurchContext'
 import { useAuth } from '../../context/AuthContext'
 import { insforge } from '../../lib/insforge'
-import { uploadChurchLogo, getReadableUrl, validateImageFile, addApiKey } from '../../services/profilePhoto'
+import { uploadChurchLogo, getReadableFileUrl, validateImageUpload as validateImageFile, BUCKETS } from '../../services/imageStorage'
 import { createAuditLog, buildActor, AUDIT_ACTIONS } from '../../services/auditLog'
 
 // ─── Sidebar nav items ────────────────────────────────────────
@@ -105,13 +105,13 @@ function ChurchProfileSection({ church, onChurchUpdated }) {
         founded:     c.founded_date  || '',
         description: c.description   || '',
       })
-      // Resolve logo URL — add apikey for InsForge storage browser access
-      let logoUrl = c.logo_url || null
-      if (logoUrl && !logoUrl.startsWith('http')) {
-        logoUrl = await getReadableUrl('church-logos', logoUrl)
-          || await getReadableUrl('church-assets', logoUrl)
-      }
-      setLogoPreview(addApiKey(logoUrl))
+      // Resolve logo — prefer stored path for fresh signed URL
+      const pathOrUrl = c.logo_path || c.logo_url || null
+      const bucket    = pathOrUrl?.includes('church-assets') ? BUCKETS.CHURCH_ASSETS : BUCKETS.CHURCH_LOGOS
+      const logoUrl   = pathOrUrl
+        ? await getReadableFileUrl(bucket, pathOrUrl)
+        : null
+      setLogoPreview(logoUrl)
       // Update context with freshest data
       if (data) onChurchUpdated?.(data)
     }
@@ -136,16 +136,18 @@ function ChurchProfileSection({ church, onChurchUpdated }) {
 
     setSaving(true)
     try {
-      let logo_url = church.logo_url || null
+      let logo_url  = church.logo_url  || null
+      let logo_path = church.logo_path || null
 
-      // Upload logo via uploadChurchLogo service (handles fallback buckets)
+      // Upload logo — get back { path, url }
       if (logoFile) {
         const result = await uploadChurchLogo({ file: logoFile, churchId: church.id })
-        logo_url = result.url || logo_url
+        logo_url  = result.url  || logo_url
+        logo_path = result.path || logo_path
         setLogoFile(null)
       }
 
-      // Save to InsForge via SECURITY DEFINER RPC
+      // Save to InsForge via SECURITY DEFINER RPC (now includes logo_path)
       const { data: updated, error } = await insforge.database
         .rpc('update_church', {
           p_church_id:    church.id,
@@ -157,6 +159,7 @@ function ChurchProfileSection({ church, onChurchUpdated }) {
           p_currency:     form.currency,
           p_founded_date: form.founded             || '',
           p_logo_url:     logo_url                 || null,
+          p_logo_path:    logo_path                || null,
         })
 
       if (error) throw error
@@ -165,9 +168,15 @@ function ChurchProfileSection({ church, onChurchUpdated }) {
       const { data: confirmed } = await insforge.database
         .rpc('get_church_by_id', { p_church_id: church.id })
 
-      const fresh = confirmed || updated || { ...church, logo_url }
+      const fresh = confirmed || updated || { ...church, logo_url, logo_path }
       onChurchUpdated?.(fresh)
-      if (fresh.logo_url) setLogoPreview(addApiKey(fresh.logo_url))
+      // Re-resolve from saved path for fresh signed URL
+      if (fresh.logo_path || fresh.logo_url) {
+        const bkt = (fresh.logo_path || fresh.logo_url || '').includes('church-assets')
+          ? BUCKETS.CHURCH_ASSETS : BUCKETS.CHURCH_LOGOS
+        const freshUrl = await getReadableFileUrl(bkt, fresh.logo_path || fresh.logo_url)
+        setLogoPreview(freshUrl)
+      }
 
       // Audit log
       await createAuditLog({
@@ -212,8 +221,14 @@ function ChurchProfileSection({ church, onChurchUpdated }) {
       <div className="flex items-center gap-6 p-5 rounded-2xl bg-slate-50 border border-slate-100">
         <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-violet-600 to-purple-700 flex items-center justify-center overflow-hidden flex-shrink-0 shadow-lg">
           {logoPreview
-            ? <img src={logoPreview} alt="Church logo" className="w-full h-full object-cover" />
-            : <Church className="w-9 h-9 text-white" />}
+            ? <img
+                src={logoPreview}
+                alt="Church logo"
+                onError={(e) => { e.currentTarget.style.display = 'none'; e.currentTarget.nextSibling.style.display = 'flex' }}
+                className="w-full h-full object-cover"
+              />
+            : null}
+          <Church className="w-9 h-9 text-white" style={{ display: logoPreview ? 'none' : 'block' }} />
         </div>
         <div>
           <p className="text-sm font-semibold text-slate-700 mb-1">Church Logo</p>
