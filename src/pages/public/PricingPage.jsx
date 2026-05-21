@@ -3,8 +3,27 @@
 // ============================================================
 import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { CheckCircle, XCircle, Star, ArrowRight, ChevronDown, ChevronUp } from 'lucide-react'
+import {
+  CheckCircle, XCircle, Star, ArrowRight, ChevronDown, ChevronUp,
+  Shield, Zap, Users, Phone, HeartHandshake, Globe2,
+} from 'lucide-react'
 import PublicLayout from './PublicLayout'
+
+const TRUST_STATS = [
+  { value: '500+',  label: 'Churches Served'    },
+  { value: 'LRD',   label: 'Local Currency'     },
+  { value: '99.9%', label: 'Platform Uptime'    },
+  { value: '14-day',label: 'Free Trial'         },
+]
+
+const WHY_FEATURES = [
+  { icon: Shield,        title: 'No Hidden Fees',      desc: 'What you see is what you pay. No setup fees, no surprise charges.',       color: 'bg-purple-50 text-[#7C3AED]' },
+  { icon: Zap,           title: 'Instant Setup',        desc: 'Your church is up and running in under 5 minutes. No technical skills needed.', color: 'bg-amber-50 text-amber-600' },
+  { icon: Users,         title: 'Grows With You',       desc: 'Start on Starter and upgrade anytime as your congregation grows.',        color: 'bg-blue-50 text-blue-600'   },
+  { icon: Phone,         title: 'Mobile Money Payments',desc: 'Pay via Orange Money or MTN MoMo — no international card needed.',        color: 'bg-green-50 text-green-600' },
+  { icon: HeartHandshake,title: 'Local Support',        desc: 'Real support from real people based in Liberia who understand your context.', color: 'bg-rose-50 text-rose-600' },
+  { icon: Globe2,        title: 'Works Offline',        desc: 'Attendance and member lookup work even on slow or intermittent connections.', color: 'bg-indigo-50 text-indigo-600'},
+]
 
 const PLANS = [
   {
@@ -150,6 +169,46 @@ export default function PricingPage() {
         </div>
       </section>
 
+      {/* Trust bar — matches Landing page style */}
+      <section className="bg-white border-b border-slate-100 py-6 px-4">
+        <div className="max-w-4xl mx-auto">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 text-center">
+            {TRUST_STATS.map(s => (
+              <div key={s.label}>
+                <div className="text-2xl font-black text-[#7C3AED] mb-0.5">{s.value}</div>
+                <div className="text-xs text-slate-500 font-medium">{s.label}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Why ChurchFlow — feature highlights matching Landing style */}
+      <section className="py-16 px-4 bg-white">
+        <div className="max-w-5xl mx-auto">
+          <div className="text-center mb-10">
+            <h2 className="text-2xl font-extrabold text-[#1E1B4B] mb-2">Why churches choose ChurchFlow</h2>
+            <p className="text-slate-500 text-sm max-w-lg mx-auto">Every plan includes these core guarantees — because your ministry deserves the best.</p>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {WHY_FEATURES.map(f => {
+              const Icon = f.icon
+              return (
+                <div key={f.title} className="flex items-start gap-4 p-5 bg-slate-50 rounded-2xl border border-slate-100 hover:border-purple-200 hover:shadow-sm transition-all">
+                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${f.color}`}>
+                    <Icon className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <p className="font-bold text-[#1E1B4B] text-sm mb-1">{f.title}</p>
+                    <p className="text-slate-500 text-xs leading-relaxed">{f.desc}</p>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      </section>
+
       {/* Pricing cards */}
       <section className="py-20 px-4 bg-slate-50">
         <div className="max-w-6xl mx-auto">
@@ -249,22 +308,56 @@ export default function PricingPage() {
         </div>
       </section>
 
-      {/* CTA */}
-      <section className="bg-[#7C3AED] py-16 px-4 text-center">
-        <div className="max-w-2xl mx-auto">
-          <h2 className="text-3xl font-extrabold text-white mb-4">
-            Start your free 14-day trial today
+      {/* Payment methods — Liberia-specific */}
+      <section className="py-12 px-4 bg-white border-y border-slate-100">
+        <div className="max-w-4xl mx-auto text-center">
+          <p className="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-6">Accepted payment methods in Liberia</p>
+          <div className="flex flex-wrap justify-center gap-4">
+            {[
+              { name: 'Orange Money',  color: 'bg-orange-100 text-orange-700 border-orange-200' },
+              { name: 'MTN MoMo',     color: 'bg-yellow-100 text-yellow-700 border-yellow-200' },
+              { name: 'Bank Transfer', color: 'bg-blue-100 text-blue-700 border-blue-200'       },
+              { name: 'USD Card',      color: 'bg-slate-100 text-slate-700 border-slate-200'    },
+            ].map(m => (
+              <span key={m.name} className={`px-5 py-2 rounded-full border text-sm font-semibold ${m.color}`}>
+                {m.name}
+              </span>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* CTA — matches Landing page gradient style */}
+      <section className="relative bg-gradient-to-br from-[#1E1B4B] via-[#312e81] to-[#7C3AED] py-20 px-4 text-center overflow-hidden">
+        {/* Decorative blobs */}
+        <div className="absolute -top-16 -left-16 w-72 h-72 bg-white/5 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-16 -right-16 w-72 h-72 bg-[#F59E0B]/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="relative max-w-2xl mx-auto">
+          <span className="inline-block px-4 py-1.5 rounded-full bg-white/10 text-[#F59E0B] text-xs font-semibold tracking-widest uppercase mb-6 border border-white/20">
+            14-Day Free Trial
+          </span>
+          <h2 className="text-3xl sm:text-4xl font-extrabold text-white mb-4 leading-tight">
+            Start your free trial today.<br />
+            <span className="text-[#F59E0B]">No credit card required.</span>
           </h2>
           <p className="text-purple-200 mb-8 leading-relaxed">
-            Set up your church in minutes. No contracts. Cancel anytime.
+            Set up your church in under 5 minutes. Full access to all features during the trial. Cancel anytime — no questions asked.
           </p>
-          <Link
-            to="/register"
-            className="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-[#F59E0B] text-[#1E1B4B] font-bold text-base hover:bg-amber-400 transition-colors shadow-lg"
-          >
-            Create Your Free Account
-            <ArrowRight className="w-5 h-5" />
-          </Link>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link
+              to="/register"
+              className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl bg-[#F59E0B] text-[#1E1B4B] font-bold text-base hover:bg-amber-400 transition-colors shadow-xl"
+            >
+              Create Your Free Account
+              <ArrowRight className="w-5 h-5" />
+            </Link>
+            <Link
+              to="/contact"
+              className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl bg-white/10 border border-white/25 text-white font-semibold text-base hover:bg-white/20 transition-colors"
+            >
+              Talk to Our Team
+            </Link>
+          </div>
         </div>
       </section>
     </PublicLayout>

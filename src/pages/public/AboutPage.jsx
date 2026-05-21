@@ -49,25 +49,18 @@ const VALUES = [
 
 const TEAM = [
   {
-    name: 'Samuel Kwame',
-    role: 'Co-Founder and CEO',
-    bio: 'Former church administrator and software engineer with 8 years of experience building ministry tools across West Africa.',
-    initials: 'SK',
+    name: 'Morris L. Dorley Jr',
+    role: 'Founder & Lead Developer',
+    bio: 'Full-stack engineer and tech entrepreneur from Brewerville City, Liberia. Founder of Innova-Liberia, leading creative tech agency in Liberia & West Africa.',
+    initials: 'ML',
     gradient: 'from-purple-500 to-violet-600',
   },
   {
-    name: 'Grace Kollie',
-    role: 'Co-Founder and Head of Product',
-    bio: 'Product designer and former youth pastor who spent 5 years serving in Monrovia churches before co-founding ChurchFlow.',
-    initials: 'GK',
+    name: 'Innova-Liberia Team',
+    role: 'Design & Development',
+    bio: 'The core product design and engineering team from Innova-Liberia — Liberia\'s leading creative tech agency, building digital solutions for West Africa.',
+    initials: 'IL',
     gradient: 'from-amber-400 to-orange-500',
-  },
-  {
-    name: 'Emmanuel Gbaye',
-    role: 'Head of Engineering',
-    bio: 'Full-stack engineer passionate about building robust, offline-capable software for emerging markets and local communities.',
-    initials: 'EG',
-    gradient: 'from-blue-500 to-cyan-600',
   },
 ]
 
@@ -128,11 +121,11 @@ export default function AboutPage() {
               </blockquote>
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-violet-600 flex items-center justify-center text-white font-bold text-sm">
-                  SK
+                  ML
                 </div>
                 <div>
-                  <p className="text-sm font-semibold text-[#1E1B4B]">Samuel Kwame</p>
-                  <p className="text-xs text-slate-500">Co-Founder and CEO</p>
+                  <p className="text-sm font-semibold text-[#1E1B4B]">Morris L. Dorley Jr</p>
+                  <p className="text-xs text-slate-500">Founder, ChurchFlow / Innova-Liberia</p>
                 </div>
               </div>
             </div>
@@ -145,33 +138,52 @@ export default function AboutPage() {
         <div className="max-w-4xl mx-auto">
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-amber-50 text-amber-600 text-xs font-semibold mb-5">
             <MapPin className="w-3.5 h-3.5" />
-            Founded in Monrovia, Liberia
+            Founded in Brewerville City, Montserrado County, Liberia
           </div>
           <h2 className="text-3xl font-extrabold text-[#1E1B4B] mb-8 leading-tight">The ChurchFlow Story</h2>
 
           <div className="space-y-6 text-slate-600 leading-relaxed">
             <p>
-              Founded in 2026 in Monrovia, Liberia, ChurchFlow was born out of a need witnessed firsthand in local churches. Our founders — a software engineer and a former youth pastor — spent years watching Liberian congregations struggle with paper attendance sheets, lost member records, and manual offering tracking that made it nearly impossible to understand where the ministry stood financially or pastorally.
+              ChurchFlow is an associate platform built by the <a href="https://www.innova-lib.com" target="_blank" rel="noopener noreferrer" className="text-[#7C3AED] font-semibold hover:underline">Innova-Liberia team</a> — Liberia's leading creative tech agency. Founded in 2026 in Brewerville City, Liberia, ChurchFlow was born out of a need witnessed firsthand in local churches.
             </p>
             <p>
-              After conversations with over 50 pastors and church administrators across Montserrado County, a common picture emerged: churches were growing, but their administrative systems were not keeping up. Members were falling through the cracks. Offerings were unaccounted for. Visitors never heard from the church again after their first Sunday.
+              Morris L. Dorley Jr, founder of Innova-Liberia and lead developer of ChurchFlow, spent years watching Liberian congregations struggle with paper attendance sheets, lost member records, and manual offering tracking that made it nearly impossible to understand where the ministry stood financially or pastorally.
             </p>
             <p>
-              ChurchFlow was the answer to this problem — a dedicated, affordable, locally-tailored church management system that works on the mobile networks Liberians actually use, priced in a currency Liberian churches actually earn, and designed to be simple enough for any church secretary to learn on day one.
+              After conversations with pastors and church administrators across Montserrado County, a common picture emerged: churches were growing, but their administrative systems were not keeping up. Members were falling through the cracks. Offerings were unaccounted for. Visitors never heard from the church again after their first Sunday.
             </p>
             <p>
-              Today, ChurchFlow serves hundreds of churches across Liberia, from small neighbourhood congregations to multi-branch ministries. We are proud to be a Liberian-built product serving the Liberian church.
+              ChurchFlow was the answer — a dedicated, affordable, locally-tailored church management system that works on the mobile networks Liberians actually use, priced in a currency Liberian churches actually earn, and designed to be simple enough for any church secretary to learn on day one.
             </p>
           </div>
 
-          <div className="mt-10 flex flex-col sm:flex-row gap-4">
+          {/* Innova-Liberia badge */}
+          <div className="mt-8 p-5 bg-gradient-to-r from-[#1E1B4B] to-[#7C3AED] rounded-2xl text-white flex items-center gap-5">
+            <div className="w-14 h-14 rounded-xl bg-white/20 flex items-center justify-center flex-shrink-0">
+              <span className="font-black text-xl text-[#F59E0B]">IL</span>
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="font-bold text-base">Innova-Liberia</p>
+              <p className="text-purple-200 text-xs mt-0.5">Leading Creative Tech Agency in Liberia &amp; West Africa</p>
+              <a
+                href="https://www.innova-lib.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 mt-2 text-[#F59E0B] text-xs font-semibold hover:underline"
+              >
+                Visit innova-lib.com →
+              </a>
+            </div>
+          </div>
+
+          <div className="mt-8 flex flex-col sm:flex-row gap-4">
             <div className="flex items-center gap-3 p-4 bg-white rounded-xl border border-slate-200">
               <div className="w-10 h-10 rounded-lg bg-purple-100 flex items-center justify-center">
                 <Building2 className="w-5 h-5 text-[#7C3AED]" />
               </div>
               <div>
                 <p className="font-semibold text-[#1E1B4B] text-sm">Founded 2026</p>
-                <p className="text-xs text-slate-500">Monrovia, Liberia</p>
+                <p className="text-xs text-slate-500">Brewerville City, Liberia</p>
               </div>
             </div>
             <div className="flex items-center gap-3 p-4 bg-white rounded-xl border border-slate-200">
@@ -228,7 +240,7 @@ export default function AboutPage() {
           <div className="text-center mb-14">
             <h2 className="text-3xl font-extrabold text-[#1E1B4B] mb-3">The Team Behind ChurchFlow</h2>
             <p className="text-slate-500 max-w-xl mx-auto">
-              Built by people who love the church and technology — with deep roots in Liberian ministry.
+              Built by the Innova-Liberia team — people who love the church and technology, with deep roots in Liberian ministry.
             </p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">

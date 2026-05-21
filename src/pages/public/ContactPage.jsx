@@ -2,7 +2,7 @@
 // ChurchFlow Liberia — Contact Page (/contact)
 // ============================================================
 import React, { useState } from 'react'
-import { Mail, Phone, MapPin, Clock, Send, CheckCircle, AlertCircle } from 'lucide-react'
+import { Mail, Phone, MapPin, Clock, Send, CheckCircle, AlertCircle, ExternalLink } from 'lucide-react'
 import PublicLayout from './PublicLayout'
 
 const CONTACT_INFO = [
@@ -288,6 +288,31 @@ export default function ContactPage() {
                 </button>
               </form>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Brewerville Map */}
+      <section className="px-4 pb-20 bg-slate-50">
+        <div className="max-w-6xl mx-auto">
+          <div className="mb-5">
+            <h3 className="text-xl font-bold text-[#1E1B4B] mb-1">Our Location</h3>
+            <p className="text-slate-500 text-sm flex items-center gap-1.5">
+              <MapPin className="w-4 h-4 text-[#7C3AED]" />
+              Brewerville City, Montserrado County, Republic of Liberia
+            </p>
+          </div>
+          <div className="rounded-2xl overflow-hidden border border-slate-200 shadow-sm">
+            <iframe
+              title="Brewerville City, Liberia"
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d31801.81!2d-10.7178!3d6.4024!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xf09f31db9c67c39%3A0x9f78b6bd4d7c1e0a!2sBrewerville%2C+Liberia!5e0!3m2!1sen!2slr!4v1"
+              width="100%"
+              height="380"
+              style={{ border: 0, display: 'block' }}
+              allowFullScreen
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+            />
           </div>
         </div>
       </section>
