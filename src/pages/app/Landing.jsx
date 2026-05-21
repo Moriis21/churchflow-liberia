@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import React from 'react'
 import { motion, AnimatePresence } from 'motion/react'
+import FloatingAIAssistant from '../../components/ai/FloatingAIAssistant'
 import { insforge } from '../../lib/insforge'
 import {
   Users,
@@ -1187,6 +1188,8 @@ export default function Landing() {
       <Pricing />
       <CTABanner />
       <Footer />
+      {/* AI Assistant — floats on all public pages */}
+      <FloatingAIAssistant />
     </div>
   )
 }

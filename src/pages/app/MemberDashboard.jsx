@@ -14,6 +14,8 @@ import { useAuth } from '../../context/AuthContext'
 import { useChurch } from '../../context/ChurchContext'
 import { insforge } from '../../lib/insforge'
 import { formatDate } from '../../utils/helpers'
+import BibleStudyAI from '../../components/ai/BibleStudyAI'
+import { useAIFeature } from '../../hooks/useAIFeature'
 
 // ─── Quick-link card ─────────────────────────────────────────
 function QuickLink({ icon: Icon, label, to, color, description }) {
@@ -91,6 +93,7 @@ export default function MemberDashboard() {
   const navigate = useNavigate()
   const { user }  = useAuth()
   const { church } = useChurch()
+  const { enabled: bibleAiEnabled } = useAIFeature('bible_ai')
 
   const [events,  setEvents]  = useState([])
   const [sermons, setSermons] = useState([])
@@ -227,6 +230,14 @@ export default function MemberDashboard() {
               )}
             </div>
 
+          </div>
+        )}
+
+        {/* ── Bible Study AI ── */}
+        {bibleAiEnabled && (
+          <div>
+            <h2 className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-4">Bible Study Assistant</h2>
+            <BibleStudyAI />
           </div>
         )}
 

@@ -31,6 +31,8 @@ import { Button, Badge, Modal, Input } from '../../components/ui'
 import { formatDate } from '../../utils/helpers'
 import { insforge } from '../../lib/insforge'
 import { useAuth } from '../../context/AuthContext'
+import SermonBuilderAI from '../../components/ai/SermonBuilderAI'
+import { useAIFeature } from '../../hooks/useAIFeature'
 import toast from 'react-hot-toast'
 
 // ─── Platform config ──────────────────────────────────────────
@@ -762,6 +764,9 @@ function TranscriptionTab({ sermons, transcriptData, setTranscriptData }) {
 // ─── Main Page ────────────────────────────────────────────────
 export default function Sermons() {
   const { user } = useAuth()
+  const { enabled: sermonAiEnabled } = useAIFeature('sermon_ai')
+  const role = user?.profile?.role || user?.role || 'member'
+  const canUseSermonAI = sermonAiEnabled && ['pastor', 'church_admin', 'super_admin'].includes(role)
   const [sermons, setSermons] = useState([])
   const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState('all')
@@ -809,6 +814,11 @@ export default function Sermons() {
   return (
     <div className="min-h-screen bg-slate-50">
       <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+
+        {/* Sermon Companion AI — pastors and admins only */}
+        {canUseSermonAI && (
+          <SermonBuilderAI />
+        )}
 
         {/* Live Now Banner */}
         {hasLive && (
