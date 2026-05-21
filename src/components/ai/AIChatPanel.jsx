@@ -92,34 +92,30 @@ function MessageBubble({ msg, onAction, isStreaming }) {
           </div>
         )}
 
-        {/* AI message actions — only when finished */}
-        {isAI && !isStreaming && msg.content && (
+        {/* AI message actions — only when finished and actions enabled */}
+        {isAI && !isStreaming && msg.content && onAction && (
           <div className="flex items-center gap-0.5 mt-1 flex-wrap">
             <button onClick={handleCopy}
               className="inline-flex items-center gap-1 text-[10px] text-slate-400 hover:text-slate-600 px-2 py-1 rounded-lg hover:bg-slate-100 transition-colors">
               {copied ? <Check className="w-3 h-3 text-green-500" /> : <Copy className="w-3 h-3" />}
               {copied ? 'Copied' : 'Copy'}
             </button>
-            {onAction && (
-              <>
-                <button onClick={() => onAction('simplify', msg.content)}
-                  className="inline-flex items-center gap-1 text-[10px] text-slate-400 hover:text-purple-600 px-2 py-1 rounded-lg hover:bg-purple-50 transition-colors">
-                  <Zap className="w-3 h-3" /> Simplify
-                </button>
-                <button onClick={() => onAction('shorter', msg.content)}
-                  className="inline-flex items-center gap-1 text-[10px] text-slate-400 hover:text-purple-600 px-2 py-1 rounded-lg hover:bg-purple-50 transition-colors">
-                  <RefreshCw className="w-3 h-3" /> Shorter
-                </button>
-                <button onClick={() => onAction('devotional', msg.content)}
-                  className="inline-flex items-center gap-1 text-[10px] text-slate-400 hover:text-amber-600 px-2 py-1 rounded-lg hover:bg-amber-50 transition-colors">
-                  <BookOpen className="w-3 h-3" /> Devotional
-                </button>
-                <button onClick={() => onAction('sermon', msg.content)}
-                  className="inline-flex items-center gap-1 text-[10px] text-slate-400 hover:text-indigo-600 px-2 py-1 rounded-lg hover:bg-indigo-50 transition-colors">
-                  <FileText className="w-3 h-3" /> Sermon
-                </button>
-              </>
-            )}
+            <button onClick={() => onAction('simplify', msg.content)}
+              className="inline-flex items-center gap-1 text-[10px] text-slate-400 hover:text-purple-600 px-2 py-1 rounded-lg hover:bg-purple-50 transition-colors">
+              <Zap className="w-3 h-3" /> Simplify
+            </button>
+            <button onClick={() => onAction('shorter', msg.content)}
+              className="inline-flex items-center gap-1 text-[10px] text-slate-400 hover:text-purple-600 px-2 py-1 rounded-lg hover:bg-purple-50 transition-colors">
+              <RefreshCw className="w-3 h-3" /> Shorter
+            </button>
+            <button onClick={() => onAction('devotional', msg.content)}
+              className="inline-flex items-center gap-1 text-[10px] text-slate-400 hover:text-amber-600 px-2 py-1 rounded-lg hover:bg-amber-50 transition-colors">
+              <BookOpen className="w-3 h-3" /> Devotional
+            </button>
+            <button onClick={() => onAction('sermon', msg.content)}
+              className="inline-flex items-center gap-1 text-[10px] text-slate-400 hover:text-indigo-600 px-2 py-1 rounded-lg hover:bg-indigo-50 transition-colors">
+              <FileText className="w-3 h-3" /> Sermon
+            </button>
           </div>
         )}
       </div>
@@ -410,7 +406,7 @@ export default function AIChatPanel({
           <MessageBubble
             key={msg.id}
             msg={msg}
-            onAction={messages.length > 0 ? handleAction : null}
+            onAction={assistantType !== 'landing' && messages.length > 0 ? handleAction : null}
             isStreaming={streaming && msg.id === streamingId}
           />
         ))}
