@@ -56,6 +56,13 @@ const TEAM = [
     gradient: 'from-amber-400 to-orange-500',
   },
   {
+    name: 'Emmett T. Chesson',
+    role: 'Co-CEO, Innova-Liberia',
+    bio: 'Emmett serves as Co-CEO of Innova-Liberia, bringing strong leadership and a passion for community development. He works alongside Darius to shape the strategic direction of the company, championing tech-driven solutions that create lasting impact across Liberia.',
+    photo: '/emmett-chesson.jpg',
+    gradient: 'from-teal-400 to-emerald-500',
+  },
+  {
     name: 'Morris L. Dorley Jr',
     role: 'Lead Developer',
     bio: 'Morris leads our software engineering team with a focus on code quality and innovation. A skilled full-stack developer with a passion for excellence, he oversees the technical architecture of our projects, ensuring robust, scalable solutions for the West African market.',
@@ -290,7 +297,7 @@ export default function AboutPage() {
               Built by the Innova-Liberia team — people who love the church and technology, with deep roots in Liberian ministry.
             </p>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
             {TEAM.map(member => (
               <TeamCard key={member.name} member={member} />
             ))}
