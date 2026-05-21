@@ -52,21 +52,21 @@ const TEAM = [
     name: 'Darius Paye',
     role: 'CEO & Founder, Innova-Liberia',
     bio: 'As the CEO and Founder of Innova-Liberia, Darius provides the strategic vision that drives the agency. With a strong background in business and technology, he is dedicated to empowering local businesses through digital transformation, bridging the gap between traditional commerce and the digital future in Monrovia.',
-    photo: '/CEO DARIUS PAYE.jpg',
+    photo: '/darius-paye.jpg',
     gradient: 'from-amber-400 to-orange-500',
   },
   {
     name: 'Morris L. Dorley Jr',
     role: 'Lead Developer',
     bio: 'Morris leads our software engineering team with a focus on code quality and innovation. A skilled full-stack developer with a passion for excellence, he oversees the technical architecture of our projects, ensuring robust, scalable solutions for the West African market.',
-    photo: '/MORRIS L. DORLEY JR.jpg',
+    photo: '/morris-dorley.jpg',
     gradient: 'from-purple-500 to-violet-600',
   },
   {
     name: 'John Kpadeh',
     role: 'UI/UX Designer & System Administrator',
     bio: 'John crafts intuitive interfaces that delight users in Liberia. Simultaneously, as our System Administrator, he ensures our infrastructure remains secure, optimized, and operational 24/7 across the digital ecosystem.',
-    photo: '/JOHN KPADEH .jpg',
+    photo: '/john-kpadeh.jpg',
     gradient: 'from-blue-500 to-cyan-600',
   },
 ]
@@ -158,7 +158,7 @@ export default function AboutPage() {
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-full overflow-hidden bg-amber-100 flex-shrink-0">
                   <img
-                    src="/CEO DARIUS PAYE.jpg"
+                    src="/darius-paye.jpg"
                     alt="Darius Paye"
                     className="w-full h-full object-cover"
                     onError={e => { e.currentTarget.style.display='none' }}
