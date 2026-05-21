@@ -4,6 +4,7 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import React from 'react'
+import { motion, AnimatePresence } from 'motion/react'
 import { insforge } from '../../lib/insforge'
 import {
   Users,
@@ -64,100 +65,96 @@ const GLOBAL_STYLES = `
   }
 `
 
-// ─── Navbar ──────────────────────────────────────────────────
+// ─── Navbar — polished mobile-first ──────────────────────────
 function Navbar() {
   const [open, setOpen] = useState(false)
 
   const navLinks = [
     { label: 'Features', href: '#features' },
-    { label: 'Pricing', href: '#pricing' },
-    { label: 'About', href: '#about' },
-    { label: 'Contact', href: '#contact' },
+    { label: 'Pricing',  href: '#pricing'  },
+    { label: 'About',    href: '#about'    },
+    { label: 'Contact',  href: '#contact'  },
   ]
 
   return (
-    <nav className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-100 shadow-sm">
+    <nav className="sticky top-0 z-50 bg-white/97 backdrop-blur-lg border-b border-slate-100/80 shadow-[0_1px_12px_rgba(0,0,0,0.06)]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
+        {/* Bar — 52px mobile, 60px desktop */}
+        <div className="flex items-center justify-between h-[52px] sm:h-[60px]">
+
           {/* Logo */}
           <a href="#" className="flex items-center gap-2 flex-shrink-0">
-            <div className="w-10 h-10 rounded-xl overflow-hidden bg-[#1E1B4B] flex items-center justify-center shadow-md shadow-purple-500/30 flex-shrink-0">
-              <img src="/logo.png" alt="ChurchFlow Liberia" className="w-9 h-9 object-contain" />
+            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-[10px] overflow-hidden bg-[#1E1B4B] flex items-center justify-center shadow-sm shadow-purple-500/20 flex-shrink-0">
+              <img src="/logo.png" alt="ChurchFlow Liberia" className="w-7 h-7 sm:w-8 sm:h-8 object-contain" />
             </div>
-            <span className="font-bold text-lg text-slate-900 leading-tight">
+            <span className="font-bold text-sm sm:text-base leading-tight text-slate-900">
               Church<span className="text-purple-600">Flow</span>{' '}
               <span className="text-amber-500">Liberia</span>
             </span>
           </a>
 
           {/* Desktop nav links */}
-          <div className="hidden md:flex items-center gap-8">
-            {navLinks.map((link) => (
-              <a
-                key={link.label}
-                href={link.href}
-                className="text-sm font-medium text-slate-600 hover:text-purple-600 transition-colors"
-              >
+          <div className="hidden md:flex items-center gap-7">
+            {navLinks.map(link => (
+              <a key={link.label} href={link.href}
+                className="text-sm font-medium text-slate-600 hover:text-purple-600 transition-colors">
                 {link.label}
               </a>
             ))}
           </div>
 
           {/* Desktop buttons */}
-          <div className="hidden md:flex items-center gap-3">
-            <Link
-              to="/login"
-              className="text-sm font-semibold text-slate-700 hover:text-purple-700 px-4 py-2 rounded-lg hover:bg-purple-50 transition-colors"
-            >
+          <div className="hidden md:flex items-center gap-2.5">
+            <Link to="/login"
+              className="text-sm font-semibold text-slate-700 hover:text-purple-700 px-4 py-1.5 rounded-lg hover:bg-purple-50 transition-colors">
               Login
             </Link>
-            <Link
-              to="/register"
-              className="text-sm font-semibold text-white bg-gradient-to-r from-violet-600 to-purple-700 px-5 py-2 rounded-xl hover:from-violet-700 hover:to-purple-800 shadow-md shadow-purple-500/25 transition-all hover:shadow-purple-500/40 hover:-translate-y-0.5"
-            >
-              Get Started Free
+            <Link to="/register"
+              className="text-sm font-semibold text-white bg-gradient-to-r from-violet-600 to-purple-700 px-4 py-1.5 rounded-lg hover:from-violet-700 hover:to-purple-800 shadow-sm shadow-purple-500/20 transition-all hover:-translate-y-px">
+              Get Started
             </Link>
           </div>
 
-          {/* Mobile hamburger */}
+          {/* Mobile hamburger — perfectly centred */}
           <button
-            className="md:hidden p-2 rounded-lg text-slate-600 hover:bg-slate-100 transition-colors"
+            className="md:hidden flex items-center justify-center w-9 h-9 rounded-lg text-slate-600 hover:bg-slate-100 active:bg-slate-200 transition-colors"
             onClick={() => setOpen(!open)}
             aria-label="Toggle menu"
           >
-            {open ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            {open ? <X className="w-[18px] h-[18px]" /> : <Menu className="w-[18px] h-[18px]" />}
           </button>
         </div>
 
-        {/* Mobile menu */}
-        {open && (
-          <div className="md:hidden border-t border-slate-100 py-4 space-y-1">
-            {navLinks.map((link) => (
-              <a
-                key={link.label}
-                href={link.href}
-                onClick={() => setOpen(false)}
-                className="block px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-purple-50 hover:text-purple-700 rounded-lg transition-colors"
-              >
-                {link.label}
-              </a>
-            ))}
-            <div className="pt-3 px-4 flex flex-col gap-2">
-              <Link
-                to="/login"
-                className="text-center text-sm font-semibold text-slate-700 border border-slate-200 px-4 py-2.5 rounded-xl hover:bg-slate-50 transition-colors"
-              >
-                Login
-              </Link>
-              <Link
-                to="/register"
-                className="text-center text-sm font-semibold text-white bg-gradient-to-r from-violet-600 to-purple-700 px-4 py-2.5 rounded-xl hover:from-violet-700 hover:to-purple-800 transition-all"
-              >
-                Get Started Free
-              </Link>
-            </div>
-          </div>
-        )}
+        {/* Mobile drawer — animated */}
+        <AnimatePresence>
+          {open && (
+            <motion.div
+              key="mobile-menu"
+              initial={{ opacity: 0, y: -6 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -6 }}
+              transition={{ duration: 0.18, ease: 'easeOut' }}
+              className="md:hidden border-t border-slate-100 py-3 space-y-0.5"
+            >
+              {navLinks.map(link => (
+                <a key={link.label} href={link.href} onClick={() => setOpen(false)}
+                  className="block px-3 py-2.5 text-sm font-medium text-slate-700 hover:bg-purple-50 hover:text-purple-700 rounded-lg transition-colors">
+                  {link.label}
+                </a>
+              ))}
+              <div className="pt-2.5 px-3 flex flex-col gap-2">
+                <Link to="/login" onClick={() => setOpen(false)}
+                  className="text-center text-sm font-semibold text-slate-700 border border-slate-200 py-2.5 rounded-xl hover:bg-slate-50 transition-colors">
+                  Login
+                </Link>
+                <Link to="/register" onClick={() => setOpen(false)}
+                  className="text-center text-sm font-semibold text-white bg-gradient-to-r from-violet-600 to-purple-700 py-2.5 rounded-xl transition-all">
+                  Get Started Free
+                </Link>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </nav>
   )
@@ -229,160 +226,173 @@ function DemoModal({ isOpen, onClose }) {
   )
 }
 
-// ─── Hero ─────────────────────────────────────────────────────
+// ─── Hero — polished mobile-first ─────────────────────────────
+// Branding, colors, and structure: UNCHANGED.
+// Improvements: tighter mobile spacing, motion fade-ups,
+// better line-breaks, reduced button height, floating badges.
 function Hero() {
   const [demoOpen, setDemoOpen] = React.useState(false)
 
+  // Shared fade-up variants
+  const fadeUp = (delay = 0) => ({
+    initial: { opacity: 0, y: 18, filter: 'blur(4px)' },
+    animate: { opacity: 1, y: 0,  filter: 'blur(0px)' },
+    transition: { duration: 0.55, ease: [0.22, 1, 0.36, 1], delay },
+  })
+
+  const BADGES = [
+    { icon: Users,     label: 'Built for Liberian Churches'    },
+    { icon: TrendingUp,label: 'Members, Attendance & Finance'  },
+    { icon: Shield,    label: '99.9% Uptime Guaranteed'        },
+  ]
+
   return (
-    <section className="relative overflow-hidden bg-gradient-to-br from-[#1E1B4B] via-[#2D1F6E] to-[#4C1D95] pt-24 pb-20">
-      {/* Decorative blobs */}
-      <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl" />
-        <div className="absolute -bottom-20 -left-20 w-80 h-80 bg-violet-600/15 rounded-full blur-3xl" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-indigo-700/10 rounded-full blur-3xl" />
+    <section className="relative overflow-hidden bg-gradient-to-br from-[#1E1B4B] via-[#2D1F6E] to-[#4C1D95] pt-14 pb-12 sm:pt-24 sm:pb-20">
+
+      {/* Decorative blobs — scaled for mobile */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-24 -right-24 w-64 h-64 sm:w-96 sm:h-96 bg-purple-500/20 rounded-full blur-3xl" />
+        <div className="absolute -bottom-16 -left-16 w-56 h-56 sm:w-80 sm:h-80 bg-violet-600/15 rounded-full blur-3xl" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[320px] sm:w-[600px] h-[320px] sm:h-[600px] bg-indigo-700/10 rounded-full blur-3xl" />
       </div>
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center max-w-4xl mx-auto">
-          {/* Badge */}
-          <div
-            className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 text-white/90 text-sm font-medium px-4 py-1.5 rounded-full mb-8"
-            style={{ animation: 'fadeInUp 0.7s ease both' }}
-          >
-            <Zap className="w-3.5 h-3.5 text-yellow-400" />
-            Built specifically for Liberian churches
-          </div>
 
-          {/* Headline */}
-          <h1
-            className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white leading-tight tracking-tight mb-6"
-            style={{ animation: 'fadeInUp 0.7s ease both' }}
+          {/* Top badge — smaller on mobile */}
+          <motion.div {...fadeUp(0)}
+            className="inline-flex items-center gap-1.5 bg-white/10 backdrop-blur-sm border border-white/20 text-white/90 text-xs sm:text-sm font-medium px-3 sm:px-4 py-1 sm:py-1.5 rounded-full mb-5 sm:mb-8"
+          >
+            <Zap className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-yellow-400 flex-shrink-0" />
+            Built specifically for Liberian churches
+          </motion.div>
+
+          {/* Headline — tighter sizing on 360-412px */}
+          <motion.h1 {...fadeUp(0.08)}
+            className="text-[1.65rem] xs:text-3xl sm:text-5xl lg:text-6xl font-extrabold text-white leading-[1.18] tracking-tight mb-4 sm:mb-6 px-2 sm:px-0"
           >
             Stop Losing Church Records.{' '}
             <span className="bg-gradient-to-r from-yellow-400 to-amber-500 bg-clip-text text-transparent">
               Start Building a Smarter Ministry.
             </span>
-          </h1>
+          </motion.h1>
 
-          {/* Subtext */}
-          <p
-            className="text-lg sm:text-xl text-white/70 leading-relaxed max-w-2xl mx-auto mb-10"
-            style={{ animation: 'fadeInUp 0.9s ease 0.2s both' }}
+          {/* Subtext — 85% wide, softer */}
+          <motion.p {...fadeUp(0.16)}
+            className="text-sm sm:text-lg text-white/65 leading-[1.7] max-w-[86%] sm:max-w-2xl mx-auto mb-7 sm:mb-10"
           >
-            ChurchFlow helps Liberian churches manage members, track attendance, record offerings,
-            and stay connected — all in one place.
-          </p>
+            ChurchFlow helps Liberian churches manage members, track attendance,
+            record offerings, and stay connected — all in one place.
+          </motion.p>
 
-          {/* CTA Buttons */}
-          <div
-            className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-14"
-            style={{ animation: 'fadeInUp 0.9s ease 0.4s both' }}
+          {/* CTA Buttons — shorter on mobile, reduced shadow */}
+          <motion.div {...fadeUp(0.24)}
+            className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 mb-8 sm:mb-14"
           >
             <Link
               to="/register"
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 text-base font-bold text-amber-950 bg-gradient-to-r from-yellow-400 to-amber-500 px-8 py-4 rounded-2xl hover:from-yellow-300 hover:to-amber-400 shadow-xl shadow-yellow-500/30 transition-all hover:-translate-y-1 hover:shadow-yellow-500/50"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 text-sm sm:text-base font-bold text-amber-950 bg-gradient-to-r from-yellow-400 to-amber-500 px-7 sm:px-8 py-3 sm:py-4 rounded-2xl hover:from-yellow-300 hover:to-amber-400 shadow-lg shadow-yellow-500/20 hover:shadow-yellow-500/35 transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0"
             >
               Get Started Free
-              <ArrowRight className="w-5 h-5" />
+              <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
             </Link>
             <button
               onClick={() => setDemoOpen(true)}
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 text-base font-semibold text-white border-2 border-white/30 px-8 py-4 rounded-2xl hover:bg-white/10 hover:border-white/50 transition-all backdrop-blur-sm"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 text-sm sm:text-base font-semibold text-white border border-white/25 px-7 sm:px-8 py-3 sm:py-4 rounded-2xl hover:bg-white/8 hover:border-white/40 transition-all duration-200 backdrop-blur-sm"
             >
-              <Video className="w-5 h-5 text-white/80" />
+              <Video className="w-4 h-4 sm:w-5 sm:h-5 text-white/75" />
               Watch Demo
             </button>
-          </div>
+          </motion.div>
 
-          {/* Trust badges */}
-          <div
-            className="flex flex-wrap items-center justify-center gap-6 mb-16"
-            style={{ animation: 'fadeInUp 0.9s ease 0.5s both' }}
+          {/* Trust badges — floating, smaller on mobile */}
+          <motion.div {...fadeUp(0.32)}
+            className="flex flex-wrap items-center justify-center gap-2 sm:gap-4 mb-8 sm:mb-16"
           >
-            {[
-              { icon: Users, label: 'Built for Liberian Churches' },
-              { icon: TrendingUp, label: 'Members, Attendance & Finance' },
-              { icon: Shield, label: '99.9% Uptime Guaranteed' },
-            ].map(({ icon: Icon, label }) => (
-              <div
+            {BADGES.map(({ icon: Icon, label }, i) => (
+              <motion.div
                 key={label}
-                className="flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/15 text-white/85 text-sm font-medium px-5 py-2.5 rounded-full"
+                animate={{ y: [0, -4, 0] }}
+                transition={{
+                  duration: 3.5,
+                  repeat: Infinity,
+                  ease: 'easeInOut',
+                  delay: i * 0.5,
+                }}
+                className="flex items-center gap-1.5 bg-white/10 backdrop-blur-sm border border-white/12 text-white/80 text-[11px] sm:text-sm font-medium px-3 sm:px-5 py-1.5 sm:py-2.5 rounded-full"
               >
-                <Icon className="w-4 h-4 text-yellow-400" />
+                <Icon className="w-3 h-3 sm:w-4 sm:h-4 text-yellow-400 flex-shrink-0" />
                 {label}
-              </div>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
 
           {/* Dashboard mockup */}
-          <div
-            className="relative mx-auto max-w-4xl"
-            style={{ animation: 'fadeInRight 0.8s ease 0.4s both' }}
+          <motion.div {...fadeUp(0.4)}
+            className="relative mx-auto max-w-4xl overflow-hidden sm:overflow-visible"
           >
-            <div className="absolute -inset-1 bg-gradient-to-r from-violet-500/50 to-purple-600/50 rounded-3xl blur-xl" />
-            <div className="relative bg-white/10 backdrop-blur-md border border-white/20 rounded-3xl p-6 shadow-2xl">
+            <div className="absolute -inset-1 bg-gradient-to-r from-violet-500/40 to-purple-600/40 rounded-3xl blur-xl" />
+            <div className="relative bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-2xl">
+
               {/* Mock header bar */}
-              <div className="flex items-center justify-between mb-5">
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-red-400" />
-                  <div className="w-3 h-3 rounded-full bg-yellow-400" />
-                  <div className="w-3 h-3 rounded-full bg-green-400" />
+              <div className="flex items-center justify-between mb-4 sm:mb-5">
+                <div className="flex items-center gap-1.5 sm:gap-2">
+                  <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-red-400" />
+                  <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-yellow-400" />
+                  <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-green-400" />
                 </div>
-                <div className="bg-white/10 rounded-lg px-6 py-1.5 text-white/50 text-xs">
+                <div className="bg-white/10 rounded-lg px-3 sm:px-6 py-1 sm:py-1.5 text-white/50 text-[10px] sm:text-xs">
                   app.churchflow.lr/dashboard
                 </div>
-                <div className="w-16" />
+                <div className="w-12 sm:w-16" />
               </div>
 
               {/* Mock stats row */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 mb-3 sm:mb-5">
                 {[
-                  { label: 'Total Members', value: '248', color: 'from-violet-500 to-purple-700' },
-                  { label: "Today's Attendance", value: '186', color: 'from-amber-400 to-yellow-500' },
-                  { label: 'Total Offerings', value: 'LRD 125,750', color: 'from-emerald-400 to-teal-600' },
-                  { label: 'Visitors Today', value: '4', color: 'from-blue-500 to-indigo-600' },
+                  { label: 'Total Members',     value: '248',          color: 'from-violet-500 to-purple-700'  },
+                  { label: "Today's Attendance", value: '186',          color: 'from-amber-400 to-yellow-500'   },
+                  { label: 'Total Offerings',    value: 'LRD 125,750',  color: 'from-emerald-400 to-teal-600'  },
+                  { label: 'Visitors Today',     value: '4',            color: 'from-blue-500 to-indigo-600'   },
                 ].map((stat) => (
-                  <div key={stat.label} className="bg-white/10 border border-white/10 rounded-xl p-4">
-                    <p className="text-white/50 text-xs mb-1">{stat.label}</p>
-                    <p className="text-white font-bold text-lg leading-none">{stat.value}</p>
-                    <div className={`mt-2 h-1 rounded-full bg-gradient-to-r ${stat.color} w-3/4 opacity-70`} />
+                  <div key={stat.label} className="bg-white/10 border border-white/10 rounded-xl p-3 sm:p-4">
+                    <p className="text-white/50 text-[10px] sm:text-xs mb-1 leading-tight">{stat.label}</p>
+                    <p className="text-white font-bold text-sm sm:text-lg leading-none">{stat.value}</p>
+                    <div className={`mt-1.5 sm:mt-2 h-0.5 sm:h-1 rounded-full bg-gradient-to-r ${stat.color} w-3/4 opacity-70`} />
                   </div>
                 ))}
               </div>
 
               {/* Mock charts row */}
-              <div className="grid grid-cols-3 gap-3">
-                <div className="col-span-2 bg-white/10 border border-white/10 rounded-xl p-4 h-32">
-                  <p className="text-white/50 text-xs mb-3">Attendance Overview</p>
-                  <div className="flex items-end gap-1.5 h-16">
+              <div className="grid grid-cols-3 gap-2 sm:gap-3">
+                <div className="col-span-2 bg-white/10 border border-white/10 rounded-xl p-3 sm:p-4 h-24 sm:h-32">
+                  <p className="text-white/50 text-[10px] sm:text-xs mb-2 sm:mb-3">Attendance Overview</p>
+                  <div className="flex items-end gap-1 sm:gap-1.5 h-12 sm:h-16">
                     {[60, 75, 50, 90, 70, 85, 80].map((h, i) => (
-                      <div
-                        key={i}
-                        className="flex-1 rounded-sm bg-gradient-to-t from-violet-500 to-purple-400 opacity-80"
-                        style={{ height: `${h}%` }}
-                      />
+                      <div key={i} className="flex-1 rounded-sm bg-gradient-to-t from-violet-500 to-purple-400 opacity-80"
+                        style={{ height: `${h}%` }} />
                     ))}
                   </div>
                 </div>
-                <div className="bg-white/10 border border-white/10 rounded-xl p-4 h-32">
-                  <p className="text-white/50 text-xs mb-3">Offerings</p>
-                  <div className="flex items-center justify-center h-16">
-                    <div className="relative w-14 h-14">
-                      <div className="w-14 h-14 rounded-full border-4 border-violet-400/50" />
-                      <div className="absolute inset-0 w-14 h-14 rounded-full border-4 border-transparent border-t-amber-400 border-r-amber-400 rotate-45" />
+                <div className="bg-white/10 border border-white/10 rounded-xl p-3 sm:p-4 h-24 sm:h-32">
+                  <p className="text-white/50 text-[10px] sm:text-xs mb-2 sm:mb-3">Offerings</p>
+                  <div className="flex items-center justify-center h-12 sm:h-16">
+                    <div className="relative w-10 h-10 sm:w-14 sm:h-14">
+                      <div className="w-10 h-10 sm:w-14 sm:h-14 rounded-full border-4 border-violet-400/50" />
+                      <div className="absolute inset-0 rounded-full border-4 border-transparent border-t-amber-400 border-r-amber-400 rotate-45" />
                       <div className="absolute inset-2 flex items-center justify-center">
-                        <span className="text-white/70 text-[9px] font-semibold">62%</span>
+                        <span className="text-white/70 text-[8px] sm:text-[9px] font-semibold">62%</span>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
+          </motion.div>
+
         </div>
       </div>
 
-      {/* Demo video modal */}
       <DemoModal isOpen={demoOpen} onClose={() => setDemoOpen(false)} />
     </section>
   )
