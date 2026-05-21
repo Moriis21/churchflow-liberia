@@ -49,18 +49,26 @@ const VALUES = [
 
 const TEAM = [
   {
+    name: 'CEO, Innova-Liberia',
+    role: 'Founder',
+    bio: 'Founder of Innova-Liberia — Liberia\'s leading creative tech agency. Visionary behind ChurchFlow, committed to transforming church administration across West Africa.',
+    initials: 'IL',
+    gradient: 'from-amber-400 to-orange-500',
+    isInnovaFounder: true,
+  },
+  {
     name: 'Morris L. Dorley Jr',
-    role: 'Founder & Lead Developer',
-    bio: 'Full-stack engineer and tech entrepreneur from Brewerville City, Liberia. Founder of Innova-Liberia, leading creative tech agency in Liberia & West Africa.',
+    role: 'Lead Developer',
+    bio: 'Full-stack engineer from Brewerville City, Liberia. Lead developer of ChurchFlow, building modern church management tools for Liberian ministries.',
     initials: 'ML',
     gradient: 'from-purple-500 to-violet-600',
   },
   {
     name: 'Innova-Liberia Team',
     role: 'Design & Development',
-    bio: 'The core product design and engineering team from Innova-Liberia — Liberia\'s leading creative tech agency, building digital solutions for West Africa.',
-    initials: 'IL',
-    gradient: 'from-amber-400 to-orange-500',
+    bio: 'The creative and engineering team behind ChurchFlow — Liberia\'s leading tech agency building digital solutions for West Africa.',
+    initials: 'IT',
+    gradient: 'from-blue-500 to-cyan-600',
   },
 ]
 
@@ -124,8 +132,8 @@ export default function AboutPage() {
                   ML
                 </div>
                 <div>
-                  <p className="text-sm font-semibold text-[#1E1B4B]">Morris L. Dorley Jr</p>
-                  <p className="text-xs text-slate-500">Founder, ChurchFlow / Innova-Liberia</p>
+                  <p className="text-sm font-semibold text-[#1E1B4B]">Innova-Liberia</p>
+                  <p className="text-xs text-slate-500">The Team Behind ChurchFlow</p>
                 </div>
               </div>
             </div>
@@ -147,7 +155,7 @@ export default function AboutPage() {
               ChurchFlow is an associate platform built by the <a href="https://www.innova-lib.com" target="_blank" rel="noopener noreferrer" className="text-[#7C3AED] font-semibold hover:underline">Innova-Liberia team</a> — Liberia's leading creative tech agency. Founded in 2026 in Brewerville City, Liberia, ChurchFlow was born out of a need witnessed firsthand in local churches.
             </p>
             <p>
-              Morris L. Dorley Jr, founder of Innova-Liberia and lead developer of ChurchFlow, spent years watching Liberian congregations struggle with paper attendance sheets, lost member records, and manual offering tracking that made it nearly impossible to understand where the ministry stood financially or pastorally.
+              The founder — CEO of Innova-Liberia — and lead developer Morris L. Dorley Jr spent years watching Liberian congregations struggle with paper attendance sheets, lost member records, and manual offering tracking that made it nearly impossible to understand where the ministry stood financially or pastorally.
             </p>
             <p>
               After conversations with pastors and church administrators across Montserrado County, a common picture emerged: churches were growing, but their administrative systems were not keeping up. Members were falling through the cracks. Offerings were unaccounted for. Visitors never heard from the church again after their first Sunday.
@@ -246,9 +254,19 @@ export default function AboutPage() {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
             {TEAM.map(member => (
               <div key={member.name} className="bg-white rounded-2xl p-7 border border-slate-200 text-center shadow-sm">
-                <div className={`w-16 h-16 rounded-full bg-gradient-to-br ${member.gradient} flex items-center justify-center text-white font-black text-lg mx-auto mb-4 shadow`}>
-                  {member.initials}
-                </div>
+                {/* Innova founder: show logo placeholder with link */}
+                {member.isInnovaFounder ? (
+                  <a href="https://www.innova-lib.com" target="_blank" rel="noopener noreferrer" className="block mx-auto mb-4">
+                    <div className="w-16 h-16 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center text-white font-black text-lg mx-auto shadow ring-2 ring-amber-200">
+                      IL
+                    </div>
+                    <p className="text-[10px] text-amber-600 font-semibold mt-1">innova-lib.com ↗</p>
+                  </a>
+                ) : (
+                  <div className={`w-16 h-16 rounded-full bg-gradient-to-br ${member.gradient} flex items-center justify-center text-white font-black text-lg mx-auto mb-4 shadow`}>
+                    {member.initials}
+                  </div>
+                )}
                 <h3 className="font-bold text-[#1E1B4B] text-base mb-0.5">{member.name}</h3>
                 <p className="text-[#7C3AED] font-semibold text-xs mb-3">{member.role}</p>
                 <p className="text-slate-500 text-sm leading-relaxed">{member.bio}</p>
