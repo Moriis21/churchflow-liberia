@@ -49,28 +49,56 @@ const VALUES = [
 
 const TEAM = [
   {
-    name: 'CEO, Innova-Liberia',
-    role: 'Founder',
-    bio: 'Founder of Innova-Liberia — Liberia\'s leading creative tech agency. Visionary behind ChurchFlow, committed to transforming church administration across West Africa.',
-    initials: 'IL',
+    name: 'Darius Paye',
+    role: 'CEO & Founder, Innova-Liberia',
+    bio: 'As the CEO and Founder of Innova-Liberia, Darius provides the strategic vision that drives the agency. With a strong background in business and technology, he is dedicated to empowering local businesses through digital transformation, bridging the gap between traditional commerce and the digital future in Monrovia.',
+    photo: '/CEO DARIUS PAYE.jpg',
     gradient: 'from-amber-400 to-orange-500',
-    isInnovaFounder: true,
   },
   {
     name: 'Morris L. Dorley Jr',
     role: 'Lead Developer',
-    bio: 'Full-stack engineer from Brewerville City, Liberia. Lead developer of ChurchFlow, building modern church management tools for Liberian ministries.',
-    initials: 'ML',
+    bio: 'Morris leads our software engineering team with a focus on code quality and innovation. A skilled full-stack developer with a passion for excellence, he oversees the technical architecture of our projects, ensuring robust, scalable solutions for the West African market.',
+    photo: '/MORRIS L. DORLEY JR.jpg',
     gradient: 'from-purple-500 to-violet-600',
   },
   {
-    name: 'Innova-Liberia Team',
-    role: 'Design & Development',
-    bio: 'The creative and engineering team behind ChurchFlow — Liberia\'s leading tech agency building digital solutions for West Africa.',
-    initials: 'IT',
+    name: 'John Kpadeh',
+    role: 'UI/UX Designer & System Administrator',
+    bio: 'John crafts intuitive interfaces that delight users in Liberia. Simultaneously, as our System Administrator, he ensures our infrastructure remains secure, optimized, and operational 24/7 across the digital ecosystem.',
+    photo: '/JOHN KPADEH .jpg',
     gradient: 'from-blue-500 to-cyan-600',
   },
 ]
+
+// ─── Team card — real photo with initials fallback ───────────
+function TeamCard({ member }) {
+  const [imgErr, setImgErr] = React.useState(false)
+  const initials = member.name
+    .split(' ').filter(Boolean).map(w => w[0]).join('').slice(0, 2).toUpperCase()
+
+  return (
+    <div className="bg-white rounded-2xl p-7 border border-slate-200 text-center shadow-sm hover:shadow-md transition-shadow">
+      <div className="relative w-20 h-20 mx-auto mb-4">
+        {!imgErr && member.photo ? (
+          <img
+            src={member.photo}
+            alt={member.name}
+            onError={() => setImgErr(true)}
+            className="w-20 h-20 rounded-full object-cover shadow ring-2 ring-slate-100"
+          />
+        ) : (
+          <div className={`w-20 h-20 rounded-full bg-gradient-to-br ${member.gradient} flex items-center justify-center text-white font-black text-xl shadow ring-2 ring-slate-100`}>
+            {initials}
+          </div>
+        )}
+      </div>
+      <h3 className="font-bold text-[#1E1B4B] text-base mb-0.5">{member.name}</h3>
+      <p className="text-[#7C3AED] font-semibold text-xs mb-3">{member.role}</p>
+      <p className="text-slate-500 text-sm leading-relaxed">{member.bio}</p>
+    </div>
+  )
+}
 
 export default function AboutPage() {
   return (
@@ -128,12 +156,17 @@ export default function AboutPage() {
                 "ChurchFlow exists to help Liberian churches stop losing members, records, and ministry opportunities through modern, affordable technology."
               </blockquote>
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-violet-600 flex items-center justify-center text-white font-bold text-sm">
-                  ML
+                <div className="w-10 h-10 rounded-full overflow-hidden bg-amber-100 flex-shrink-0">
+                  <img
+                    src="/CEO DARIUS PAYE.jpg"
+                    alt="Darius Paye"
+                    className="w-full h-full object-cover"
+                    onError={e => { e.currentTarget.style.display='none' }}
+                  />
                 </div>
                 <div>
-                  <p className="text-sm font-semibold text-[#1E1B4B]">Innova-Liberia</p>
-                  <p className="text-xs text-slate-500">The Team Behind ChurchFlow</p>
+                  <p className="text-sm font-semibold text-[#1E1B4B]">Darius Paye</p>
+                  <p className="text-xs text-slate-500">CEO & Founder, Innova-Liberia</p>
                 </div>
               </div>
             </div>
@@ -155,7 +188,7 @@ export default function AboutPage() {
               ChurchFlow is an associate platform built by the <a href="https://www.innova-lib.com" target="_blank" rel="noopener noreferrer" className="text-[#7C3AED] font-semibold hover:underline">Innova-Liberia team</a> — Liberia's leading creative tech agency. Founded in 2026 in Brewerville City, Liberia, ChurchFlow was born out of a need witnessed firsthand in local churches.
             </p>
             <p>
-              The founder — CEO of Innova-Liberia — and lead developer Morris L. Dorley Jr spent years watching Liberian congregations struggle with paper attendance sheets, lost member records, and manual offering tracking that made it nearly impossible to understand where the ministry stood financially or pastorally.
+              Darius Paye, CEO & Founder of Innova-Liberia, and lead developer Morris L. Dorley Jr spent years watching Liberian congregations struggle with paper attendance sheets, lost member records, and manual offering tracking that made it nearly impossible to understand where the ministry stood financially or pastorally.
             </p>
             <p>
               After conversations with pastors and church administrators across Montserrado County, a common picture emerged: churches were growing, but their administrative systems were not keeping up. Members were falling through the cracks. Offerings were unaccounted for. Visitors never heard from the church again after their first Sunday.
@@ -167,8 +200,14 @@ export default function AboutPage() {
 
           {/* Innova-Liberia badge */}
           <div className="mt-8 p-5 bg-gradient-to-r from-[#1E1B4B] to-[#7C3AED] rounded-2xl text-white flex items-center gap-5">
-            <div className="w-14 h-14 rounded-xl bg-white/20 flex items-center justify-center flex-shrink-0">
-              <span className="font-black text-xl text-[#F59E0B]">IL</span>
+            <div className="w-14 h-14 rounded-xl bg-white flex items-center justify-center flex-shrink-0 overflow-hidden shadow">
+              <img
+                src="/innova-logo.png"
+                alt="Innova-Liberia"
+                className="w-full h-full object-contain"
+                onError={e => { e.currentTarget.style.display='none'; e.currentTarget.nextSibling.style.display='flex' }}
+              />
+              <span className="font-black text-xl text-[#1E1B4B] hidden items-center justify-center w-full h-full">IL</span>
             </div>
             <div className="flex-1 min-w-0">
               <p className="font-bold text-base">Innova-Liberia</p>
@@ -253,24 +292,7 @@ export default function AboutPage() {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
             {TEAM.map(member => (
-              <div key={member.name} className="bg-white rounded-2xl p-7 border border-slate-200 text-center shadow-sm">
-                {/* Innova founder: show logo placeholder with link */}
-                {member.isInnovaFounder ? (
-                  <a href="https://www.innova-lib.com" target="_blank" rel="noopener noreferrer" className="block mx-auto mb-4">
-                    <div className="w-16 h-16 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center text-white font-black text-lg mx-auto shadow ring-2 ring-amber-200">
-                      IL
-                    </div>
-                    <p className="text-[10px] text-amber-600 font-semibold mt-1">innova-lib.com ↗</p>
-                  </a>
-                ) : (
-                  <div className={`w-16 h-16 rounded-full bg-gradient-to-br ${member.gradient} flex items-center justify-center text-white font-black text-lg mx-auto mb-4 shadow`}>
-                    {member.initials}
-                  </div>
-                )}
-                <h3 className="font-bold text-[#1E1B4B] text-base mb-0.5">{member.name}</h3>
-                <p className="text-[#7C3AED] font-semibold text-xs mb-3">{member.role}</p>
-                <p className="text-slate-500 text-sm leading-relaxed">{member.bio}</p>
-              </div>
+              <TeamCard key={member.name} member={member} />
             ))}
           </div>
         </div>
