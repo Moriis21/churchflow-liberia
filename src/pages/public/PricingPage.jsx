@@ -55,15 +55,14 @@ function Reveal({ children, i = 0, className = '', as: Tag = 'div' }) {
   )
 }
 
-// ─── Monthly / Yearly prices ─────────────────────────────────
-// Yearly = 20 % discount (monthly × 12 × 0.8)
+// ─── Prices — rate $1 = 184 LRD, yearly saves 20% ────────────
 const PLANS = [
   {
     name: 'Starter',
     monthlyUsd: 15,
-    yearlyUsd:  144,   // $180 × 0.8
-    monthlyLrd: 500,
-    yearlyLrd:  4800,
+    yearlyUsd:  144,      // $180 × 0.8
+    monthlyLrd: 2760,     // $15  × 184
+    yearlyLrd:  26496,    // $144 × 184
     desc: 'Perfect for small congregations getting started.',
     popular: false,
     features: [
@@ -75,15 +74,15 @@ const PLANS = [
       'Email support',
       'Standard reports',
     ],
-    cta: 'Start for Free',
+    cta: 'Get Started',
     ctaLink: '/register',
   },
   {
     name: 'Growth',
     monthlyUsd: 45,
-    yearlyUsd:  432,   // $540 × 0.8
-    monthlyLrd: 1500,
-    yearlyLrd:  14400,
+    yearlyUsd:  432,      // $540  × 0.8
+    monthlyLrd: 8280,     // $45   × 184
+    yearlyLrd:  79488,    // $432  × 184
     desc: 'For growing churches that need powerful tools.',
     popular: true,
     features: [
@@ -98,15 +97,15 @@ const PLANS = [
       'Department management',
       'Priority email & chat support',
     ],
-    cta: 'Get Started Free',
+    cta: 'Choose Plan',
     ctaLink: '/register',
   },
   {
     name: 'Ministry Pro',
     monthlyUsd: 120,
-    yearlyUsd:  1152,  // $1,440 × 0.8
-    monthlyLrd: 4000,
-    yearlyLrd:  38400,
+    yearlyUsd:  1152,     // $1,440 × 0.8
+    monthlyLrd: 22080,    // $120  × 184
+    yearlyLrd:  211968,   // $1,152 × 184
     desc: 'For large ministries and multi-branch churches.',
     popular: false,
     features: [
@@ -120,8 +119,8 @@ const PLANS = [
       'Full data export',
       'Dedicated support manager',
     ],
-    cta: 'Contact Sales',
-    ctaLink: '/contact',
+    cta: 'Start Now',
+    ctaLink: '/register',
   },
 ]
 
@@ -194,6 +193,57 @@ function BillingToggle({ isYearly, onChange }) {
         </button>
       </div>
     </div>
+  )
+}
+
+// ─── FeyButton — soft radial gradient + inset shadow ─────────
+// Adapted from fey-button reference (React version, no next-themes).
+// Pass isDark=true for buttons inside the dark-gradient Growth card.
+function FeyLockIcon({ isDark }) {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path
+        stroke={isDark ? '#868F97' : '#4B5563'}
+        strokeWidth="1.5"
+        d="M13.5 12.8053C14.2525 12.3146 14.75 11.4654 14.75 10.5C14.75 8.98122 13.5188 7.75 12 7.75C10.4812 7.75 9.25 8.98122 9.25 10.5C9.25 11.4654 9.74745 12.3146 10.5 12.8053L10.5 14.75C10.5 15.5784 11.1716 16.25 12 16.25C12.8284 16.25 13.5 15.5784 13.5 14.75L13.5 12.8053Z"
+      />
+      <circle cx="12" cy="12" r="9.25" stroke={isDark ? '#868F97' : '#4B5563'} strokeWidth="1.5" />
+    </svg>
+  )
+}
+
+// FeyLink — same visual as FeyButton but renders a react-router Link
+function FeyLink({ to, children, showLock = false, isDark = false }) {
+  const base = [
+    'group relative flex h-11 w-full items-center justify-center gap-2 overflow-hidden rounded-full px-5 py-3',
+    'text-sm font-semibold leading-tight transition-all duration-200 no-underline',
+    isDark ? 'text-white' : 'text-slate-900',
+    isDark
+      ? '[background:radial-gradient(61.35%_50.07%_at_48.58%_50%,rgb(0,0,0)_0%,rgba(255,255,255,0.06)_100%)]'
+      : '[background:radial-gradient(61.35%_50.07%_at_48.58%_50%,rgb(255,255,255)_0%,rgba(0,0,0,0.03)_100%)]',
+    isDark
+      ? '[box-shadow:inset_0_0_0_0.5px_rgba(134,143,151,0.25),inset_1px_1px_0_-0.5px_rgba(134,143,151,0.45),inset_-1px_-1px_0_-0.5px_rgba(134,143,151,0.45)]'
+      : '[box-shadow:inset_0_0_0_0.5px_rgba(148,163,184,0.55),inset_1px_1px_0_-0.5px_rgba(148,163,184,0.7),inset_-1px_-1px_0_-0.5px_rgba(148,163,184,0.7)]',
+  ].join(' ')
+
+  // hover overlay via a sibling div (pseudo after: won't work on Link)
+  return (
+    <Link to={to} className={base} style={{ textDecoration: 'none' }}>
+      {/* hover fade overlay */}
+      <span
+        aria-hidden
+        className={[
+          'absolute inset-0 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none',
+          isDark
+            ? '[background:radial-gradient(61.35%_50.07%_at_48.58%_50%,rgb(0,0,0)_0%,rgb(24,24,24)_100%)]'
+            : '[background:radial-gradient(61.35%_50.07%_at_48.58%_50%,rgb(255,255,255)_0%,rgb(242,242,242)_100%)]',
+        ].join(' ')}
+      />
+      <span className="relative z-10 flex items-center gap-2">
+        {showLock && <FeyLockIcon isDark={isDark} />}
+        {children}
+      </span>
+    </Link>
   )
 }
 
@@ -341,18 +391,14 @@ export default function PricingPage() {
                       ))}
                     </ul>
 
-                    {/* CTA */}
-                    <Link
+                    {/* CTA — FeyButton style */}
+                    <FeyLink
                       to={plan.ctaLink}
-                      className={[
-                        'block text-center font-bold py-3.5 px-6 rounded-2xl transition-all hover:-translate-y-0.5 text-sm',
-                        plan.popular
-                          ? 'bg-gradient-to-r from-yellow-400 to-amber-500 text-amber-950 shadow-lg shadow-amber-500/30 hover:shadow-amber-500/50'
-                          : 'bg-gradient-to-r from-violet-600 to-purple-700 text-white shadow-md shadow-purple-500/25 hover:shadow-purple-500/40',
-                      ].join(' ')}
+                      isDark={plan.popular}
+                      showLock={false}
                     >
                       {plan.cta}
-                    </Link>
+                    </FeyLink>
                   </div>
                 </Reveal>
               )
