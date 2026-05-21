@@ -1,39 +1,69 @@
 // ============================================================
 // ChurchFlow Liberia — Pricing Page (/pricing)
-// Card design mirrors the Landing page Pricing section exactly.
+//
+// Visual design: UNCHANGED (dark-purple Growth card, amber badge,
+//   white cards, purple gradients, checkmarks — exactly as before).
+//
+// Added from reference component:
+//   • motion/react scroll-reveal (blur→clear, y-slide, opacity)
+//   • Staggered card entrance delays
+//   • Monthly / Yearly billing toggle
+//   • @number-flow/react animated price counter on toggle
 // ============================================================
-import React, { useState, useRef, useEffect } from 'react'
+import React, { useState, useRef } from 'react'
 import { Link } from 'react-router-dom'
+import { motion } from 'motion/react'
+import NumberFlow from '@number-flow/react'
 import {
   CheckCircle, ArrowRight, ChevronDown, ChevronUp,
   Shield, Zap, Users, Phone, HeartHandshake, Globe2,
 } from 'lucide-react'
 import PublicLayout from './PublicLayout'
 
-// ─── Scroll-reveal hook (same as Landing page) ────────────────
-function useInView(threshold = 0.15) {
-  const ref = useRef(null)
-  const [visible, setVisible] = useState(false)
-  useEffect(() => {
-    const el = ref.current
-    if (!el) return
-    const obs = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) { setVisible(true); obs.disconnect() } },
-      { threshold }
-    )
-    obs.observe(el)
-    return () => obs.disconnect()
-  }, [threshold])
-  return [ref, visible]
+// ─── Animation variants (from reference component) ───────────
+const revealVariants = {
+  hidden: {
+    filter: 'blur(10px)',
+    y: -20,
+    opacity: 0,
+  },
+  visible: (i = 0) => ({
+    y: 0,
+    opacity: 1,
+    filter: 'blur(0px)',
+    transition: {
+      delay: i * 0.15,
+      duration: 0.55,
+      ease: [0.22, 1, 0.36, 1],
+    },
+  }),
 }
 
-// ─── Plans — same data, Landing page visual design ───────────
+// Helper: wrap any element in a scroll-triggered reveal
+function Reveal({ children, i = 0, className = '', as: Tag = 'div' }) {
+  return (
+    <motion.div
+      className={className}
+      custom={i}
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true, amount: 0.2 }}
+      variants={revealVariants}
+    >
+      {children}
+    </motion.div>
+  )
+}
+
+// ─── Monthly / Yearly prices ─────────────────────────────────
+// Yearly = 20 % discount (monthly × 12 × 0.8)
 const PLANS = [
   {
     name: 'Starter',
-    lrd: 'LRD 500',
-    usd: '$15',
-    period: '/month',
+    monthlyUsd: 15,
+    yearlyUsd:  144,   // $180 × 0.8
+    monthlyLrd: 500,
+    yearlyLrd:  4800,
     desc: 'Perfect for small congregations getting started.',
     popular: false,
     features: [
@@ -50,9 +80,10 @@ const PLANS = [
   },
   {
     name: 'Growth',
-    lrd: 'LRD 1,500',
-    usd: '$45',
-    period: '/month',
+    monthlyUsd: 45,
+    yearlyUsd:  432,   // $540 × 0.8
+    monthlyLrd: 1500,
+    yearlyLrd:  14400,
     desc: 'For growing churches that need powerful tools.',
     popular: true,
     features: [
@@ -72,9 +103,10 @@ const PLANS = [
   },
   {
     name: 'Ministry Pro',
-    lrd: 'LRD 4,000',
-    usd: '$120',
-    period: '/month',
+    monthlyUsd: 120,
+    yearlyUsd:  1152,  // $1,440 × 0.8
+    monthlyLrd: 4000,
+    yearlyLrd:  38400,
     desc: 'For large ministries and multi-branch churches.',
     popular: false,
     features: [
@@ -94,10 +126,10 @@ const PLANS = [
 ]
 
 const TRUST_STATS = [
-  { value: '500+',   label: 'Churches Served'   },
-  { value: 'LRD',    label: 'Local Currency'    },
-  { value: '99.9%',  label: 'Platform Uptime'   },
-  { value: '14-day', label: 'Free Trial'        },
+  { value: '500+',   label: 'Churches Served'  },
+  { value: 'LRD',    label: 'Local Currency'   },
+  { value: '99.9%',  label: 'Platform Uptime'  },
+  { value: '14-day', label: 'Free Trial'       },
 ]
 
 const WHY_FEATURES = [
@@ -110,53 +142,79 @@ const WHY_FEATURES = [
 ]
 
 const FAQS = [
-  {
-    q: 'Is there a free trial available?',
-    a: 'Yes. All plans include a 14-day free trial with full access to the features of your chosen tier. No credit card is required to start.',
-  },
-  {
-    q: 'Are prices in Liberian Dollars (LRD) or US Dollars (USD)?',
-    a: 'Prices are listed in both LRD and USD for your convenience. LRD payments are processed through local mobile money platforms.',
-  },
-  {
-    q: 'Can I change my plan later?',
-    a: 'Absolutely. You can upgrade or downgrade at any time from your church settings. Upgrades take effect immediately.',
-  },
-  {
-    q: 'How is billing handled for Liberian churches?',
-    a: 'We accept Orange Money, MTN MoMo, and bank transfers in LRD. USD payments via international bank transfer or card.',
-  },
-  {
-    q: 'What happens to my data if I cancel?',
-    a: 'Your church data remains accessible for 30 days after cancellation. You can export everything in PDF or Excel format.',
-  },
+  { q: 'Is there a free trial?',                       a: 'Yes — all plans include a 14-day free trial with full access. No credit card required.' },
+  { q: 'Are prices in LRD or USD?',                    a: 'Both. LRD payments via Orange Money or MTN MoMo. USD via international card or bank transfer.' },
+  { q: 'Can I change my plan later?',                  a: 'Yes, upgrade or downgrade at any time. Upgrades take effect immediately.' },
+  { q: 'What is the yearly discount?',                 a: 'Yearly billing saves you 20%. Prices shown reflect the discounted annual total.' },
+  { q: 'What happens to my data if I cancel?',         a: 'Your data stays accessible for 30 days. Export everything to PDF or Excel before closing.' },
 ]
+
+// ─── Billing toggle — ChurchFlow brand style ─────────────────
+function BillingToggle({ isYearly, onChange }) {
+  return (
+    <div className="flex justify-center">
+      <div className="relative flex items-center bg-slate-100 border border-slate-200 rounded-full p-1 gap-1">
+        {/* Monthly */}
+        <button
+          onClick={() => onChange(false)}
+          className={`relative z-10 px-5 py-2 rounded-full text-sm font-semibold transition-colors duration-200 ${
+            !isYearly ? 'text-white' : 'text-slate-500 hover:text-slate-700'
+          }`}
+        >
+          {!isYearly && (
+            <motion.span
+              layoutId="billing-pill"
+              className="absolute inset-0 rounded-full bg-gradient-to-r from-[#1E1B4B] to-[#7C3AED]"
+              transition={{ type: 'spring', stiffness: 500, damping: 35 }}
+            />
+          )}
+          <span className="relative">Monthly</span>
+        </button>
+
+        {/* Yearly */}
+        <button
+          onClick={() => onChange(true)}
+          className={`relative z-10 px-5 py-2 rounded-full text-sm font-semibold transition-colors duration-200 flex items-center gap-2 ${
+            isYearly ? 'text-white' : 'text-slate-500 hover:text-slate-700'
+          }`}
+        >
+          {isYearly && (
+            <motion.span
+              layoutId="billing-pill"
+              className="absolute inset-0 rounded-full bg-gradient-to-r from-[#1E1B4B] to-[#7C3AED]"
+              transition={{ type: 'spring', stiffness: 500, damping: 35 }}
+            />
+          )}
+          <span className="relative">Yearly</span>
+          <span className={`relative rounded-full px-2 py-0.5 text-[10px] font-bold ${
+            isYearly ? 'bg-white/20 text-white' : 'bg-amber-100 text-amber-700'
+          }`}>
+            Save 20%
+          </span>
+        </button>
+      </div>
+    </div>
+  )
+}
 
 function FAQItem({ q, a }) {
   const [open, setOpen] = useState(false)
   return (
     <div className="border border-slate-200 rounded-xl overflow-hidden">
-      <button
-        onClick={() => setOpen(o => !o)}
-        className="w-full flex items-center justify-between px-6 py-5 text-left hover:bg-slate-50 transition-colors"
-      >
+      <button onClick={() => setOpen(o => !o)} className="w-full flex items-center justify-between px-6 py-5 text-left hover:bg-slate-50 transition-colors">
         <span className="font-semibold text-[#1E1B4B] text-sm sm:text-base">{q}</span>
-        {open
-          ? <ChevronUp className="w-5 h-5 text-slate-400 flex-shrink-0" />
-          : <ChevronDown className="w-5 h-5 text-slate-400 flex-shrink-0" />
-        }
+        {open ? <ChevronUp className="w-5 h-5 text-slate-400 flex-shrink-0" /> : <ChevronDown className="w-5 h-5 text-slate-400 flex-shrink-0" />}
       </button>
       {open && (
-        <div className="px-6 pb-5 text-slate-600 text-sm leading-relaxed border-t border-slate-100 pt-4">
-          {a}
-        </div>
+        <div className="px-6 pb-5 text-slate-600 text-sm leading-relaxed border-t border-slate-100 pt-4">{a}</div>
       )}
     </div>
   )
 }
 
+// ─── Main page ────────────────────────────────────────────────
 export default function PricingPage() {
-  const [ref, visible] = useInView(0.1)
+  const [isYearly, setIsYearly] = useState(false)
 
   return (
     <PublicLayout>
@@ -171,32 +229,29 @@ export default function PricingPage() {
             Choose the perfect plan<br className="hidden sm:block" /> for your ministry
           </h1>
           <p className="text-lg text-purple-200 max-w-2xl mx-auto leading-relaxed">
-            All plans include a 14-day free trial. No credit card required. Built for Liberian churches of every size.
+            All plans include a 14-day free trial. No credit card required.
           </p>
         </div>
       </section>
 
-      {/* ── Trust stats bar ── */}
+      {/* ── Trust bar ── */}
       <section className="bg-white border-b border-slate-100 py-6 px-4">
-        <div className="max-w-4xl mx-auto">
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 text-center">
-            {TRUST_STATS.map(s => (
-              <div key={s.label}>
-                <div className="text-2xl font-black text-[#7C3AED] mb-0.5">{s.value}</div>
-                <div className="text-xs text-slate-500 font-medium">{s.label}</div>
-              </div>
-            ))}
-          </div>
+        <div className="max-w-4xl mx-auto grid grid-cols-2 sm:grid-cols-4 gap-6 text-center">
+          {TRUST_STATS.map((s, i) => (
+            <Reveal key={s.label} i={i}>
+              <div className="text-2xl font-black text-[#7C3AED] mb-0.5">{s.value}</div>
+              <div className="text-xs text-slate-500 font-medium">{s.label}</div>
+            </Reveal>
+          ))}
         </div>
       </section>
 
-      {/* ── Pricing cards — EXACT Landing page design ── */}
-      <section className="py-24 bg-white px-4" ref={ref}>
+      {/* ── Pricing cards section ── */}
+      <section className="py-24 bg-white px-4">
         <div className="max-w-7xl mx-auto">
-          <div
-            className="text-center max-w-2xl mx-auto mb-16 transition-all duration-700"
-            style={{ opacity: visible ? 1 : 0, transform: visible ? 'translateY(0)' : 'translateY(24px)' }}
-          >
+
+          {/* Animated title */}
+          <Reveal i={0} className="text-center max-w-2xl mx-auto mb-4">
             <span className="inline-block text-sm font-semibold text-purple-600 bg-purple-50 px-4 py-1.5 rounded-full mb-4 border border-purple-100">
               Pricing
             </span>
@@ -206,119 +261,134 @@ export default function PricingPage() {
             <p className="text-lg text-slate-500">
               Start free, scale as your ministry grows. No hidden fees.
             </p>
-          </div>
+          </Reveal>
 
+          {/* Animated billing toggle */}
+          <Reveal i={1} className="mb-12">
+            <BillingToggle isYearly={isYearly} onChange={setIsYearly} />
+          </Reveal>
+
+          {/* Pricing cards — staggered reveal, UNCHANGED design */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 items-stretch">
-            {PLANS.map((plan, i) => (
-              <div
-                key={plan.name}
-                className={[
-                  'relative rounded-3xl p-8 flex flex-col',
-                  plan.popular
-                    ? 'bg-gradient-to-br from-[#1E1B4B] via-purple-800 to-violet-700 text-white shadow-2xl shadow-purple-900/40 scale-105 ring-4 ring-purple-400/30'
-                    : 'bg-white border border-slate-100 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07)]',
-                ].join(' ')}
-                style={
-                  plan.popular
-                    ? { animation: visible ? 'float 4s ease-in-out infinite' : 'none' }
-                    : {
-                        opacity: visible ? 1 : 0,
-                        transform: visible ? 'translateY(0)' : 'translateY(32px)',
-                        transition: `opacity 0.5s ease ${i * 100}ms, transform 0.5s ease ${i * 100}ms`,
-                      }
-                }
-              >
-                {/* Most Popular badge */}
-                {plan.popular && (
-                  <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                    <span className="bg-gradient-to-r from-yellow-400 to-amber-500 text-amber-950 text-xs font-extrabold px-5 py-1.5 rounded-full shadow-lg shadow-amber-500/30 uppercase tracking-wider whitespace-nowrap">
-                      Most Popular
-                    </span>
+            {PLANS.map((plan, i) => {
+              const usdPrice = isYearly ? plan.yearlyUsd  : plan.monthlyUsd
+              const lrdPrice = isYearly ? plan.yearlyLrd  : plan.monthlyLrd
+              const period   = isYearly ? '/year'          : '/month'
+
+              return (
+                <Reveal key={plan.name} i={2 + i}>
+                  <div
+                    className={[
+                      'relative rounded-3xl p-8 flex flex-col h-full',
+                      plan.popular
+                        ? 'bg-gradient-to-br from-[#1E1B4B] via-purple-800 to-violet-700 text-white shadow-2xl shadow-purple-900/40 scale-105 ring-4 ring-purple-400/30'
+                        : 'bg-white border border-slate-100 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07)]',
+                    ].join(' ')}
+                  >
+                    {/* Most Popular badge */}
+                    {plan.popular && (
+                      <div className="absolute -top-4 left-1/2 -translate-x-1/2">
+                        <span className="bg-gradient-to-r from-yellow-400 to-amber-500 text-amber-950 text-xs font-extrabold px-5 py-1.5 rounded-full shadow-lg shadow-amber-500/30 uppercase tracking-wider whitespace-nowrap">
+                          Most Popular
+                        </span>
+                      </div>
+                    )}
+
+                    {/* Name + desc */}
+                    <div className="mb-6">
+                      <h3 className={`text-xl font-bold mb-1 ${plan.popular ? 'text-white' : 'text-slate-800'}`}>
+                        {plan.name}
+                      </h3>
+                      <p className={`text-sm ${plan.popular ? 'text-white/70' : 'text-slate-500'}`}>
+                        {plan.desc}
+                      </p>
+                    </div>
+
+                    {/* Price — NumberFlow for animated counter on toggle */}
+                    <div className="mb-8">
+                      <div className="flex items-end gap-1">
+                        <span className={`text-4xl font-extrabold ${plan.popular ? 'text-white' : 'text-slate-900'}`}>
+                          $<NumberFlow
+                            value={usdPrice}
+                            format={{ notation: 'standard' }}
+                            className="text-4xl font-extrabold"
+                          />
+                        </span>
+                        <span className={`text-sm font-semibold mb-1 ${plan.popular ? 'text-white/60' : 'text-slate-400'}`}>
+                          {period}
+                        </span>
+                      </div>
+                      <p className={`text-sm mt-1 ${plan.popular ? 'text-yellow-300/80' : 'text-slate-400'}`}>
+                        approx. LRD <NumberFlow
+                          value={lrdPrice}
+                          format={{ notation: 'standard' }}
+                        />{period}
+                      </p>
+                    </div>
+
+                    {/* Features */}
+                    <ul className="space-y-3 mb-8 flex-1">
+                      {plan.features.map(f => (
+                        <li key={f} className="flex items-center gap-2.5">
+                          <CheckCircle
+                            className={`flex-shrink-0 ${plan.popular ? 'text-yellow-400' : 'text-purple-500'}`}
+                            style={{ width: '1.1rem', height: '1.1rem' }}
+                          />
+                          <span className={`text-sm ${plan.popular ? 'text-white/85' : 'text-slate-600'}`}>
+                            {f}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+
+                    {/* CTA */}
+                    <Link
+                      to={plan.ctaLink}
+                      className={[
+                        'block text-center font-bold py-3.5 px-6 rounded-2xl transition-all hover:-translate-y-0.5 text-sm',
+                        plan.popular
+                          ? 'bg-gradient-to-r from-yellow-400 to-amber-500 text-amber-950 shadow-lg shadow-amber-500/30 hover:shadow-amber-500/50'
+                          : 'bg-gradient-to-r from-violet-600 to-purple-700 text-white shadow-md shadow-purple-500/25 hover:shadow-purple-500/40',
+                      ].join(' ')}
+                    >
+                      {plan.cta}
+                    </Link>
                   </div>
-                )}
-
-                {/* Plan name + desc */}
-                <div className="mb-6">
-                  <h3 className={`text-xl font-bold mb-1 ${plan.popular ? 'text-white' : 'text-slate-800'}`}>
-                    {plan.name}
-                  </h3>
-                  <p className={`text-sm ${plan.popular ? 'text-white/70' : 'text-slate-500'}`}>
-                    {plan.desc}
-                  </p>
-                </div>
-
-                {/* Price */}
-                <div className="mb-8">
-                  <div className="flex items-end gap-2">
-                    <span className={`text-4xl font-extrabold ${plan.popular ? 'text-white' : 'text-slate-900'}`}>
-                      {plan.usd}
-                    </span>
-                    <span className={`text-sm font-semibold mb-1 ${plan.popular ? 'text-white/60' : 'text-slate-400'}`}>
-                      {plan.period}
-                    </span>
-                  </div>
-                  <p className={`text-sm mt-1 ${plan.popular ? 'text-yellow-300/80' : 'text-slate-400'}`}>
-                    approx. {plan.lrd}/mo
-                  </p>
-                </div>
-
-                {/* Features */}
-                <ul className="space-y-3 mb-8 flex-1">
-                  {plan.features.map(f => (
-                    <li key={f} className="flex items-center gap-2.5">
-                      <CheckCircle
-                        className={`flex-shrink-0 ${plan.popular ? 'text-yellow-400' : 'text-purple-500'}`}
-                        style={{ width: '1.1rem', height: '1.1rem' }}
-                      />
-                      <span className={`text-sm ${plan.popular ? 'text-white/85' : 'text-slate-600'}`}>
-                        {f}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-
-                {/* CTA button */}
-                <Link
-                  to={plan.ctaLink}
-                  className={[
-                    'block text-center font-bold py-3.5 px-6 rounded-2xl transition-all hover:-translate-y-0.5 text-sm',
-                    plan.popular
-                      ? 'bg-gradient-to-r from-yellow-400 to-amber-500 text-amber-950 shadow-lg shadow-amber-500/30 hover:shadow-amber-500/50'
-                      : 'bg-gradient-to-r from-violet-600 to-purple-700 text-white shadow-md shadow-purple-500/25 hover:shadow-purple-500/40',
-                  ].join(' ')}
-                >
-                  {plan.cta}
-                </Link>
-              </div>
-            ))}
+                </Reveal>
+              )
+            })}
           </div>
 
-          <p className="text-center text-sm text-slate-400 mt-10">
-            All prices are inclusive of VAT where applicable · Prices in LRD and USD · 14-day free trial on all plans
-          </p>
+          <Reveal i={5} className="text-center mt-10">
+            <p className="text-sm text-slate-400">
+              All prices are inclusive of VAT where applicable · 14-day free trial on all plans · Yearly billing saves 20%
+            </p>
+          </Reveal>
         </div>
       </section>
 
-      {/* ── Why ChurchFlow — feature highlights ── */}
+      {/* ── Why ChurchFlow ── */}
       <section className="py-16 px-4 bg-slate-50">
         <div className="max-w-5xl mx-auto">
-          <div className="text-center mb-10">
+          <Reveal i={0} className="text-center mb-10">
             <h2 className="text-2xl font-extrabold text-[#1E1B4B] mb-2">Why churches choose ChurchFlow</h2>
             <p className="text-slate-500 text-sm max-w-lg mx-auto">Every plan includes these guarantees.</p>
-          </div>
+          </Reveal>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {WHY_FEATURES.map(f => {
+            {WHY_FEATURES.map((f, i) => {
               const Icon = f.icon
               return (
-                <div key={f.title} className="flex items-start gap-4 p-5 bg-white rounded-2xl border border-slate-100 hover:border-purple-200 hover:shadow-sm transition-all">
-                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${f.color}`}>
-                    <Icon className="w-5 h-5" />
+                <Reveal key={f.title} i={i * 0.5}>
+                  <div className="flex items-start gap-4 p-5 bg-white rounded-2xl border border-slate-100 hover:border-purple-200 hover:shadow-sm transition-all h-full">
+                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${f.color}`}>
+                      <Icon className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <p className="font-bold text-[#1E1B4B] text-sm mb-1">{f.title}</p>
+                      <p className="text-slate-500 text-xs leading-relaxed">{f.desc}</p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="font-bold text-[#1E1B4B] text-sm mb-1">{f.title}</p>
-                    <p className="text-slate-500 text-xs leading-relaxed">{f.desc}</p>
-                  </div>
-                </div>
+                </Reveal>
               )
             })}
           </div>
@@ -328,85 +398,83 @@ export default function PricingPage() {
       {/* ── Compare note ── */}
       <section className="py-12 px-4 bg-white border-y border-slate-100">
         <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-2xl font-bold text-[#1E1B4B] mb-3">Not sure which plan fits?</h2>
-          <p className="text-slate-500 mb-6 leading-relaxed">
-            Most growing churches start on <strong>Growth</strong>. Under 100 members? <strong>Starter</strong> is perfect. Large multi-campus ministry? <strong>Ministry Pro</strong> has everything you need.
-          </p>
-          <Link
-            to="/contact"
-            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl border border-[#7C3AED] text-[#7C3AED] font-semibold text-sm hover:bg-purple-50 transition-colors"
-          >
-            Talk to our team <ArrowRight className="w-4 h-4" />
-          </Link>
+          <Reveal i={0}>
+            <h2 className="text-2xl font-bold text-[#1E1B4B] mb-3">Not sure which plan fits?</h2>
+            <p className="text-slate-500 mb-6 leading-relaxed">
+              Most growing churches start on <strong>Growth</strong>. Under 100 members? <strong>Starter</strong> is perfect. Large multi-campus ministry? <strong>Ministry Pro</strong> has everything.
+            </p>
+            <Link to="/contact" className="inline-flex items-center gap-2 px-6 py-3 rounded-xl border border-[#7C3AED] text-[#7C3AED] font-semibold text-sm hover:bg-purple-50 transition-colors">
+              Talk to our team <ArrowRight className="w-4 h-4" />
+            </Link>
+          </Reveal>
         </div>
       </section>
 
       {/* ── Payment methods ── */}
       <section className="py-10 px-4 bg-slate-50">
         <div className="max-w-4xl mx-auto text-center">
-          <p className="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-5">Accepted payment methods in Liberia</p>
-          <div className="flex flex-wrap justify-center gap-3">
-            {[
-              { name: 'Orange Money',   color: 'bg-orange-100 text-orange-700 border-orange-200' },
-              { name: 'MTN MoMo',       color: 'bg-yellow-100 text-yellow-700 border-yellow-200' },
-              { name: 'Bank Transfer',  color: 'bg-blue-100 text-blue-700 border-blue-200'       },
-              { name: 'USD Card',       color: 'bg-slate-100 text-slate-700 border-slate-200'    },
-            ].map(m => (
-              <span key={m.name} className={`px-5 py-2 rounded-full border text-sm font-semibold ${m.color}`}>
-                {m.name}
-              </span>
-            ))}
-          </div>
+          <Reveal i={0}>
+            <p className="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-5">Accepted payment methods in Liberia</p>
+            <div className="flex flex-wrap justify-center gap-3">
+              {[
+                { name: 'Orange Money',  color: 'bg-orange-100 text-orange-700 border-orange-200' },
+                { name: 'MTN MoMo',      color: 'bg-yellow-100 text-yellow-700 border-yellow-200' },
+                { name: 'Bank Transfer', color: 'bg-blue-100 text-blue-700 border-blue-200'       },
+                { name: 'USD Card',      color: 'bg-slate-100 text-slate-700 border-slate-200'    },
+              ].map(m => (
+                <span key={m.name} className={`px-5 py-2 rounded-full border text-sm font-semibold ${m.color}`}>
+                  {m.name}
+                </span>
+              ))}
+            </div>
+          </Reveal>
         </div>
       </section>
 
       {/* ── FAQ ── */}
       <section className="py-20 px-4 bg-white">
         <div className="max-w-3xl mx-auto">
-          <div className="text-center mb-12">
+          <Reveal i={0} className="text-center mb-12">
             <h2 className="text-3xl font-extrabold text-[#1E1B4B] mb-3">Frequently Asked Questions</h2>
             <p className="text-slate-500">Everything you need to know about ChurchFlow pricing.</p>
-          </div>
+          </Reveal>
           <div className="space-y-3">
-            {FAQS.map(faq => <FAQItem key={faq.q} {...faq} />)}
+            {FAQS.map((faq, i) => (
+              <Reveal key={faq.q} i={i * 0.1}>
+                <FAQItem {...faq} />
+              </Reveal>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* ── CTA — matches Landing page CTA banner ── */}
+      {/* ── CTA ── */}
       <section className="py-20 bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-500">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-amber-950 mb-4 leading-tight">
-            Start your free 14-day trial today
-          </h2>
-          <p className="text-lg text-amber-800 mb-8">
-            Set up your church in minutes. No contracts. Cancel anytime.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link
-              to="/register"
-              className="inline-flex items-center justify-center gap-2 text-base font-bold text-white bg-gradient-to-r from-violet-700 to-purple-800 px-10 py-4 rounded-2xl shadow-xl shadow-purple-900/30 hover:from-violet-800 hover:to-purple-900 transition-all hover:-translate-y-1"
-            >
-              Create Free Account
-              <ArrowRight className="w-5 h-5" />
-            </Link>
-            <Link
-              to="/contact"
-              className="inline-flex items-center justify-center gap-2 text-base font-bold text-amber-950 bg-white/70 hover:bg-white px-8 py-4 rounded-2xl transition-all"
-            >
-              Talk to Sales
-            </Link>
-          </div>
+          <Reveal i={0}>
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-amber-950 mb-4 leading-tight">
+              Start your free 14-day trial today
+            </h2>
+            <p className="text-lg text-amber-800 mb-8">
+              Set up your church in minutes. No contracts. Cancel anytime.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Link
+                to="/register"
+                className="inline-flex items-center justify-center gap-2 text-base font-bold text-white bg-gradient-to-r from-violet-700 to-purple-800 px-10 py-4 rounded-2xl shadow-xl shadow-purple-900/30 hover:from-violet-800 hover:to-purple-900 transition-all hover:-translate-y-1"
+              >
+                Create Free Account <ArrowRight className="w-5 h-5" />
+              </Link>
+              <Link
+                to="/contact"
+                className="inline-flex items-center justify-center gap-2 text-base font-bold text-amber-950 bg-white/70 hover:bg-white px-8 py-4 rounded-2xl transition-all"
+              >
+                Talk to Sales
+              </Link>
+            </div>
+          </Reveal>
         </div>
       </section>
-
-      {/* float animation for popular card */}
-      <style>{`
-        @keyframes float {
-          0%, 100% { transform: translateY(0px) scale(1.05); }
-          50%       { transform: translateY(-8px) scale(1.05); }
-        }
-      `}</style>
 
     </PublicLayout>
   )
