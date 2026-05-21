@@ -13,7 +13,7 @@
 // ============================================================
 import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
-import { Sparkles, X, MessageCircle, ExternalLink, ChevronDown } from 'lucide-react'
+import { MessageCircle, X, ExternalLink, ChevronDown } from 'lucide-react'
 import AIChatPanel from './AIChatPanel'
 import { GROQ_MODELS } from '../../services/ai/groqClient'
 import { useAIFeature } from '../../hooks/useAIFeature'
@@ -127,7 +127,7 @@ export default function FloatingAIAssistant() {
               {pulse && (
                 <span className="absolute inset-0 rounded-2xl bg-purple-400/50 animate-ping pointer-events-none" />
               )}
-              <Sparkles className="w-6 h-6 text-white group-hover:scale-110 transition-transform" />
+              <MessageCircle className="w-6 h-6 text-white group-hover:scale-110 transition-transform" />
 
               {/* Desktop tooltip */}
               <span className="hidden md:block absolute right-16 top-1/2 -translate-y-1/2 bg-[#1E1B4B] text-white text-xs font-semibold px-3 py-1.5 rounded-xl whitespace-nowrap shadow-lg pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity">

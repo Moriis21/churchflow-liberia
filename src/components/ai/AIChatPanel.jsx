@@ -10,7 +10,7 @@ import React, {
 } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
 import {
-  Send, Copy, RefreshCw, Sparkles, Check,
+  Send, Copy, RefreshCw, MessageCircle, Check,
   StopCircle, Loader2, BookOpen, FileText,
   Zap, AlertTriangle, RotateCcw, ExternalLink,
   MessageSquare, X,
@@ -27,7 +27,7 @@ function TypingDots() {
   return (
     <div className="flex items-center gap-2 px-4 py-3 bg-white border border-slate-100 shadow-sm rounded-2xl rounded-tl-sm w-fit">
       <div className="w-7 h-7 rounded-xl bg-gradient-to-br from-violet-600 to-purple-700 flex items-center justify-center flex-shrink-0">
-        <Sparkles className="w-3.5 h-3.5 text-white" />
+        <MessageCircle className="w-3.5 h-3.5 text-white" />
       </div>
       <div className="flex gap-1 items-center">
         {[0, 0.18, 0.36].map((delay, i) => (
@@ -65,7 +65,7 @@ function MessageBubble({ msg, onAction, isStreaming }) {
       {/* AI avatar */}
       {isAI && (
         <div className="w-7 h-7 rounded-xl bg-gradient-to-br from-violet-600 to-purple-700 flex items-center justify-center flex-shrink-0 shadow-sm mt-0.5">
-          <Sparkles className="w-3.5 h-3.5 text-white" />
+          <MessageCircle className="w-3.5 h-3.5 text-white" />
         </div>
       )}
 
@@ -351,11 +351,11 @@ export default function AIChatPanel({
       {/* ── Header ── */}
       <div className="flex items-center gap-2.5 px-4 py-3 bg-gradient-to-r from-[#1E1B4B] to-[#7C3AED] flex-shrink-0">
         <div className="w-8 h-8 rounded-xl bg-white/15 flex items-center justify-center flex-shrink-0">
-          <Sparkles className="w-4 h-4 text-amber-300" />
+          <MessageCircle className="w-4 h-4 text-white" />
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-white text-sm font-bold leading-tight truncate">{assistantName}</p>
-          <p className="text-white/55 text-[10px] leading-tight">AI Assistant · ChurchFlow Liberia</p>
+          <p className="text-white text-sm font-bold leading-tight truncate">ChurchFlow Assistant</p>
+          <p className="text-white/55 text-[10px] leading-tight">How can I help?</p>
         </div>
         <div className="flex items-center gap-1.5">
           {messages.length > 0 && (
@@ -390,7 +390,7 @@ export default function AIChatPanel({
             className="flex flex-col items-center text-center py-2"
           >
             <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-violet-100 to-purple-100 flex items-center justify-center mb-3">
-              <Sparkles className="w-6 h-6 text-purple-600" />
+              <MessageCircle className="w-6 h-6 text-purple-600" />
             </div>
             <p className="text-sm font-semibold text-slate-700 mb-0.5">How can I help you?</p>
             <p className="text-xs text-slate-400 mb-4">Try one of these to get started</p>
@@ -459,9 +459,6 @@ export default function AIChatPanel({
           )}
         </div>
 
-        <p className="text-[10px] text-slate-300 mt-1.5 text-center leading-tight">
-          Powered by Groq AI · For guidance only — consult your pastor for spiritual decisions
-        </p>
       </div>
     </div>
   )
