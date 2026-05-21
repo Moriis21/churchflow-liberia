@@ -7,9 +7,9 @@
 const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions'
 
 export const GROQ_MODELS = {
-  FAST:     'llama3-8b-8192',           // Simple queries, landing page
-  SMART:    'llama-3.3-70b-versatile',  // Sermons, Bible study, analysis
-  BALANCED: 'llama-3.1-8b-instant',    // Admin summaries, SMS drafts
+  FAST:     'llama-3.1-8b-instant',    // Simple queries, landing page (replaces decommissioned llama3-8b-8192)
+  SMART:    'llama-3.3-70b-versatile', // Sermons, Bible study, analysis
+  BALANCED: 'llama-3.1-8b-instant',   // Admin summaries, SMS drafts
 }
 
 const IS_DEV = import.meta.env.DEV
