@@ -9,22 +9,24 @@ const CONTACT_INFO = [
   {
     icon: Mail,
     label: 'Email',
-    value: 'support@churchflow.lr',
+    value: 'morrisldorleyjr21@gmail.com',
     sub: 'We reply within 24 hours',
+    href: 'mailto:morrisldorleyjr21@gmail.com',
     color: 'bg-purple-100 text-[#7C3AED]',
   },
   {
     icon: Phone,
     label: 'Phone',
-    value: '+231 77 000 0000',
-    sub: 'Mon to Fri during business hours',
+    value: '+231 77 078 7020',
+    sub: '+231 88 828 3007',
+    href: 'tel:+231770787020',
     color: 'bg-amber-100 text-amber-600',
   },
   {
     icon: MapPin,
     label: 'Location',
-    value: 'Monrovia, Liberia',
-    sub: 'Headquarters',
+    value: 'Brewerville City',
+    sub: 'Montserrado County, Republic of Liberia',
     color: 'bg-blue-100 text-blue-600',
   },
   {
@@ -115,7 +117,7 @@ export default function ContactPage() {
             <div>
               <h2 className="text-2xl font-bold text-[#1E1B4B] mb-2">Contact Information</h2>
               <p className="text-slate-500 mb-8 leading-relaxed">
-                Have questions about ChurchFlow? We are here to help. Our support team is based in Monrovia and ready to assist your ministry.
+                Have questions about ChurchFlow? We are here to help. Our support team is based in Brewerville City, Liberia and ready to assist your ministry.
               </p>
 
               <div className="space-y-4">
@@ -128,7 +130,10 @@ export default function ContactPage() {
                       </div>
                       <div>
                         <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-0.5">{item.label}</p>
-                        <p className="font-semibold text-[#1E1B4B] text-sm">{item.value}</p>
+                        {item.href
+                          ? <a href={item.href} className="font-semibold text-[#7C3AED] text-sm hover:underline">{item.value}</a>
+                          : <p className="font-semibold text-[#1E1B4B] text-sm">{item.value}</p>
+                        }
                         <p className="text-slate-400 text-xs mt-0.5">{item.sub}</p>
                       </div>
                     </div>

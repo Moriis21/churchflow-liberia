@@ -21,7 +21,7 @@ import {
   Church,
   ArrowLeft,
 } from 'lucide-react'
-import { useAuth, ROLES } from '../../context/AuthContext'
+import { useAuth } from '../../context/AuthContext'
 import { Input, Button } from '../../components/ui'
 import { insforge } from '../../lib/insforge'
 
@@ -473,17 +473,39 @@ function MemberRegisterForm({ pendingChurchName, pendingChurchId }) {
   )
 }
 
+// ─── Demo role config (same as Login page) ───────────────────
+const DEMO_ROLES = [
+  { label: 'Church Admin', role: 'church_admin', color: 'from-violet-600 to-purple-700' },
+  { label: 'Pastor',       role: 'pastor',       color: 'from-indigo-500 to-blue-600'   },
+  { label: 'Treasurer',    role: 'treasurer',    color: 'from-amber-500 to-yellow-600'  },
+]
+
 // ─── Component ───────────────────────────────────────────────
 export default function Register() {
   const navigate = useNavigate()
-  const { register, verifyEmail, resendVerification, pendingVerificationEmail } = useAuth()
+  const { register, verifyEmail, resendVerification, pendingVerificationEmail, demoLogin } = useAuth()
   const [verifyStep, setVerifyStep] = useState(false)
   const [otp, setOtp] = useState('')
+  const [demoLoading, setDemoLoading] = useState(null)
 
   const [step, setStep] = useState(1)
   const [loading, setLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirm, setShowConfirm] = useState(false)
+
+  // ── Demo login handler ───────────────────────────────────
+  async function handleDemoLogin(role) {
+    setDemoLoading(role)
+    try {
+      await demoLogin(role)
+      toast.success(`Signed in as demo ${role.replace('_', ' ')}`)
+      navigate('/app/dashboard')
+    } catch (err) {
+      toast.error('Demo login failed. Please try again.')
+    } finally {
+      setDemoLoading(null)
+    }
+  }
 
   // ── Form state ───────────────────────────────────────────
   const [churchForm, setChurchForm] = useState({
@@ -1095,8 +1117,41 @@ export default function Register() {
             </p>
           </div>
 
+          {/* ── Demo section (same as Login page) ── */}
+          <div className="mt-4 bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="flex-1 h-px bg-slate-100" />
+              <span className="text-[11px] text-slate-400 font-medium tracking-widest uppercase">Try a Demo</span>
+              <div className="flex-1 h-px bg-slate-100" />
+            </div>
+            <p className="text-xs text-center text-slate-400 mb-3">Explore ChurchFlow without creating an account</p>
+            <div className="flex flex-col gap-2">
+              {DEMO_ROLES.map(({ label, role, color }) => (
+                <button
+                  key={role}
+                  type="button"
+                  onClick={() => handleDemoLogin(role)}
+                  disabled={demoLoading !== null}
+                  className={[
+                    'w-full flex items-center justify-between px-4 h-11 rounded-xl',
+                    'bg-gradient-to-r text-white text-sm font-semibold',
+                    'transition-all duration-200 hover:opacity-90 hover:shadow-md active:scale-[0.99]',
+                    'disabled:opacity-50 disabled:cursor-not-allowed',
+                    color,
+                  ].join(' ')}
+                >
+                  <span>Demo as {label}</span>
+                  {demoLoading === role
+                    ? <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
+                    : <ChevronRight className="w-4 h-4 opacity-70" />
+                  }
+                </button>
+              ))}
+            </div>
+          </div>
+
           {/* Footer note */}
-          <p className="mt-6 mb-4 text-center text-xs text-slate-400">
+          <p className="mt-4 mb-4 text-center text-xs text-slate-400">
             By registering, you agree to our Terms of Service &amp; Privacy Policy
           </p>
         </div>

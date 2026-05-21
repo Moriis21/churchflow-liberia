@@ -3,7 +3,7 @@
 // ============================================================
 import React, { useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { Menu, X, Cross } from 'lucide-react'
+import { Menu, X } from 'lucide-react'
 
 const NAV_LINKS = [
   { label: 'Features',  to: '/features'  },
@@ -23,10 +23,13 @@ function PublicNav() {
         <div className="flex items-center justify-between h-16">
 
           {/* Logo + Brand */}
-          <Link to="/landing" className="flex items-center gap-3 flex-shrink-0">
-            <div className="w-9 h-9 rounded-lg bg-[#1E1B4B] flex items-center justify-center shadow">
-              <Cross className="w-4 h-4 text-[#F59E0B]" strokeWidth={2.5} />
-            </div>
+          <Link to="/landing" className="flex items-center gap-2.5 flex-shrink-0">
+            <img
+              src="/logo.png"
+              alt="ChurchFlow Liberia"
+              className="w-9 h-9 rounded-lg object-contain"
+              onError={e => { e.currentTarget.style.display='none' }}
+            />
             <span className="text-[#1E1B4B] font-bold text-lg tracking-tight leading-tight">
               ChurchFlow <span className="text-[#7C3AED]">Liberia</span>
             </span>
@@ -124,10 +127,13 @@ function PublicFooter() {
 
           {/* Brand column */}
           <div className="md:col-span-1">
-            <Link to="/landing" className="flex items-center gap-2 mb-4">
-              <div className="w-8 h-8 rounded-lg bg-[#7C3AED] flex items-center justify-center">
-                <Cross className="w-4 h-4 text-[#F59E0B]" strokeWidth={2.5} />
-              </div>
+            <Link to="/landing" className="flex items-center gap-2.5 mb-4">
+              <img
+                src="/logo.png"
+                alt="ChurchFlow Liberia"
+                className="w-8 h-8 rounded-lg object-contain"
+                onError={e => { e.currentTarget.style.display='none' }}
+              />
               <span className="text-white font-bold text-base">ChurchFlow Liberia</span>
             </Link>
             <p className="text-sm text-slate-400 leading-relaxed">
