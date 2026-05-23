@@ -89,6 +89,13 @@ export default function FloatingAIAssistant() {
 
   const handleClose = useCallback(() => setOpen(false), [])
 
+  // Allow any page to open the chat via a global event
+  useEffect(() => {
+    const onOpen = () => handleOpen()
+    window.addEventListener('churchflow:open-ai-chat', onOpen)
+    return () => window.removeEventListener('churchflow:open-ai-chat', onOpen)
+  }, [handleOpen])
+
   if (!enabled) return null
 
   return (

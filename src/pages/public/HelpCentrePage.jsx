@@ -208,8 +208,10 @@ export default function HelpCentrePage() {
                 <MessageSquare className="w-6 h-6 text-[#7C3AED]" />
               </div>
               <h3 className="font-bold text-[#1E1B4B] text-sm mb-2">Live Chat</h3>
-              <p className="text-slate-500 text-xs leading-relaxed mb-4">Chat with our support team in real time during business hours.</p>
-              <button className="px-4 py-2 rounded-lg bg-[#7C3AED] text-white text-xs font-semibold hover:bg-[#6D28D9] transition-colors">
+              <p className="text-slate-500 text-xs leading-relaxed mb-4">Chat with the ChurchFlow Assistant — instant answers about features, pricing, and setup.</p>
+              <button
+                onClick={() => window.dispatchEvent(new Event('churchflow:open-ai-chat'))}
+                className="px-4 py-2 rounded-lg bg-[#7C3AED] text-white text-xs font-semibold hover:bg-[#6D28D9] transition-colors">
                 Start Chat
               </button>
             </div>
