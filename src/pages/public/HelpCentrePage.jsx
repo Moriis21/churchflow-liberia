@@ -62,14 +62,16 @@ const CATEGORIES = [
 ]
 
 const POPULAR_ARTICLES = [
-  { title: 'How to add your first church member',                  category: 'Getting Started'     },
-  { title: 'Recording Sunday offering and generating a receipt',   category: 'Finance'              },
-  { title: 'How to mark attendance for a Sunday service',          category: 'Attendance'           },
-  { title: 'Setting up QR code check-in for your congregation',    category: 'Attendance'           },
-  { title: 'Importing members in bulk from a CSV file',            category: 'Members'              },
-  { title: 'How to create a church event and accept RSVPs',        category: 'Events'               },
-  { title: 'Switching between LRD and USD for finance records',    category: 'Finance'              },
-  { title: 'Adding a second branch and assigning its administrator', category: 'Settings'           },
+  { title: 'How to add your first church member',                  category: 'Members',         href: '/docs#g-members'    },
+  { title: 'Recording Sunday offering and generating a receipt',   category: 'Finance',         href: '/docs#g-offerings'  },
+  { title: 'How to mark attendance for a Sunday service',          category: 'Attendance',      href: '/docs#g-attendance' },
+  { title: 'Sending SMS messages to your congregation',            category: 'Communications',  href: '/docs#g-sms'        },
+  { title: 'Creating events and accepting RSVPs',                  category: 'Events',          href: '/docs#g-events'     },
+  { title: 'Uploading sermons and live streaming',                 category: 'Sermons',         href: '/docs#g-sermons'    },
+  { title: 'The member portal — what members can do',              category: 'Members',         href: '/docs#g-portal'     },
+  { title: 'Exporting your church data to CSV',                    category: 'Settings',        href: '/docs#g-export'     },
+  { title: 'Billing, plans, and how to pay',                       category: 'Billing',         href: '/docs#g-billing'    },
+  { title: 'Getting started — your first 15 minutes',              category: 'Getting Started', href: '/docs#intro'        },
 ]
 
 const CATEGORY_COLORS = {
@@ -79,6 +81,9 @@ const CATEGORY_COLORS = {
   'Members':         'bg-blue-50 text-blue-600',
   'Events':          'bg-pink-50 text-pink-600',
   'Settings':        'bg-slate-100 text-slate-600',
+  'Communications':  'bg-indigo-50 text-indigo-600',
+  'Sermons':         'bg-rose-50 text-rose-600',
+  'Billing':         'bg-emerald-50 text-emerald-600',
 }
 
 export default function HelpCentrePage() {
@@ -167,7 +172,7 @@ export default function HelpCentrePage() {
               {filtered.map((article, idx) => (
                 <li key={idx}>
                   <Link
-                    to="/docs"
+                    to={article.href || '/docs'}
                     className="group flex items-center justify-between gap-4 p-4 bg-white rounded-xl border border-slate-200 hover:border-[#7C3AED] hover:shadow-sm transition-all"
                   >
                     <div className="flex items-center gap-3 min-w-0">

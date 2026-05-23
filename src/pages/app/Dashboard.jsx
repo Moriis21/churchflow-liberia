@@ -770,19 +770,28 @@ export default function Dashboard() {
           </div>
         </div>
 
-      {/* ── AI Assistant Section ── */}
-      {adminAiEnabled && !isSuperAdmin && (
-        <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 pb-8">
-          <div className="flex items-center gap-2 mb-4">
-            <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-violet-600 to-purple-700 flex items-center justify-center">
-              <svg className="w-3.5 h-3.5 text-amber-300" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+      {/* ── AI Assistant Section (role-aware) ── */}
+      {adminAiEnabled && !isSuperAdmin && (() => {
+        const role = (user?.profile?.role || 'church_admin').toLowerCase()
+        const heading = {
+          pastor:      'Pastor Assistant',
+          treasurer:   'Finance Assistant',
+          secretary:   'Secretary Assistant',
+          dept_leader: 'Ministry Assistant',
+        }[role] || 'Church Admin Assistant'
+        return (
+          <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 pb-8">
+            <div className="flex items-center gap-2 mb-4">
+              <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-violet-600 to-purple-700 flex items-center justify-center">
+                <MessageSquare className="w-3.5 h-3.5 text-white" />
+              </div>
+              <h2 className="text-base font-bold text-slate-800">{heading}</h2>
+              <span className="text-[10px] font-semibold text-purple-600 bg-purple-50 px-2 py-0.5 rounded-full border border-purple-100">AI</span>
             </div>
-            <h2 className="text-base font-bold text-slate-800">Church Admin Assistant</h2>
-            <span className="text-[10px] font-semibold text-purple-600 bg-purple-50 px-2 py-0.5 rounded-full border border-purple-100">AI</span>
+            <AdminInsightsAI />
           </div>
-          <AdminInsightsAI isSuperAdmin={false} />
-        </div>
-      )}
+        )
+      })()}
 
       </div>
     </div>

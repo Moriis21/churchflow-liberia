@@ -19,9 +19,12 @@ import {
   Globe,
   ShieldCheck,
 } from 'lucide-react'
+import { MessageCircle } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { StatsCard } from '../../components/ui'
 import { insforge } from '../../lib/insforge'
+import AdminInsightsAI from '../../components/ai/AdminInsightsAI'
+import { useAIFeature } from '../../hooks/useAIFeature'
 
 // ─── Helpers ─────────────────────────────────────────────────
 function formatDate(dateStr) {
@@ -98,6 +101,7 @@ function DeleteModal({ church, onConfirm, onCancel }) {
 export default function SuperAdminDashboard() {
   const { user } = useAuth()
   const navigate = useNavigate()
+  const { enabled: aiEnabled } = useAIFeature('admin_ai')
 
   const [churches, setChurches] = useState([])
   const [allMembers, setAllMembers] = useState([])
@@ -531,6 +535,20 @@ export default function SuperAdminDashboard() {
             )}
           </div>
         </div>
+
+        {/* ── Platform AI Insights ──────────────────────────── */}
+        {aiEnabled && (
+          <div className="mt-8">
+            <div className="flex items-center gap-2 mb-4">
+              <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-violet-600 to-purple-700 flex items-center justify-center">
+                <MessageCircle className="w-3.5 h-3.5 text-white" />
+              </div>
+              <h2 className="text-base font-bold text-slate-800">Platform Intelligence</h2>
+              <span className="text-[10px] font-semibold text-purple-600 bg-purple-50 px-2 py-0.5 rounded-full border border-purple-100">AI</span>
+            </div>
+            <AdminInsightsAI isSuperAdmin={true} />
+          </div>
+        )}
 
       </div>
 

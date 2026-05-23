@@ -3,11 +3,11 @@
 // ALL data from InsForge. Save button writes to InsForge.
 // No hardcoded defaults. No fake saves.
 // ============================================================
-import { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import {
   Church, Users, Bell, MessageSquare, Palette, HardDrive,
   Save, Upload, Eye, EyeOff, Send, Download, Shield,
-  Check, Link2, Copy, Loader2, AlertCircle, RefreshCw,
+  Check, Link2, Copy, Loader2, AlertCircle, RefreshCw, Mail,
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { Button, Input, Badge } from '../../components/ui'
@@ -414,6 +414,75 @@ function NotificationsSection() {
       <Button variant="primary" icon={saving ? undefined : Save} loading={saving} onClick={handleSave}>
         {saving ? 'Saving…' : 'Save Preferences'}
       </Button>
+
+      <WeeklyDigestTester />
+    </div>
+  )
+}
+
+// ─── Weekly Digest Test ───────────────────────────────────────
+function WeeklyDigestTester() {
+  const { user } = useAuth()
+  const { church } = useChurch()
+  const [sending, setSending] = useState(false)
+
+  const sendNow = async () => {
+    if (!user?.email) return toast.error('No email on your account.')
+    setSending(true)
+    try {
+      // Pull this week's quick stats
+      const since = new Date(); since.setDate(since.getDate() - 7)
+      const sinceIso = since.toISOString().slice(0, 10)
+
+      const [memb, off, att, visit, pr] = await Promise.all([
+        insforge.database.from('members').select('id').gte('created_at', sinceIso),
+        insforge.database.from('offerings').select('amount').gte('date', sinceIso),
+        insforge.database.from('attendance').select('present_count').gte('service_date', sinceIso),
+        insforge.database.from('visitors').select('id').gte('created_at', sinceIso),
+        insforge.database.from('prayer_requests').select('id').eq('status', 'open'),
+      ])
+
+      const totalOffering = (off.data || []).reduce((s, r) => s + Number(r.amount || 0), 0)
+      const attTotal      = (att.data || []).reduce((s, r) => s + Number(r.present_count || 0), 0)
+
+      const { sendWeeklyDigest } = await import('../../services/emailService')
+      const res = await sendWeeklyDigest({
+        to: user.email,
+        churchName: church?.name || 'Your Church',
+        stats: {
+          weekLabel:      `the week of ${since.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`,
+          attendance:     attTotal,
+          newMembers:     memb.data?.length || 0,
+          offerings:      `LRD ${totalOffering.toLocaleString()}`,
+          visitors:       visit.data?.length || 0,
+          prayerRequests: pr.data?.length || 0,
+        },
+      })
+
+      if (res.ok) toast.success('Digest sent to your inbox!')
+      else toast.error('Email service unavailable. Custom email requires a paid InsForge plan.')
+    } catch (err) {
+      console.error(err)
+      toast.error('Could not send digest.')
+    } finally {
+      setSending(false)
+    }
+  }
+
+  return (
+    <div className="mt-6 p-5 rounded-2xl border border-purple-100 bg-purple-50/50">
+      <div className="flex items-start gap-4">
+        <div className="w-10 h-10 rounded-xl bg-purple-100 flex items-center justify-center flex-shrink-0">
+          <Mail className="w-5 h-5 text-purple-600" />
+        </div>
+        <div className="flex-1">
+          <p className="text-sm font-bold text-slate-800">Weekly Digest</p>
+          <p className="text-xs text-slate-500 mt-0.5">Email yourself a snapshot of this week's attendance, offerings, and new members.</p>
+        </div>
+        <Button variant="secondary" size="sm" loading={sending} onClick={sendNow}>
+          {sending ? 'Sending…' : 'Send to me now'}
+        </Button>
+      </div>
     </div>
   )
 }
@@ -568,18 +637,36 @@ function AppearanceSection() {
 // ─── Backup & Export Section ──────────────────────────────────
 function BackupSection() {
   const { church } = useChurch()
+  const [busy, setBusy] = React.useState(null)
+
+  const runExport = async (key, label, fn) => {
+    setBusy(key)
+    try {
+      const res = await fn()
+      if (res?.count === 0) toast(`No ${label.toLowerCase()} records found yet.`, { icon: 'ℹ️' })
+      else toast.success(`${label} exported (${res.count} rows)`)
+    } catch (err) {
+      console.error('[Export]', err)
+      toast.error(err.message || `Could not export ${label.toLowerCase()}`)
+    } finally {
+      setBusy(null)
+    }
+  }
+
   const exports = [
-    { label: 'Export Members (CSV)',    desc: 'All member records',        icon: Download, color: 'purple' },
-    { label: 'Export Finance (Excel)',  desc: 'Offerings & expenses',      icon: Download, color: 'green' },
-    { label: 'Export Attendance (CSV)', desc: 'All service records',       icon: Download, color: 'blue' },
-    { label: 'Full Data Backup (ZIP)',  desc: 'Complete church data export', icon: HardDrive, color: 'gold' },
+    { key: 'members',    label: 'Export Members',    desc: 'All member records as CSV',    icon: Download,  fn: () => import('../../services/dataExport').then(m => m.exportMembers()) },
+    { key: 'offerings',  label: 'Export Offerings',  desc: 'Offerings & finance as CSV',   icon: Download,  fn: () => import('../../services/dataExport').then(m => m.exportOfferings()) },
+    { key: 'attendance', label: 'Export Attendance', desc: 'All service records as CSV',   icon: Download,  fn: () => import('../../services/dataExport').then(m => m.exportAttendance()) },
+    { key: 'events',     label: 'Export Events',     desc: 'Calendar events as CSV',       icon: Download,  fn: () => import('../../services/dataExport').then(m => m.exportEvents()) },
+    { key: 'prayers',    label: 'Export Prayer Requests', desc: 'All prayer requests',     icon: Download,  fn: () => import('../../services/dataExport').then(m => m.exportPrayers()) },
+    { key: 'backup',     label: 'Full Data Backup',  desc: 'All tables in one file',       icon: HardDrive, fn: () => import('../../services/dataExport').then(m => m.exportFullBackup()) },
   ]
 
   return (
     <div className="space-y-6">
       <div>
         <h2 className="text-lg font-bold text-slate-800 mb-1">Backup & Export</h2>
-        <p className="text-sm text-slate-500">Download your data or create a full backup.</p>
+        <p className="text-sm text-slate-500">Download your data as CSV files. Open in Excel, Google Sheets, or Numbers.</p>
       </div>
       <div className="flex items-center gap-4 p-4 rounded-2xl bg-emerald-50 border border-emerald-100">
         <div className="w-10 h-10 rounded-xl bg-emerald-100 flex items-center justify-center">
@@ -589,25 +676,25 @@ function BackupSection() {
           <p className="text-sm font-bold text-emerald-800">Data is backed up automatically</p>
           <p className="text-xs text-emerald-600">ChurchFlow backs up your data continuously via InsForge.</p>
         </div>
-        <Button variant="primary" size="sm" className="ml-auto" icon={HardDrive}
-          onClick={() => toast('Manual backup triggered.', { icon: '💾' })}>
-          Backup Now
-        </Button>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        {exports.map(({ label, desc, icon: Icon, color }) => (
-          <button key={label}
-            onClick={() => toast(`${label} — export feature coming soon.`, { icon: '📥' })}
-            className="flex items-center gap-4 p-4 rounded-2xl bg-white border border-slate-100 shadow-sm hover:border-purple-100 hover:shadow-md transition-all text-left group">
-            <div className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center flex-shrink-0 group-hover:bg-purple-50 transition-colors">
-              <Icon className="w-5 h-5 text-slate-500 group-hover:text-purple-600 transition-colors" />
-            </div>
-            <div>
-              <p className="text-sm font-semibold text-slate-800">{label}</p>
-              <p className="text-xs text-slate-400">{desc}</p>
-            </div>
-          </button>
-        ))}
+        {exports.map(({ key, label, desc, icon: Icon, fn }) => {
+          const isBusy = busy === key
+          return (
+            <button key={key}
+              disabled={isBusy || busy !== null}
+              onClick={() => runExport(key, label, fn)}
+              className="flex items-center gap-4 p-4 rounded-2xl bg-white border border-slate-100 shadow-sm hover:border-purple-100 hover:shadow-md transition-all text-left group disabled:opacity-50 disabled:cursor-wait">
+              <div className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center flex-shrink-0 group-hover:bg-purple-50 transition-colors">
+                <Icon className="w-5 h-5 text-slate-500 group-hover:text-purple-600 transition-colors" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-slate-800">{label}</p>
+                <p className="text-xs text-slate-400">{isBusy ? 'Preparing download…' : desc}</p>
+              </div>
+            </button>
+          )
+        })}
       </div>
     </div>
   )

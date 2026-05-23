@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { Toaster } from 'react-hot-toast'
 import { AuthProvider, useAuth } from './context/AuthContext'
 import { ChurchProvider } from './context/ChurchContext'
+import PWAInstallPrompt from './components/ui/PWAInstallPrompt'
 
 // ─── Lazy page imports ────────────────────────────────────────
 const Landing          = React.lazy(() => import('./pages/app/Landing'))
@@ -239,6 +240,7 @@ export default function App() {
       <AuthProvider>
         <ChurchProvider>
           <AppRoutes />
+          <PWAInstallPrompt />
           <Toaster
             position="top-right"
             toastOptions={{

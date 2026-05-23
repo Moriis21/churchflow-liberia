@@ -183,6 +183,7 @@ export default function AIChatPanel({
   onSaveOutput   = null,
   onClose        = null,
   compact        = false,
+  seedPrompt     = null,
 }) {
   const [messages,    setMessages]    = useState([])
   const [input,       setInput]       = useState('')
@@ -213,6 +214,18 @@ export default function AIChatPanel({
     el.style.height = 'auto'
     el.style.height = Math.min(el.scrollHeight, 120) + 'px'
   }, [input])
+
+  // Auto-send seedPrompt when it arrives (used by quick-action cards)
+  const seedFiredRef = useRef(null)
+  useEffect(() => {
+    if (!seedPrompt) return
+    if (seedFiredRef.current === seedPrompt) return
+    seedFiredRef.current = seedPrompt
+    // small delay so the panel mounts before the request fires
+    const t = setTimeout(() => { send(seedPrompt) }, 80)
+    return () => clearTimeout(t)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [seedPrompt])
 
   // Build Groq context window (last 10 messages)
   const buildMessages = useCallback((userText) => {

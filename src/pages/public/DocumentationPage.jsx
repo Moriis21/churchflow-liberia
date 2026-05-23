@@ -6,7 +6,8 @@ import { Link } from 'react-router-dom'
 import {
   BookOpen, Users, CalendarCheck, DollarSign, CalendarDays,
   BarChart2, Code2, HelpCircle, ChevronRight, Rocket,
-  Building2, UserPlus, ListChecks, CheckCircle2
+  Building2, UserPlus, ListChecks, CheckCircle2, MessageSquare,
+  Mic2, CreditCard, Smartphone, Download, FileText
 } from 'lucide-react'
 import PublicLayout from './PublicLayout'
 
@@ -24,54 +25,18 @@ const SIDEBAR_SECTIONS = [
     ],
   },
   {
-    label: 'Members',
-    icon: Users,
+    label: 'Core Guides',
+    icon: BookOpen,
     items: [
-      { label: 'Member profiles',         anchor: 'member-profiles'    },
-      { label: 'Departments',             anchor: 'member-departments' },
-      { label: 'Import members (CSV)',    anchor: 'member-import'      },
-    ],
-  },
-  {
-    label: 'Attendance',
-    icon: CalendarCheck,
-    items: [
-      { label: 'Record attendance',       anchor: 'att-record'  },
-      { label: 'QR code check-in',        anchor: 'att-qr'      },
-      { label: 'Service types',           anchor: 'att-types'   },
-    ],
-  },
-  {
-    label: 'Finance',
-    icon: DollarSign,
-    items: [
-      { label: 'Record offerings',        anchor: 'fin-offerings' },
-      { label: 'Categories',              anchor: 'fin-cats'      },
-      { label: 'Export reports',          anchor: 'fin-export'    },
-    ],
-  },
-  {
-    label: 'Events',
-    icon: CalendarDays,
-    items: [
-      { label: 'Create an event',         anchor: 'evt-create'  },
-      { label: 'RSVP and registration',   anchor: 'evt-rsvp'    },
-    ],
-  },
-  {
-    label: 'Reports',
-    icon: BarChart2,
-    items: [
-      { label: 'Analytics dashboard',     anchor: 'rep-dash'    },
-      { label: 'Export PDF / Excel',      anchor: 'rep-export'  },
-    ],
-  },
-  {
-    label: 'API',
-    icon: Code2,
-    items: [
-      { label: 'Authentication',          anchor: 'api-auth'    },
-      { label: 'Endpoints overview',      anchor: 'api-overview'},
+      { label: 'Managing members',        anchor: 'g-members'    },
+      { label: 'Recording attendance',    anchor: 'g-attendance' },
+      { label: 'Recording offerings',     anchor: 'g-offerings'  },
+      { label: 'Creating events',         anchor: 'g-events'     },
+      { label: 'Sending SMS messages',    anchor: 'g-sms'        },
+      { label: 'Sermon management',       anchor: 'g-sermons'    },
+      { label: 'Member portal',           anchor: 'g-portal'     },
+      { label: 'Exporting your data',     anchor: 'g-export'     },
+      { label: 'Billing & plans',         anchor: 'g-billing'    },
     ],
   },
   {
@@ -80,6 +45,235 @@ const SIDEBAR_SECTIONS = [
     items: [
       { label: 'Frequently asked questions', anchor: 'faq'      },
     ],
+  },
+]
+
+// ─── Full guides (rendered as articles below getting-started) ──
+const FULL_GUIDES = [
+  {
+    anchor: 'g-members',
+    icon: Users,
+    title: 'Managing church members',
+    intro: 'Members are the heart of ChurchFlow. This guide covers everything from adding a single member to importing your entire congregation.',
+    sections: [
+      {
+        h: 'Adding a single member',
+        p: 'Go to Members → "Add Member". Fill in the required fields (full name, phone, gender) and any optional ones (email, date of birth, address, baptism date, department). Click Save — the member is immediately available across attendance, offerings, and prayer requests.',
+      },
+      {
+        h: 'Importing members in bulk',
+        p: 'On the Members page, click "Import" and upload a CSV file. ChurchFlow accepts: Full Name, Phone, Email, Gender, Date of Birth, Address, Department, Status. Download the sample template if you\'re not sure of the format.',
+      },
+      {
+        h: 'Departments and groups',
+        p: 'Open Departments to create groups like Choir, Ushers, Youth, Women\'s Fellowship. Assign each member to one or more departments. Department leaders see only their group\'s members in their assistant view.',
+      },
+      {
+        h: 'Membership status',
+        p: 'Set each member as Active, Inactive, Visitor, or Transferred. Inactive members stay in your records but don\'t count in active membership totals. Use the bulk-edit tool to reclassify many members at once after an annual review.',
+      },
+    ],
+    tip: 'Keep phone numbers in international format (+231...) — this lets the SMS feature work without extra cleanup.',
+  },
+  {
+    anchor: 'g-attendance',
+    icon: CalendarCheck,
+    title: 'Recording attendance',
+    intro: 'Track who shows up to Sunday service, mid-week meetings, youth groups, and special events. Three ways to record: roll call, QR code, or quick counts.',
+    sections: [
+      {
+        h: 'Quick attendance count',
+        p: 'For services where you just need a head count, go to Attendance → "Quick Count". Enter the date, service type, number present, number of visitors, and notes. Done in 10 seconds.',
+      },
+      {
+        h: 'Roll call (member-by-member)',
+        p: 'Go to Attendance → "Roll Call". Select the date and service type. ChurchFlow shows your full member list — tick the ones present. The system saves automatically as you go.',
+      },
+      {
+        h: 'QR code check-in',
+        p: 'Each member gets a unique QR code under their profile. Print on a card or save to phone. Set up a tablet at the entrance running ChurchFlow in QR Check-in mode — members scan as they walk in.',
+      },
+      {
+        h: 'Service types',
+        p: 'Standard service types: Sunday Morning, Sunday Evening, Mid-week, Youth, Women\'s, Men\'s, Choir Rehearsal, Special Event. Customize the list in Settings → Attendance.',
+      },
+    ],
+    tip: 'Assign a department leader to take attendance for their group — distributes the work and improves accuracy.',
+  },
+  {
+    anchor: 'g-offerings',
+    icon: DollarSign,
+    title: 'Recording offerings & finance',
+    intro: 'Track tithes, offerings, special funds, and expenses. ChurchFlow handles both LRD and USD with proper currency formatting.',
+    sections: [
+      {
+        h: 'Recording a Sunday offering',
+        p: 'Go to Finance → "Record Offering". Pick the category (Tithe, General Offering, Building Fund, Missions, Special), enter the amount and currency. Optionally link to a member if it\'s their personal tithe.',
+      },
+      {
+        h: 'Categories',
+        p: 'Default categories: Tithe, General Offering, Building Fund, Missions, Special, Pledges, Thanksgiving, Other. Add custom categories in Settings → Finance → Categories. Each category gets its own running total and report.',
+      },
+      {
+        h: 'Currency (LRD ↔ USD)',
+        p: 'Set your church\'s default currency in Settings. Individual entries can override — useful for missionary support tracked in USD. Reports can be filtered by currency.',
+      },
+      {
+        h: 'Receipts',
+        p: 'ChurchFlow auto-generates a receipt number for every offering. Click any offering record to view, print, or email a receipt to the member.',
+      },
+      {
+        h: 'Monthly summary',
+        p: 'Go to Finance → Reports for an automatic monthly summary by category. Export to CSV from Settings → Backup & Export.',
+      },
+    ],
+    tip: 'Set up all your offering categories before the first Sunday so every report categorizes correctly from day one.',
+  },
+  {
+    anchor: 'g-events',
+    icon: CalendarDays,
+    title: 'Creating and managing events',
+    intro: 'Plan revivals, conferences, weddings, youth nights, and prayer meetings. Track RSVPs and send reminders.',
+    sections: [
+      {
+        h: 'Creating an event',
+        p: 'Go to Events → "New Event". Fill in title, date, time, venue, type (Conference, Service, Wedding, Outreach, etc.), and description. Set status to Upcoming.',
+      },
+      {
+        h: 'Accepting RSVPs',
+        p: 'Toggle "Accept RSVPs" on the event. Share the event URL via WhatsApp or SMS — members tap the link and confirm attendance from their phone. You see live RSVP counts.',
+      },
+      {
+        h: 'Event reminders',
+        p: 'Schedule SMS reminders for 1 week, 1 day, and 2 hours before the event. ChurchFlow sends to all RSVPs automatically.',
+      },
+      {
+        h: 'Attendance at events',
+        p: 'On the event day, mark attendance directly from the event page. Records flow into the main attendance database.',
+      },
+    ],
+    tip: 'Create recurring events (Sunday service, mid-week prayer) once with "Repeat weekly" — ChurchFlow generates the future instances automatically.',
+  },
+  {
+    anchor: 'g-sms',
+    icon: MessageSquare,
+    title: 'Sending SMS messages',
+    intro: 'Reach your members instantly with SMS for service reminders, birthday wishes, event announcements, and follow-ups.',
+    sections: [
+      {
+        h: 'Setting up SMS',
+        p: 'Go to Settings → SMS. Add your SMS provider credentials (Orange, MTN, or international). Top up your SMS balance — pricing varies by provider and message length.',
+      },
+      {
+        h: 'Sending a one-time blast',
+        p: 'Go to Messages → "New SMS". Pick recipients (all members, a department, or individuals). Type your message (160 characters per SMS, multi-part allowed). Preview and send.',
+      },
+      {
+        h: 'Using AI to draft messages',
+        p: 'Click the AI Assistant icon next to the message box. Ask "Draft a Sunday service reminder" — the AI writes warm, on-brand SMS copy you can edit and send.',
+      },
+      {
+        h: 'Visitor follow-ups',
+        p: 'Mark a visitor in attendance. ChurchFlow can auto-send a welcome SMS Sunday evening — configure the template under Settings → SMS → Auto-replies.',
+      },
+    ],
+    tip: 'Keep SMS under 160 characters when possible — single-part messages cost half of multi-part ones.',
+  },
+  {
+    anchor: 'g-sermons',
+    icon: Mic2,
+    title: 'Sermon management',
+    intro: 'Store sermons, share them with members, and let the AI help prepare new ones.',
+    sections: [
+      {
+        h: 'Uploading a sermon',
+        p: 'Go to Sermons → "Add Sermon". Fill in title, preacher, date, scripture reference, and a short summary. Upload the audio or video file (MP3, MP4, M4A). The recording is available to members in their portal immediately.',
+      },
+      {
+        h: 'Live streaming',
+        p: 'Set up Live Streams to broadcast Sunday service. ChurchFlow integrates with YouTube Live and Facebook Live — paste the stream URL and members watch directly from the app.',
+      },
+      {
+        h: 'AI sermon builder',
+        p: 'In the Pastor dashboard, use Sermon Builder AI. Give it a scripture and a theme — it produces a full outline with main points, applications, and altar call direction. Edit to fit your style.',
+      },
+      {
+        h: 'Sermon series',
+        p: 'Group related sermons into series (e.g., "Walking by Faith — 6-week series"). Members can binge the whole series from one place.',
+      },
+    ],
+    tip: 'Add a 1-sentence sermon summary for every upload — it dramatically improves search and lets members find old sermons.',
+  },
+  {
+    anchor: 'g-portal',
+    icon: Smartphone,
+    title: 'The Member Portal',
+    intro: 'Every member can log in to their personal portal — view sermons, submit prayer requests, give online, and update their own profile.',
+    sections: [
+      {
+        h: 'Inviting members to register',
+        p: 'Share your church join link (Settings → Church Profile → Copy invite link). Members open it, create a password, and they\'re in — automatically linked to your church.',
+      },
+      {
+        h: 'What members can do',
+        p: 'View their attendance history, submit prayer requests (public or private), watch sermons and live streams, browse the events calendar, update their profile photo and contact info, and chat with the Bible Study AI assistant.',
+      },
+      {
+        h: 'Privacy controls',
+        p: 'Prayer requests can be marked "Pastor only" — only pastors and admins see them. Personal data (DOB, address) is never visible to other members.',
+      },
+      {
+        h: 'Mobile app',
+        p: 'ChurchFlow works as a Progressive Web App. Members can install it to their home screen from any browser — looks and behaves like a native app, no app store needed.',
+      },
+    ],
+    tip: 'Print the join link as a QR code on bulletin handouts — easiest way to get visitors registered after their first Sunday.',
+  },
+  {
+    anchor: 'g-export',
+    icon: Download,
+    title: 'Exporting your data',
+    intro: 'Your data is yours. Download any time as CSV files that open in Excel, Google Sheets, or Numbers.',
+    sections: [
+      {
+        h: 'Where to export',
+        p: 'Go to Settings → Backup & Export. You\'ll see export buttons for Members, Offerings, Attendance, Events, and Prayer Requests, plus a "Full Data Backup" that bundles everything into one file.',
+      },
+      {
+        h: 'What you get',
+        p: 'CSV files with one row per record and a header row of column names. Open directly in Excel — no formatting issues. Dates are in YYYY-MM-DD format for easy sorting.',
+      },
+      {
+        h: 'Regular backups',
+        p: 'ChurchFlow auto-backs up to InsForge continuously. The export feature is for personal/offline copies. We recommend a manual full backup quarterly, stored in your church\'s cloud drive.',
+      },
+    ],
+    tip: 'After exporting Finance, save it to a folder named YYYY-MM so you build up an annual archive your accountant can use.',
+  },
+  {
+    anchor: 'g-billing',
+    icon: CreditCard,
+    title: 'Billing & plans',
+    intro: 'ChurchFlow has 3 plans: Starter, Growth, and Ministry Pro. Pay monthly or yearly (save 20%).',
+    sections: [
+      {
+        h: 'The plans',
+        p: 'Starter ($15/mo, LRD 2,760) — up to 100 members, 1 branch. Growth ($45/mo, LRD 8,280) — up to 500 members, 3 branches. Ministry Pro ($120/mo, LRD 22,080) — unlimited everything.',
+      },
+      {
+        h: 'How to pay',
+        p: 'Orange Money, MTN MoMo, or direct bank transfer. Get payment details from Settings → Billing. Send proof of payment to morrisldorleyjr21@gmail.com and your subscription activates within 24 hours.',
+      },
+      {
+        h: 'Upgrading or downgrading',
+        p: 'Change plans any time from Settings → Billing. Upgrades take effect immediately. Downgrades take effect at the start of your next billing cycle.',
+      },
+      {
+        h: 'Cancellation',
+        p: 'Email morrisldorleyjr21@gmail.com to cancel. Your data stays in ChurchFlow for 30 days after cancellation so you can export it. After that, it\'s permanently deleted.',
+      },
+    ],
+    tip: 'Yearly billing saves 20% — that\'s nearly 3 free months. Most growing churches save by paying upfront.',
   },
 ]
 
@@ -287,6 +481,55 @@ export default function DocumentationPage() {
                 </div>
               )
             })}
+          </div>
+
+          {/* ── Full guides ── */}
+          <div className="mt-20 mb-12">
+            <h2 className="text-2xl font-extrabold text-[#1E1B4B] mb-3">Core Guides</h2>
+            <p className="text-slate-500 mb-10 max-w-2xl">
+              Step-by-step guides for the essential things you'll do every week in ChurchFlow.
+            </p>
+
+            <div className="space-y-16">
+              {FULL_GUIDES.map(guide => {
+                const Icon = guide.icon
+                return (
+                  <article key={guide.anchor} id={guide.anchor} className="scroll-mt-20">
+                    <div className="flex items-start gap-4 mb-5">
+                      <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-violet-100 to-purple-100 flex items-center justify-center flex-shrink-0">
+                        <Icon className="w-5 h-5 text-[#7C3AED]" />
+                      </div>
+                      <div>
+                        <h3 className="text-xl font-extrabold text-[#1E1B4B] leading-tight">{guide.title}</h3>
+                        <p className="text-slate-500 text-sm leading-relaxed mt-1.5">{guide.intro}</p>
+                      </div>
+                    </div>
+
+                    <div className="ml-15 sm:ml-15 space-y-5">
+                      {guide.sections.map((s, i) => (
+                        <div key={i}>
+                          <h4 className="font-bold text-slate-800 text-base mb-1.5 flex items-center gap-2">
+                            <ChevronRight className="w-3.5 h-3.5 text-purple-400" />
+                            {s.h}
+                          </h4>
+                          <p className="text-slate-600 text-sm leading-relaxed pl-5">{s.p}</p>
+                        </div>
+                      ))}
+
+                      {guide.tip && (
+                        <div className="flex items-start gap-3 p-4 bg-amber-50 rounded-xl border border-amber-200 mt-4">
+                          <ListChecks className="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" />
+                          <div>
+                            <p className="text-xs font-bold text-amber-700 uppercase tracking-wider mb-1">Tip</p>
+                            <p className="text-amber-700 text-sm leading-relaxed">{guide.tip}</p>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </article>
+                )
+              })}
+            </div>
           </div>
 
           {/* FAQ */}
