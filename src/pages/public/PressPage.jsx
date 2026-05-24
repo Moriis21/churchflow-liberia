@@ -10,9 +10,9 @@ import {
 import PublicLayout from './PublicLayout'
 
 const BRAND_COLORS = [
-  { name: 'Brand Purple',   hex: '#7C3AED', var: '--color-brand-purple',  usage: 'Primary brand, CTAs, links'    },
+  { name: 'Brand Purple',   hex: '#8A19FF', var: '--color-brand-purple',  usage: 'Primary brand, CTAs, links'    },
   { name: 'Brand Gold',     hex: '#F59E0B', var: '--color-brand-gold',    usage: 'Accents, highlights, awards'   },
-  { name: 'Brand Navy',     hex: '#1E1B4B', var: '--color-brand-navy',    usage: 'Headings, dark backgrounds'    },
+  { name: 'Brand Navy',     hex: '#151022', var: '--color-brand-navy',    usage: 'Headings, dark backgrounds'    },
   { name: 'White',          hex: '#FFFFFF', var: '--color-white',          usage: 'Backgrounds, reversed text'    },
   { name: 'Slate 50',       hex: '#F8FAFC', var: '--color-slate-50',      usage: 'Page backgrounds'              },
 ]
@@ -63,7 +63,7 @@ export default function PressPage() {
   return (
     <PublicLayout>
       {/* Hero */}
-      <section className="bg-gradient-to-br from-[#1E1B4B] via-[#312e81] to-[#7C3AED] py-20 px-4 text-center">
+      <section className="bg-gradient-to-br from-[#151022] via-[#2A1F4F] to-[#8A19FF] py-20 px-4 text-center">
         <div className="max-w-3xl mx-auto">
           <span className="inline-block px-4 py-1.5 rounded-full bg-white/10 text-[#F59E0B] text-xs font-semibold tracking-widest uppercase mb-6 border border-white/20">
             Press and Media
@@ -74,7 +74,7 @@ export default function PressPage() {
           <p className="text-lg text-purple-200 max-w-xl mx-auto leading-relaxed mb-8">
             Download logos, review brand guidelines, and get in touch with our media contact for interview requests and press enquiries.
           </p>
-          <button className="inline-flex items-center gap-2 px-7 py-3 rounded-xl bg-[#F59E0B] text-[#1E1B4B] font-bold text-sm hover:bg-amber-400 transition-colors shadow-lg">
+          <button className="inline-flex items-center gap-2 px-7 py-3 rounded-xl bg-[#F59E0B] text-[#151022] font-bold text-sm hover:bg-amber-400 transition-colors shadow-lg">
             <Download className="w-4 h-4" />
             Download Logo Kit
           </button>
@@ -87,17 +87,17 @@ export default function PressPage() {
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 p-7 bg-slate-50 rounded-2xl border border-slate-200">
             <div className="flex items-start gap-4">
               <div className="w-11 h-11 rounded-xl bg-purple-100 flex items-center justify-center flex-shrink-0">
-                <Mail className="w-5 h-5 text-[#7C3AED]" />
+                <Mail className="w-5 h-5 text-[#8A19FF]" />
               </div>
               <div>
-                <h3 className="font-bold text-[#1E1B4B] mb-0.5">Press Contact</h3>
+                <h3 className="font-bold text-[#151022] mb-0.5">Press Contact</h3>
                 <p className="text-slate-500 text-sm">For interview requests, article fact-checking, and press enquiries.</p>
-                <p className="text-[#7C3AED] font-bold mt-2">press@churchflow.lr</p>
+                <p className="text-[#8A19FF] font-bold mt-2">press@churchflow.lr</p>
               </div>
             </div>
             <Link
               to="/contact"
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl border border-[#7C3AED] text-[#7C3AED] font-semibold text-sm hover:bg-purple-50 transition-colors flex-shrink-0"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl border border-[#8A19FF] text-[#8A19FF] font-semibold text-sm hover:bg-purple-50 transition-colors flex-shrink-0"
             >
               Contact Us
               <ArrowRight className="w-4 h-4" />
@@ -109,30 +109,30 @@ export default function PressPage() {
       {/* Logo kit */}
       <section className="py-16 px-4 bg-slate-50">
         <div className="max-w-4xl mx-auto">
-          <h2 className="text-2xl font-extrabold text-[#1E1B4B] mb-8">Logo and Assets</h2>
+          <h2 className="text-2xl font-extrabold text-[#151022] mb-8">Logo and Assets</h2>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
             {[
               { bg: 'bg-white',       label: 'Logo — Dark Variant',   sub: 'For light backgrounds',  border: 'border-slate-200' },
-              { bg: 'bg-[#1E1B4B]',  label: 'Logo — Light Variant',  sub: 'For dark backgrounds',   border: 'border-[#1E1B4B]' },
-              { bg: 'bg-[#7C3AED]',  label: 'Logo — Purple Variant', sub: 'For branded backgrounds', border: 'border-[#7C3AED]' },
+              { bg: 'bg-[#151022]',  label: 'Logo — Light Variant',  sub: 'For dark backgrounds',   border: 'border-[#151022]' },
+              { bg: 'bg-[#8A19FF]',  label: 'Logo — Purple Variant', sub: 'For branded backgrounds', border: 'border-[#8A19FF]' },
             ].map(v => (
               <div key={v.label} className={`rounded-2xl border ${v.border} ${v.bg} overflow-hidden`}>
                 <div className="h-40 flex items-center justify-center">
                   <div className="flex items-center gap-2.5">
-                    <div className={`w-9 h-9 rounded-lg flex items-center justify-center shadow ${v.bg === 'bg-white' ? 'bg-[#1E1B4B]' : 'bg-white/20'}`}>
+                    <div className={`w-9 h-9 rounded-lg flex items-center justify-center shadow ${v.bg === 'bg-white' ? 'bg-[#151022]' : 'bg-white/20'}`}>
                       <Image className={`w-4 h-4 ${v.bg === 'bg-white' ? 'text-[#F59E0B]' : 'text-[#F59E0B]'}`} />
                     </div>
-                    <span className={`font-bold text-base ${v.bg === 'bg-white' ? 'text-[#1E1B4B]' : 'text-white'}`}>
+                    <span className={`font-bold text-base ${v.bg === 'bg-white' ? 'text-[#151022]' : 'text-white'}`}>
                       ChurchFlow
                     </span>
                   </div>
                 </div>
                 <div className={`px-5 py-3 border-t ${v.bg === 'bg-white' ? 'border-slate-100 bg-slate-50' : 'border-white/10 bg-black/10'} flex items-center justify-between`}>
                   <div>
-                    <p className={`text-xs font-semibold ${v.bg === 'bg-white' ? 'text-[#1E1B4B]' : 'text-white'}`}>{v.label}</p>
+                    <p className={`text-xs font-semibold ${v.bg === 'bg-white' ? 'text-[#151022]' : 'text-white'}`}>{v.label}</p>
                     <p className={`text-xs ${v.bg === 'bg-white' ? 'text-slate-400' : 'text-white/50'}`}>{v.sub}</p>
                   </div>
-                  <button className={`flex items-center gap-1 text-xs font-bold px-3 py-1.5 rounded-lg ${v.bg === 'bg-white' ? 'bg-[#7C3AED] text-white' : 'bg-white/20 text-white'}`}>
+                  <button className={`flex items-center gap-1 text-xs font-bold px-3 py-1.5 rounded-lg ${v.bg === 'bg-white' ? 'bg-[#8A19FF] text-white' : 'bg-white/20 text-white'}`}>
                     <Download className="w-3 h-3" />
                     SVG
                   </button>
@@ -142,7 +142,7 @@ export default function PressPage() {
           </div>
 
           <div className="mt-6 flex justify-center">
-            <button className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[#1E1B4B] text-white font-bold text-sm hover:bg-slate-800 transition-colors shadow-sm">
+            <button className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[#151022] text-white font-bold text-sm hover:bg-slate-800 transition-colors shadow-sm">
               <Download className="w-4 h-4" />
               Download Full Logo Kit (.zip)
             </button>
@@ -153,13 +153,13 @@ export default function PressPage() {
       {/* Brand guidelines */}
       <section className="py-16 px-4 bg-white border-t border-slate-100">
         <div className="max-w-4xl mx-auto">
-          <h2 className="text-2xl font-extrabold text-[#1E1B4B] mb-10">Brand Guidelines</h2>
+          <h2 className="text-2xl font-extrabold text-[#151022] mb-10">Brand Guidelines</h2>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
             {/* Colours */}
             <div>
-              <div className="flex items-center gap-2 text-sm font-bold text-[#1E1B4B] uppercase tracking-wider mb-5">
-                <Palette className="w-4 h-4 text-[#7C3AED]" />
+              <div className="flex items-center gap-2 text-sm font-bold text-[#151022] uppercase tracking-wider mb-5">
+                <Palette className="w-4 h-4 text-[#8A19FF]" />
                 Brand Colours
               </div>
               <div className="space-y-3">
@@ -171,7 +171,7 @@ export default function PressPage() {
                     />
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
-                        <span className="font-semibold text-[#1E1B4B] text-sm">{c.name}</span>
+                        <span className="font-semibold text-[#151022] text-sm">{c.name}</span>
                         <code className="text-xs text-slate-400 font-mono">{c.hex}</code>
                       </div>
                       <p className="text-xs text-slate-400 truncate">{c.usage}</p>
@@ -183,8 +183,8 @@ export default function PressPage() {
 
             {/* Typography */}
             <div>
-              <div className="flex items-center gap-2 text-sm font-bold text-[#1E1B4B] uppercase tracking-wider mb-5">
-                <Type className="w-4 h-4 text-[#7C3AED]" />
+              <div className="flex items-center gap-2 text-sm font-bold text-[#151022] uppercase tracking-wider mb-5">
+                <Type className="w-4 h-4 text-[#8A19FF]" />
                 Typography
               </div>
               <div className="space-y-3">
@@ -193,7 +193,7 @@ export default function PressPage() {
                     <Square className="w-4 h-4 text-slate-300 flex-shrink-0 mt-0.5" />
                     <div>
                       <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-0.5">{t.label}</span>
-                      <span className="text-sm font-bold text-[#1E1B4B] block">{t.value}</span>
+                      <span className="text-sm font-bold text-[#151022] block">{t.value}</span>
                       <span className="text-xs text-slate-400">{t.usage}</span>
                     </div>
                   </div>
@@ -204,11 +204,11 @@ export default function PressPage() {
 
           {/* Usage rules */}
           <div className="mt-10">
-            <h3 className="font-bold text-[#1E1B4B] mb-4">Logo Usage Rules</h3>
+            <h3 className="font-bold text-[#151022] mb-4">Logo Usage Rules</h3>
             <ul className="space-y-2">
               {USAGE_RULES.map((rule, idx) => (
                 <li key={idx} className="flex items-start gap-2.5 text-sm text-slate-600">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#7C3AED] flex-shrink-0 mt-2" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#8A19FF] flex-shrink-0 mt-2" />
                   {rule}
                 </li>
               ))}
@@ -220,18 +220,18 @@ export default function PressPage() {
       {/* Media mentions */}
       <section className="py-16 px-4 bg-slate-50 border-t border-slate-100">
         <div className="max-w-4xl mx-auto">
-          <h2 className="text-2xl font-extrabold text-[#1E1B4B] mb-8">Media Coverage</h2>
+          <h2 className="text-2xl font-extrabold text-[#151022] mb-8">Media Coverage</h2>
           <div className="space-y-4">
             {MEDIA_MENTIONS.map(mention => (
               <div key={mention.headline} className="bg-white rounded-2xl border border-slate-200 p-5 hover:shadow-sm transition-shadow">
                 <div className="flex flex-wrap items-start justify-between gap-4">
                   <div className="flex-1 min-w-0">
                     <div className="flex flex-wrap items-center gap-2 mb-2">
-                      <span className="font-bold text-[#7C3AED] text-sm">{mention.outlet}</span>
+                      <span className="font-bold text-[#8A19FF] text-sm">{mention.outlet}</span>
                       <span className="text-slate-300 text-xs">·</span>
                       <span className="px-2 py-0.5 bg-slate-100 text-slate-500 rounded-full text-xs font-medium">{mention.type}</span>
                     </div>
-                    <h3 className="font-semibold text-[#1E1B4B] text-sm leading-snug">{mention.headline}</h3>
+                    <h3 className="font-semibold text-[#151022] text-sm leading-snug">{mention.headline}</h3>
                     <p className="text-slate-400 text-xs mt-1 flex items-center gap-1">
                       <Calendar className="w-3 h-3" />
                       {mention.date}
@@ -241,7 +241,7 @@ export default function PressPage() {
                     href={mention.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-1.5 text-xs text-[#7C3AED] font-semibold hover:underline flex-shrink-0"
+                    className="flex items-center gap-1.5 text-xs text-[#8A19FF] font-semibold hover:underline flex-shrink-0"
                   >
                     Read Article
                     <ExternalLink className="w-3 h-3" />

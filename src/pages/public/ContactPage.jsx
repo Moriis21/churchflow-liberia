@@ -12,7 +12,7 @@ const CONTACT_INFO = [
     value: 'morrisldorleyjr21@gmail.com',
     sub: 'We reply within 24 hours',
     href: 'mailto:morrisldorleyjr21@gmail.com',
-    color: 'bg-purple-100 text-[#7C3AED]',
+    color: 'bg-purple-100 text-[#8A19FF]',
   },
   {
     icon: Phone,
@@ -94,7 +94,7 @@ export default function ContactPage() {
   return (
     <PublicLayout>
       {/* Hero */}
-      <section className="bg-gradient-to-br from-[#1E1B4B] via-[#312e81] to-[#7C3AED] py-20 px-4 text-center">
+      <section className="bg-gradient-to-br from-[#151022] via-[#2A1F4F] to-[#8A19FF] py-20 px-4 text-center">
         <div className="max-w-3xl mx-auto">
           <span className="inline-block px-4 py-1.5 rounded-full bg-white/10 text-[#F59E0B] text-xs font-semibold tracking-widest uppercase mb-6 border border-white/20">
             Contact Us
@@ -115,7 +115,7 @@ export default function ContactPage() {
 
             {/* Left: Contact info */}
             <div>
-              <h2 className="text-2xl font-bold text-[#1E1B4B] mb-2">Contact Information</h2>
+              <h2 className="text-2xl font-bold text-[#151022] mb-2">Contact Information</h2>
               <p className="text-slate-500 mb-8 leading-relaxed">
                 Have questions about ChurchFlow? We are here to help. Our support team is based in Brewerville City, Liberia and ready to assist your ministry.
               </p>
@@ -131,8 +131,8 @@ export default function ContactPage() {
                       <div>
                         <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-0.5">{item.label}</p>
                         {item.href
-                          ? <a href={item.href} className="font-semibold text-[#7C3AED] text-sm hover:underline">{item.value}</a>
-                          : <p className="font-semibold text-[#1E1B4B] text-sm">{item.value}</p>
+                          ? <a href={item.href} className="font-semibold text-[#8A19FF] text-sm hover:underline">{item.value}</a>
+                          : <p className="font-semibold text-[#151022] text-sm">{item.value}</p>
                         }
                         <p className="text-slate-400 text-xs mt-0.5">{item.sub}</p>
                       </div>
@@ -141,7 +141,7 @@ export default function ContactPage() {
                 })}
               </div>
 
-              <div className="mt-8 p-6 bg-[#1E1B4B] rounded-2xl text-white">
+              <div className="mt-8 p-6 bg-[#151022] rounded-2xl text-white">
                 <h3 className="font-bold text-base mb-2">Need urgent help?</h3>
                 <p className="text-purple-300 text-sm leading-relaxed mb-4">
                   For technical emergencies during business hours, message us on WhatsApp. For after-hours issues, we will respond first thing the next business morning.
@@ -162,7 +162,7 @@ export default function ContactPage() {
 
             {/* Right: Contact form */}
             <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-8">
-              <h2 className="text-xl font-bold text-[#1E1B4B] mb-1">Send us a message</h2>
+              <h2 className="text-xl font-bold text-[#151022] mb-1">Send us a message</h2>
               <p className="text-slate-400 text-sm mb-6">We will get back to you within 24 hours.</p>
 
               {status === 'success' && (
@@ -186,7 +186,7 @@ export default function ContactPage() {
 
                 {/* Name */}
                 <div>
-                  <label className="block text-sm font-semibold text-[#1E1B4B] mb-1.5">
+                  <label className="block text-sm font-semibold text-[#151022] mb-1.5">
                     Full Name <span className="text-red-400">*</span>
                   </label>
                   <input
@@ -196,10 +196,10 @@ export default function ContactPage() {
                     onChange={handleChange}
                     onBlur={handleBlur}
                     placeholder="Enter your name"
-                    className={`w-full px-4 py-3 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-[#7C3AED]/30 transition-colors ${
+                    className={`w-full px-4 py-3 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-[#8A19FF]/30 transition-colors ${
                       touched.name && errors.name
                         ? 'border-red-300 bg-red-50'
-                        : 'border-slate-200 bg-white focus:border-[#7C3AED]'
+                        : 'border-slate-200 bg-white focus:border-[#8A19FF]'
                     }`}
                   />
                   {touched.name && errors.name && (
@@ -209,7 +209,7 @@ export default function ContactPage() {
 
                 {/* Email */}
                 <div>
-                  <label className="block text-sm font-semibold text-[#1E1B4B] mb-1.5">
+                  <label className="block text-sm font-semibold text-[#151022] mb-1.5">
                     Email Address <span className="text-red-400">*</span>
                   </label>
                   <input
@@ -219,10 +219,10 @@ export default function ContactPage() {
                     onChange={handleChange}
                     onBlur={handleBlur}
                     placeholder="you@example.com"
-                    className={`w-full px-4 py-3 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-[#7C3AED]/30 transition-colors ${
+                    className={`w-full px-4 py-3 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-[#8A19FF]/30 transition-colors ${
                       touched.email && errors.email
                         ? 'border-red-300 bg-red-50'
-                        : 'border-slate-200 bg-white focus:border-[#7C3AED]'
+                        : 'border-slate-200 bg-white focus:border-[#8A19FF]'
                     }`}
                   />
                   {touched.email && errors.email && (
@@ -232,7 +232,7 @@ export default function ContactPage() {
 
                 {/* Subject */}
                 <div>
-                  <label className="block text-sm font-semibold text-[#1E1B4B] mb-1.5">
+                  <label className="block text-sm font-semibold text-[#151022] mb-1.5">
                     Subject <span className="text-red-400">*</span>
                   </label>
                   <select
@@ -240,10 +240,10 @@ export default function ContactPage() {
                     value={form.subject}
                     onChange={handleChange}
                     onBlur={handleBlur}
-                    className={`w-full px-4 py-3 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-[#7C3AED]/30 transition-colors ${
+                    className={`w-full px-4 py-3 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-[#8A19FF]/30 transition-colors ${
                       touched.subject && errors.subject
                         ? 'border-red-300 bg-red-50'
-                        : 'border-slate-200 bg-white focus:border-[#7C3AED]'
+                        : 'border-slate-200 bg-white focus:border-[#8A19FF]'
                     }`}
                   >
                     <option value="">Select a subject</option>
@@ -258,7 +258,7 @@ export default function ContactPage() {
 
                 {/* Message */}
                 <div>
-                  <label className="block text-sm font-semibold text-[#1E1B4B] mb-1.5">
+                  <label className="block text-sm font-semibold text-[#151022] mb-1.5">
                     Message <span className="text-red-400">*</span>
                   </label>
                   <textarea
@@ -268,10 +268,10 @@ export default function ContactPage() {
                     onBlur={handleBlur}
                     placeholder="Tell us how we can help..."
                     rows={5}
-                    className={`w-full px-4 py-3 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-[#7C3AED]/30 resize-none transition-colors ${
+                    className={`w-full px-4 py-3 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-[#8A19FF]/30 resize-none transition-colors ${
                       touched.message && errors.message
                         ? 'border-red-300 bg-red-50'
-                        : 'border-slate-200 bg-white focus:border-[#7C3AED]'
+                        : 'border-slate-200 bg-white focus:border-[#8A19FF]'
                     }`}
                   />
                   {touched.message && errors.message && (
@@ -282,7 +282,7 @@ export default function ContactPage() {
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="w-full flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-[#7C3AED] text-white font-bold text-sm hover:bg-[#6D28D9] disabled:opacity-60 disabled:cursor-not-allowed transition-colors shadow-sm"
+                  className="w-full flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-[#8A19FF] text-white font-bold text-sm hover:bg-[#5B00B8] disabled:opacity-60 disabled:cursor-not-allowed transition-colors shadow-sm"
                 >
                   {submitting ? (
                     <>
@@ -306,9 +306,9 @@ export default function ContactPage() {
       <section className="px-4 pb-20 bg-slate-50">
         <div className="max-w-6xl mx-auto">
           <div className="mb-5">
-            <h3 className="text-xl font-bold text-[#1E1B4B] mb-1">Our Location</h3>
+            <h3 className="text-xl font-bold text-[#151022] mb-1">Our Location</h3>
             <p className="text-slate-500 text-sm flex items-center gap-1.5">
-              <MapPin className="w-4 h-4 text-[#7C3AED]" />
+              <MapPin className="w-4 h-4 text-[#8A19FF]" />
               Brewerville City, Montserrado County, Republic of Liberia
             </p>
           </div>

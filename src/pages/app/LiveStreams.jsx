@@ -55,7 +55,7 @@ function StreamCard({ stream, onEdit, onDelete }) {
   return (
     <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
       {/* Thumbnail or gradient */}
-      <div className="h-36 relative overflow-hidden bg-gradient-to-br from-[#1E1B4B] to-purple-700 flex items-center justify-center">
+      <div className="h-36 relative overflow-hidden bg-gradient-to-br from-[#151022] to-purple-700 flex items-center justify-center">
         {stream.thumbnail_url ? (
           <img src={stream.thumbnail_url} alt={stream.title}
             className="w-full h-full object-cover" />
@@ -291,7 +291,7 @@ export default function LiveStreams() {
           <button key={t.key} onClick={() => setActiveTab(t.key)}
             className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
               activeTab === t.key
-                ? 'bg-white text-[#1E1B4B] shadow-sm'
+                ? 'bg-white text-[#151022] shadow-sm'
                 : 'text-slate-500 hover:text-slate-700'
             }`}>
             {t.label}

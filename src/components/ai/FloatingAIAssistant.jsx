@@ -129,7 +129,7 @@ export default function FloatingAIAssistant() {
               transition={{ type: 'spring', stiffness: 400, damping: 25 }}
               onClick={handleOpen}
               aria-label="Open AI Assistant"
-              className="relative w-14 h-14 rounded-2xl bg-gradient-to-br from-violet-600 to-purple-700 shadow-xl shadow-purple-900/40 flex items-center justify-center hover:from-violet-500 hover:to-purple-600 transition-colors group"
+              className="relative w-14 h-14 rounded-2xl bg-[#8A19FF] shadow-[0_8px_28px_rgba(138,25,255,0.40)] flex items-center justify-center hover:bg-[#5B00B8] transition-colors group"
             >
               {pulse && (
                 <span className="absolute inset-0 rounded-2xl bg-purple-400/50 animate-ping pointer-events-none" />
@@ -137,7 +137,7 @@ export default function FloatingAIAssistant() {
               <MessageCircle className="w-6 h-6 text-white group-hover:scale-110 transition-transform" />
 
               {/* Desktop tooltip */}
-              <span className="hidden md:block absolute right-16 top-1/2 -translate-y-1/2 bg-[#1E1B4B] text-white text-xs font-semibold px-3 py-1.5 rounded-xl whitespace-nowrap shadow-lg pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity">
+              <span className="hidden md:block absolute right-16 top-1/2 -translate-y-1/2 bg-[#151022] text-white text-xs font-semibold px-3 py-1.5 rounded-xl whitespace-nowrap shadow-lg pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity">
                 Ask ChurchFlow Guide ✨
               </span>
             </motion.button>

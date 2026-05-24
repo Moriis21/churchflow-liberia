@@ -233,7 +233,7 @@ export default function CompleteSetup() {
             className="w-9 h-9 rounded-xl object-contain"
             onError={e => { e.target.style.display = 'none' }} />
           <div>
-            <span className="block text-base font-extrabold text-[#1E1B4B]">ChurchFlow</span>
+            <span className="block text-base font-extrabold text-[#151022]">ChurchFlow</span>
             <span className="block text-[10px] font-semibold text-amber-500 tracking-widest uppercase">Liberia</span>
           </div>
         </div>
@@ -245,7 +245,7 @@ export default function CompleteSetup() {
           {step === 1 && (
             <form onSubmit={submitStep1} className="space-y-4" noValidate>
               <div className="text-center mb-5">
-                <h1 className="text-2xl font-extrabold text-[#1E1B4B] mb-1">Welcome to ChurchFlow</h1>
+                <h1 className="text-2xl font-extrabold text-[#151022] mb-1">Welcome to ChurchFlow</h1>
                 <p className="text-sm text-slate-500">Let's set up your church in a few quick steps.</p>
               </div>
 
@@ -300,7 +300,7 @@ export default function CompleteSetup() {
           {step === 2 && (
             <div className="space-y-4">
               <div className="text-center mb-5">
-                <h1 className="text-2xl font-extrabold text-[#1E1B4B] mb-1">Add your main branch</h1>
+                <h1 className="text-2xl font-extrabold text-[#151022] mb-1">Add your main branch</h1>
                 <p className="text-sm text-slate-500">If your church meets at one location, that's your main branch. You can add more later.</p>
               </div>
 
@@ -339,7 +339,7 @@ export default function CompleteSetup() {
           {step === 3 && (
             <div className="space-y-4">
               <div className="text-center mb-5">
-                <h1 className="text-2xl font-extrabold text-[#1E1B4B] mb-1">Invite your team</h1>
+                <h1 className="text-2xl font-extrabold text-[#151022] mb-1">Invite your team</h1>
                 <p className="text-sm text-slate-500">Add the people who'll help run your church on ChurchFlow.</p>
               </div>
 
@@ -395,7 +395,7 @@ export default function CompleteSetup() {
               <div className="w-16 h-16 rounded-2xl bg-emerald-50 border border-emerald-100 flex items-center justify-center mx-auto mb-5">
                 <CheckCircle className="w-8 h-8 text-emerald-600" />
               </div>
-              <h2 className="text-2xl font-extrabold text-[#1E1B4B] mb-2">
+              <h2 className="text-2xl font-extrabold text-[#151022] mb-2">
                 {church.name} is ready!
               </h2>
               <p className="text-sm text-slate-500 mb-7 max-w-sm mx-auto">

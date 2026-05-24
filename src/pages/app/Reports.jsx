@@ -36,9 +36,9 @@ import { formatCurrency, formatDate } from '../../utils/helpers'
 
 // ─── Palette ──────────────────────────────────────────────────
 const C = {
-  purple: '#7C3AED',
+  purple: '#8A19FF',
   gold: '#F59E0B',
-  navy: '#1E1B4B',
+  navy: '#151022',
   green: '#10B981',
   blue: '#3B82F6',
   rose: '#F43F5E',
@@ -385,7 +385,7 @@ function AttendanceTab({ attendanceData, loading }) {
     <div className="space-y-6">
       {/* Summary cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="bg-gradient-to-br from-violet-600 to-purple-700 rounded-2xl p-5 text-white">
+        <div className="bg-gradient-to-br from-[#151022] to-[#5B00B8] rounded-2xl p-5 text-white">
           <p className="text-xs font-semibold opacity-70 mb-1">Avg Attendance Rate</p>
           <p className="text-3xl font-extrabold">{attendanceTrend.length > 0 ? `${avgRate}%` : '—'}</p>
           <p className="text-xs opacity-60 mt-1">Sunday services tracked</p>
@@ -751,7 +751,7 @@ export default function Reports() {
               onClick={() => setActiveTab(key)}
               className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all whitespace-nowrap ${
                 activeTab === key
-                  ? 'bg-gradient-to-r from-violet-600 to-purple-700 text-white shadow-md shadow-purple-500/25'
+                  ? 'bg-gradient-to-r from-[#151022] to-[#5B00B8] text-white shadow-md shadow-purple-500/25'
                   : 'text-slate-500 hover:text-slate-700 hover:bg-slate-50'
               }`}
             >

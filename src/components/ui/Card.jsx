@@ -23,10 +23,10 @@ const Card = ({
   return (
     <div
       className={[
-        'bg-white rounded-2xl border border-slate-100',
-        'shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)]',
+        'bg-white rounded-[20px] border border-[#E4E7EC]',
+        'shadow-[0_1px_2px_rgba(21,16,34,0.04),0_1px_3px_rgba(21,16,34,0.06)]',
         hover
-          ? 'transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-[0_8px_30px_-4px_rgba(124,58,237,0.15),0_20px_40px_-4px_rgba(0,0,0,0.08)] cursor-pointer'
+          ? 'transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-[0_8px_24px_-4px_rgba(21,16,34,0.10)] cursor-pointer'
           : '',
         className,
       ].join(' ')}
@@ -41,8 +41,8 @@ const Card = ({
         >
           <div className="flex items-center gap-3 min-w-0 flex-1">
             {Icon && (
-              <div className="flex-shrink-0 w-10 h-10 rounded-xl bg-gradient-to-br from-violet-50 to-purple-100 flex items-center justify-center">
-                <Icon className="w-5 h-5 text-purple-600" aria-hidden="true" />
+              <div className="flex-shrink-0 w-10 h-10 rounded-xl bg-[#F7F4FF] flex items-center justify-center">
+                <Icon className="w-5 h-5 text-[#8A19FF]" aria-hidden="true" />
               </div>
             )}
             {(title || subtitle) && (

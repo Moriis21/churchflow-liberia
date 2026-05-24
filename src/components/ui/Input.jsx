@@ -62,9 +62,9 @@ const Input = ({
           aria-invalid={!!error}
           aria-describedby={error ? `${inputId}-error` : undefined}
           className={[
-            'w-full rounded-xl border text-sm text-slate-800 bg-white',
+            'w-full rounded-xl border text-sm text-[#151022] bg-white',
             inputClassName,
-            'placeholder:text-slate-400',
+            'placeholder:text-[#98A4B3]',
             'transition-all duration-200 ease-in-out',
             'focus:outline-none focus:ring-2 focus:ring-offset-0',
             Icon ? 'pl-10' : 'pl-4',
@@ -72,9 +72,9 @@ const Input = ({
             'py-2.5',
             error
               ? 'border-red-400 focus:border-red-500 focus:ring-red-200'
-              : 'border-slate-200 focus:border-purple-500 focus:ring-purple-100 hover:border-slate-300',
+              : 'border-[#D0D5DD] focus:border-[#8A19FF] focus:ring-[#8A19FF]/20 hover:border-[#98A4B3]',
             disabled
-              ? 'bg-slate-50 text-slate-400 cursor-not-allowed opacity-70'
+              ? 'bg-[#F7F8FA] text-[#98A4B3] cursor-not-allowed opacity-70'
               : '',
           ].join(' ')}
           {...rest}

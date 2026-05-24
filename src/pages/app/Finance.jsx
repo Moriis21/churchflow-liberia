@@ -41,9 +41,9 @@ import { insforge } from '../../lib/insforge'
 import { useAuth } from '../../context/AuthContext'
 
 // ─── Palette ─────────────────────────────────────────────────
-const PURPLE = '#7C3AED'
+const PURPLE = '#8A19FF'
 const GOLD   = '#F59E0B'
-const NAVY   = '#1E1B4B'
+const NAVY   = '#151022'
 const GREEN  = '#10B981'
 const BLUE   = '#3B82F6'
 const ROSE   = '#F43F5E'

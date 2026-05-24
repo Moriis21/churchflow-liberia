@@ -2,15 +2,15 @@ import React from 'react'
 
 const variants = {
   primary:
-    'bg-gradient-to-r from-violet-600 to-purple-700 text-white shadow-lg shadow-purple-500/30 hover:from-violet-700 hover:to-purple-800 hover:shadow-purple-500/40 focus:ring-purple-500',
+    'bg-[#8A19FF] text-white shadow-[0_4px_14px_rgba(138,25,255,0.30)] hover:bg-[#5B00B8] hover:shadow-[0_6px_20px_rgba(138,25,255,0.40)] focus:ring-[#8A19FF]',
   secondary:
-    'bg-white border-2 border-purple-600 text-purple-700 hover:bg-purple-50 hover:border-purple-700 focus:ring-purple-500',
+    'bg-white border border-[#8A19FF] text-[#5B00B8] hover:bg-[#F7F4FF] hover:border-[#5B00B8] focus:ring-[#8A19FF]',
   ghost:
-    'bg-transparent text-purple-700 hover:bg-purple-50 hover:text-purple-800 focus:ring-purple-500',
+    'bg-transparent text-[#5B00B8] hover:bg-[#F7F4FF] hover:text-[#8A19FF] focus:ring-[#8A19FF]',
   danger:
-    'bg-gradient-to-r from-red-500 to-rose-600 text-white shadow-lg shadow-red-500/30 hover:from-red-600 hover:to-rose-700 hover:shadow-red-500/40 focus:ring-red-500',
+    'bg-red-50 text-red-700 border border-red-200 hover:bg-red-100 hover:border-red-300 focus:ring-red-500',
   gold:
-    'bg-gradient-to-r from-amber-400 to-yellow-500 text-amber-900 shadow-lg shadow-amber-400/30 hover:from-amber-500 hover:to-yellow-600 hover:shadow-amber-400/40 focus:ring-amber-400',
+    'bg-amber-400 text-[#151022] shadow-[0_4px_14px_rgba(245,158,11,0.30)] hover:bg-amber-500 hover:shadow-[0_6px_20px_rgba(245,158,11,0.40)] focus:ring-amber-400',
 }
 
 const sizes = {

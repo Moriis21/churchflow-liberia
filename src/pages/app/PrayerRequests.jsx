@@ -114,7 +114,7 @@ function PrayerCard({ prayerReq, prayerCounts, onPray, onAddResponse, onViewTest
           prayerReq.status === 'answered'
             ? 'bg-gradient-to-r from-emerald-400 to-teal-500'
             : reqType === 'pastor_only'
-            ? 'bg-gradient-to-r from-violet-600 to-purple-700'
+            ? 'bg-gradient-to-r from-[#151022] to-[#5B00B8]'
             : reqType === 'private'
             ? 'bg-gradient-to-r from-slate-400 to-slate-500'
             : 'bg-gradient-to-r from-sky-400 to-blue-500'
@@ -124,11 +124,11 @@ function PrayerCard({ prayerReq, prayerCounts, onPray, onAddResponse, onViewTest
       <div className="p-5">
         {/* Header: member + badges */}
         <div className="flex items-start gap-3 mb-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-600 to-purple-700 flex items-center justify-center text-white text-sm font-bold flex-shrink-0 shadow-md shadow-purple-500/25">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#151022] to-[#5B00B8] flex items-center justify-center text-white text-sm font-bold flex-shrink-0 shadow-md shadow-purple-500/25">
             {initials}
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-bold text-[#1E1B4B] leading-tight">{memberName}</p>
+            <p className="text-sm font-bold text-[#151022] leading-tight">{memberName}</p>
             <div className="flex flex-wrap items-center gap-1.5 mt-1">
               <TypeBadge type={reqType} />
               <StatusBadge status={prayerReq.status || 'open'} />
@@ -186,7 +186,7 @@ function PrayerCard({ prayerReq, prayerCounts, onPray, onAddResponse, onViewTest
           {reqType === 'pastor_only' && prayerReq.status === 'open' && (
             <button
               onClick={() => onAddResponse(prayerReq)}
-              className="flex-1 inline-flex items-center justify-center gap-1.5 text-xs font-semibold text-white bg-gradient-to-r from-violet-600 to-purple-700 px-3 py-2 rounded-xl hover:from-violet-700 hover:to-purple-800 shadow-md shadow-purple-500/20 transition-all"
+              className="flex-1 inline-flex items-center justify-center gap-1.5 text-xs font-semibold text-white bg-gradient-to-r from-[#151022] to-[#5B00B8] px-3 py-2 rounded-xl hover:from-[#5B00B8] hover:to-[#3D108A] shadow-md shadow-purple-500/20 transition-all"
             >
               <MessageSquare className="w-3.5 h-3.5" />
               Add Response
@@ -390,7 +390,7 @@ function SubmitRequestModal({ isOpen, onClose, onSave, user }) {
           <button
             type="submit"
             disabled={saving}
-            className="px-5 py-2.5 text-sm font-semibold text-white bg-gradient-to-r from-violet-600 to-purple-700 rounded-xl hover:from-violet-700 hover:to-purple-800 shadow-md shadow-purple-500/25 transition-all inline-flex items-center gap-2 disabled:opacity-60"
+            className="px-5 py-2.5 text-sm font-semibold text-white bg-gradient-to-r from-[#151022] to-[#5B00B8] rounded-xl hover:from-[#5B00B8] hover:to-[#3D108A] shadow-md shadow-purple-500/25 transition-all inline-flex items-center gap-2 disabled:opacity-60"
           >
             {saving && <Loader2 className="w-4 h-4 animate-spin" />}
             <Heart className="w-4 h-4" />
@@ -479,7 +479,7 @@ function AddResponseModal({ prayerReq, isOpen, onClose, onSave }) {
             <button
               type="submit"
               disabled={saving}
-              className="px-5 py-2.5 text-sm font-semibold text-white bg-gradient-to-r from-violet-600 to-purple-700 rounded-xl hover:from-violet-700 hover:to-purple-800 shadow-md shadow-purple-500/25 transition-all inline-flex items-center gap-2 disabled:opacity-60"
+              className="px-5 py-2.5 text-sm font-semibold text-white bg-gradient-to-r from-[#151022] to-[#5B00B8] rounded-xl hover:from-[#5B00B8] hover:to-[#3D108A] shadow-md shadow-purple-500/25 transition-all inline-flex items-center gap-2 disabled:opacity-60"
             >
               {saving && <Loader2 className="w-4 h-4 animate-spin" />}
               Save Response
@@ -509,11 +509,11 @@ function TestimonyModal({ prayerReq, isOpen, onClose }) {
       <div className="space-y-5">
         {/* Member info */}
         <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-violet-600 to-purple-700 flex items-center justify-center text-white text-sm font-bold shadow-md shadow-purple-500/25">
+          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#151022] to-[#5B00B8] flex items-center justify-center text-white text-sm font-bold shadow-md shadow-purple-500/25">
             {initials}
           </div>
           <div>
-            <p className="font-bold text-[#1E1B4B]">{memberName}</p>
+            <p className="font-bold text-[#151022]">{memberName}</p>
             <p className="text-xs text-slate-400">{formatDate(reqDate)}</p>
           </div>
         </div>
@@ -545,7 +545,7 @@ function TestimonyModal({ prayerReq, isOpen, onClose }) {
 
         <button
           onClick={onClose}
-          className="w-full py-2.5 text-sm font-semibold text-white bg-gradient-to-r from-violet-600 to-purple-700 rounded-xl hover:from-violet-700 hover:to-purple-800 shadow-md shadow-purple-500/25 transition-all"
+          className="w-full py-2.5 text-sm font-semibold text-white bg-gradient-to-r from-[#151022] to-[#5B00B8] rounded-xl hover:from-[#5B00B8] hover:to-[#3D108A] shadow-md shadow-purple-500/25 transition-all"
         >
           Close
         </button>
@@ -675,7 +675,7 @@ export default function PrayerRequests() {
         {/* ── Page Header ─────────────────────────────────── */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-[#1E1B4B] leading-tight">
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-[#151022] leading-tight">
               Prayer Requests
             </h1>
             <p className="text-sm text-slate-500 mt-1">
@@ -739,7 +739,7 @@ export default function PrayerRequests() {
               onClick={() => setActiveTab(tab)}
               className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 ${
                 activeTab === tab
-                  ? 'bg-gradient-to-r from-violet-600 to-purple-700 text-white shadow-md shadow-purple-500/25'
+                  ? 'bg-gradient-to-r from-[#151022] to-[#5B00B8] text-white shadow-md shadow-purple-500/25'
                   : 'text-slate-500 hover:text-purple-700 hover:bg-purple-50'
               }`}
             >
@@ -759,7 +759,7 @@ export default function PrayerRequests() {
 
         {/* ── Scripture reminder banner ─────────────────────── */}
         {activeTab === 'All' && (
-          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#1E1B4B] to-[#312e81] p-5 flex items-center gap-4 shadow-lg shadow-indigo-900/20">
+          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#151022] to-[#2A1F4F] p-5 flex items-center gap-4 shadow-lg shadow-indigo-900/20">
             <div className="absolute top-0 right-0 w-40 h-40 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl" />
             <div className="flex-shrink-0 w-11 h-11 rounded-xl bg-white/10 flex items-center justify-center">
               <BookOpen className="w-5 h-5 text-amber-300" />
@@ -799,7 +799,7 @@ export default function PrayerRequests() {
               </p>
               <button
                 onClick={() => setShowSubmit(true)}
-                className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r from-violet-600 to-purple-700 px-5 py-2.5 rounded-xl shadow-md shadow-purple-500/25 hover:from-violet-700 hover:to-purple-800 transition-all"
+                className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r from-[#151022] to-[#5B00B8] px-5 py-2.5 rounded-xl shadow-md shadow-purple-500/25 hover:from-[#5B00B8] hover:to-[#3D108A] transition-all"
               >
                 <Plus className="w-4 h-4" />
                 Submit First Request

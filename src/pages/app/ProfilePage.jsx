@@ -42,7 +42,7 @@ function ProfileAvatar({ src, initials }) {
   if (!src || err) {
     return (
       <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-amber-400 to-yellow-500
-        flex items-center justify-center text-[#1E1B4B] font-black text-2xl
+        flex items-center justify-center text-[#151022] font-black text-2xl
         shadow-lg ring-4 ring-white flex-shrink-0">
         {initials}
       </div>
@@ -200,7 +200,7 @@ export default function ProfilePage() {
   return (
     <div className="max-w-2xl mx-auto animate-fade-in">
       <div className="mb-6">
-        <h2 className="text-2xl font-extrabold text-[#1E1B4B]">My Profile</h2>
+        <h2 className="text-2xl font-extrabold text-[#151022]">My Profile</h2>
         <p className="text-slate-500 text-sm mt-1">View and manage your account details.</p>
       </div>
 
@@ -208,7 +208,7 @@ export default function ProfilePage() {
       <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
 
         {/* Banner */}
-        <div className="h-24 bg-gradient-to-r from-[#1E1B4B] via-purple-700 to-violet-600" />
+        <div className="h-24 bg-gradient-to-r from-[#151022] via-purple-700 to-violet-600" />
 
         {/* Avatar + name */}
         <div className="px-6 pb-6">
@@ -236,7 +236,7 @@ export default function ProfilePage() {
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
                   className="absolute -bottom-1.5 -right-1.5 w-7 h-7 rounded-full
-                    bg-[#7C3AED] hover:bg-purple-700 text-white shadow-md
+                    bg-[#8A19FF] hover:bg-purple-700 text-white shadow-md
                     flex items-center justify-center transition-colors"
                   title="Upload photo"
                 >
@@ -297,7 +297,7 @@ export default function ProfilePage() {
           {!editMode ? (
             <div className="space-y-4">
               <div>
-                <h3 className="text-xl font-bold text-[#1E1B4B]">{userName}</h3>
+                <h3 className="text-xl font-bold text-[#151022]">{userName}</h3>
                 <span className={`inline-flex items-center mt-1.5 text-xs font-semibold px-2.5 py-1 rounded-full border ${ROLE_COLORS[role]}`}>
                   <Shield className="w-3 h-3 mr-1" />
                   {ROLE_LABELS[role] || role}
@@ -365,7 +365,7 @@ export default function ProfilePage() {
           ) : (
             /* ── Edit form ── */
             <div className="space-y-4">
-              <h3 className="text-base font-bold text-[#1E1B4B]">Edit Profile</h3>
+              <h3 className="text-base font-bold text-[#151022]">Edit Profile</h3>
 
               {/* Photo hint */}
               <div className="flex items-center justify-between px-4 py-3 bg-slate-50 rounded-xl border border-slate-200">

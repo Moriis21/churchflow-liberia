@@ -97,7 +97,7 @@ function StepIndicator({ currentStep }) {
               className={[
                 'w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-all duration-300 flex-shrink-0',
                 currentStep === step
-                  ? 'bg-gradient-to-br from-violet-600 to-purple-700 text-white shadow-lg shadow-purple-500/30'
+                  ? 'bg-gradient-to-br from-[#151022] to-[#5B00B8] text-white shadow-lg shadow-purple-500/30'
                   : currentStep > step
                   ? 'bg-green-500 text-white'
                   : 'bg-slate-100 text-slate-400',
@@ -234,7 +234,7 @@ function MemberRegisterForm({ pendingChurchName, pendingChurchId }) {
           <div className="w-16 h-16 rounded-full bg-purple-100 flex items-center justify-center mx-auto mb-4">
             <Mail className="w-8 h-8 text-purple-600" />
           </div>
-          <h2 className="text-2xl font-bold text-[#1E1B4B] mb-2">Verify Your Email</h2>
+          <h2 className="text-2xl font-bold text-[#151022] mb-2">Verify Your Email</h2>
           <p className="text-slate-500 mb-1 text-sm">We sent a 6-digit code to</p>
           <p className="font-semibold text-purple-700 mb-6 text-sm">{pendingVerificationEmail || form.email}</p>
           <form onSubmit={handleVerify} className="space-y-4">
@@ -246,7 +246,7 @@ function MemberRegisterForm({ pendingChurchName, pendingChurchId }) {
               value={otp}
               onChange={e => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
               placeholder="000000"
-              className="w-full text-center text-3xl font-bold tracking-[0.5em] border-2 border-purple-200 rounded-xl px-4 py-4 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-100 text-[#1E1B4B] placeholder-slate-300"
+              className="w-full text-center text-3xl font-bold tracking-[0.5em] border-2 border-purple-200 rounded-xl px-4 py-4 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-100 text-[#151022] placeholder-slate-300"
             />
             <Button type="submit" variant="primary" className="w-full h-12" loading={loading}>
               Verify &amp; Continue
@@ -282,11 +282,11 @@ function MemberRegisterForm({ pendingChurchName, pendingChurchId }) {
       <div className="relative w-full max-w-[460px]">
         {/* Logo row */}
         <div className="flex items-center justify-center gap-3 mb-8">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-600 to-purple-700 flex items-center justify-center shadow-lg">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#151022] to-[#5B00B8] flex items-center justify-center shadow-lg">
             <span className="text-white font-black text-lg leading-none">+</span>
           </div>
           <div>
-            <p className="text-[#1E1B4B] font-bold text-lg leading-tight">ChurchFlow</p>
+            <p className="text-[#151022] font-bold text-lg leading-tight">ChurchFlow</p>
             <p className="text-[#F59E0B] text-xs tracking-widest uppercase font-semibold">Liberia</p>
           </div>
         </div>
@@ -294,7 +294,7 @@ function MemberRegisterForm({ pendingChurchName, pendingChurchId }) {
         {/* Card */}
         <div className="bg-white rounded-2xl shadow-xl shadow-slate-200/80 border border-slate-100 overflow-hidden">
           {/* Church banner */}
-          <div className="flex items-center gap-3 px-6 py-4 bg-gradient-to-r from-violet-600 to-purple-700">
+          <div className="flex items-center gap-3 px-6 py-4 bg-gradient-to-r from-[#151022] to-[#5B00B8]">
             <div className="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0">
               <Church className="w-5 h-5 text-white" />
             </div>
@@ -315,7 +315,7 @@ function MemberRegisterForm({ pendingChurchName, pendingChurchId }) {
             </Link>
 
             <div className="mb-6">
-              <h2 className="text-2xl font-extrabold text-[#1E1B4B]">Create Your Account</h2>
+              <h2 className="text-2xl font-extrabold text-[#151022]">Create Your Account</h2>
               <p className="mt-1 text-slate-500 text-sm">Fill in your details to join as a member</p>
             </div>
 
@@ -475,7 +475,7 @@ function MemberRegisterForm({ pendingChurchName, pendingChurchId }) {
 
 // ─── Demo role config (same as Login page) ───────────────────
 const DEMO_ROLES = [
-  { label: 'Church Admin', role: 'church_admin', color: 'from-violet-600 to-purple-700' },
+  { label: 'Church Admin', role: 'church_admin', color: 'from-[#151022] to-[#5B00B8]' },
   { label: 'Pastor',       role: 'pastor',       color: 'from-indigo-500 to-blue-600'   },
   { label: 'Treasurer',    role: 'treasurer',    color: 'from-amber-500 to-yellow-600'  },
 ]
@@ -660,7 +660,7 @@ export default function Register() {
           <div className="w-16 h-16 rounded-full bg-purple-100 flex items-center justify-center mx-auto mb-4">
             <Mail className="w-8 h-8 text-purple-600" />
           </div>
-          <h2 className="text-2xl font-bold text-[#1E1B4B] mb-2">Verify Your Email</h2>
+          <h2 className="text-2xl font-bold text-[#151022] mb-2">Verify Your Email</h2>
           <p className="text-slate-500 mb-1 text-sm">We sent a 6-digit code to</p>
           <p className="font-semibold text-purple-700 mb-6 text-sm">{pendingVerificationEmail || adminForm.email}</p>
           <form onSubmit={handleVerify} className="space-y-4">
@@ -672,7 +672,7 @@ export default function Register() {
               value={otp}
               onChange={e => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
               placeholder="000000"
-              className="w-full text-center text-3xl font-bold tracking-[0.5em] border-2 border-purple-200 rounded-xl px-4 py-4 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-100 text-[#1E1B4B] placeholder-slate-300"
+              className="w-full text-center text-3xl font-bold tracking-[0.5em] border-2 border-purple-200 rounded-xl px-4 py-4 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-100 text-[#151022] placeholder-slate-300"
             />
             <Button type="submit" variant="primary" className="w-full h-12" loading={loading}>
               Verify &amp; Continue
@@ -705,7 +705,7 @@ export default function Register() {
       {/* ════════════ LEFT PANEL (matches Login exactly) ════════════ */}
       <div
         className="hidden md:flex md:w-[52%] relative flex-col justify-between p-10 xl:p-14 overflow-hidden"
-        style={{ background: 'linear-gradient(150deg, #1E1B4B 0%, #2D1B69 40%, #4C1D95 70%, #7C3AED 100%)' }}
+        style={{ background: 'linear-gradient(150deg, #151022 0%, #2D1B69 40%, #3D108A 70%, #8A19FF 100%)' }}
       >
         {/* Blur blobs */}
         <div className="absolute -top-32 -left-32 w-96 h-96 rounded-full bg-purple-600/20 blur-3xl pointer-events-none" />
@@ -774,10 +774,10 @@ export default function Register() {
               <img
                 src="/logo.png"
                 alt="ChurchFlow Liberia"
-                className="w-12 h-12 object-contain rounded-xl bg-[#1E1B4B]"
+                className="w-12 h-12 object-contain rounded-xl bg-[#151022]"
               />
               <div>
-                <p className="text-[#1E1B4B] font-bold text-lg leading-tight">ChurchFlow</p>
+                <p className="text-[#151022] font-bold text-lg leading-tight">ChurchFlow</p>
                 <p className="text-purple-500 text-[11px] tracking-widest uppercase font-semibold">Liberia</p>
               </div>
             </div>
@@ -787,7 +787,7 @@ export default function Register() {
           <div className="bg-white rounded-2xl shadow-lg shadow-purple-100/60 border border-slate-100 p-5 sm:p-7">
             {/* Header */}
             <div className="mb-5">
-              <h2 className="text-xl sm:text-2xl font-extrabold text-[#1E1B4B]">Register Your Church</h2>
+              <h2 className="text-xl sm:text-2xl font-extrabold text-[#151022]">Register Your Church</h2>
               <p className="mt-0.5 text-slate-500 text-sm">Set up ChurchFlow for your ministry</p>
             </div>
 

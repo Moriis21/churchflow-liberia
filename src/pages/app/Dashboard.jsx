@@ -49,9 +49,9 @@ import { useAIFeature } from '../../hooks/useAIFeature'
 
 // ─── Palette ─────────────────────────────────────────────────
 const CHART_COLORS = {
-  purple: '#7C3AED',
+  purple: '#8A19FF',
   gold: '#F59E0B',
-  navy: '#1E1B4B',
+  navy: '#151022',
   green: '#10B981',
   blue: '#3B82F6',
   rose: '#F43F5E',
@@ -320,7 +320,7 @@ export default function Dashboard() {
               <Bell className="w-5 h-5" />
               <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-rose-500" />
             </button>
-            <button className="inline-flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r from-violet-600 to-purple-700 px-5 py-2.5 rounded-xl shadow-md shadow-purple-500/25 hover:from-violet-700 hover:to-purple-800 hover:shadow-purple-500/40 hover:-translate-y-0.5 transition-all">
+            <button className="inline-flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r from-[#151022] to-[#5B00B8] px-5 py-2.5 rounded-xl shadow-md shadow-purple-500/25 hover:from-[#5B00B8] hover:to-[#3D108A] hover:shadow-purple-500/40 hover:-translate-y-0.5 transition-all">
               <FileText className="w-4 h-4" />
               Generate Report
             </button>
@@ -577,7 +577,7 @@ export default function Dashboard() {
                     className="flex items-start gap-3 p-3 rounded-xl hover:bg-slate-50 transition-colors cursor-pointer group"
                   >
                     {/* Date badge */}
-                    <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-gradient-to-br from-violet-600 to-purple-700 flex flex-col items-center justify-center text-white shadow-md shadow-purple-500/25">
+                    <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-gradient-to-br from-[#151022] to-[#5B00B8] flex flex-col items-center justify-center text-white shadow-md shadow-purple-500/25">
                       <span className="text-[10px] font-semibold leading-none uppercase">{monthAbbr}</span>
                       <span className="text-lg font-extrabold leading-none">{dayNum}</span>
                     </div>
@@ -719,7 +719,7 @@ export default function Dashboard() {
                   icon: UserPlus,
                   label: 'Add Member',
                   desc: 'Register new member',
-                  color: 'from-violet-600 to-purple-700',
+                  color: 'from-[#151022] to-[#5B00B8]',
                   shadow: 'shadow-purple-500/25',
                   onClick: () => navigate('/app/members/new'),
                 },
@@ -782,7 +782,7 @@ export default function Dashboard() {
         return (
           <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 pb-8">
             <div className="flex items-center gap-2 mb-4">
-              <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-violet-600 to-purple-700 flex items-center justify-center">
+              <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-[#151022] to-[#5B00B8] flex items-center justify-center">
                 <MessageSquare className="w-3.5 h-3.5 text-white" />
               </div>
               <h2 className="text-base font-bold text-slate-800">{heading}</h2>

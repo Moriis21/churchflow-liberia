@@ -13,7 +13,7 @@ const EFFECTIVE_DATE = 'January 1, 2026'
 function LegalLayout({ icon: Icon, title, subtitle, badge, children }) {
   return (
     <PublicLayout>
-      <section className="bg-gradient-to-br from-[#1E1B4B] to-[#312e81] py-16 px-4">
+      <section className="bg-gradient-to-br from-[#151022] to-[#2A1F4F] py-16 px-4">
         <div className="max-w-4xl mx-auto">
           <div className="flex items-center gap-2 text-purple-300 text-sm mb-3">
             <Link to="/landing" className="hover:text-white transition-colors">Home</Link>
@@ -21,7 +21,7 @@ function LegalLayout({ icon: Icon, title, subtitle, badge, children }) {
             <span className="text-white">{badge}</span>
           </div>
           <div className="flex items-center gap-4 mb-4">
-            <div className="w-12 h-12 rounded-xl bg-[#7C3AED]/30 flex items-center justify-center">
+            <div className="w-12 h-12 rounded-xl bg-[#8A19FF]/30 flex items-center justify-center">
               <Icon className="w-6 h-6 text-[#F59E0B]" />
             </div>
             <div>
@@ -49,7 +49,7 @@ function LegalLayout({ icon: Icon, title, subtitle, badge, children }) {
             <p className="text-slate-500 text-sm">Questions about this policy? We are here to help.</p>
             <Link
               to="/contact"
-              className="px-5 py-2.5 rounded-lg bg-[#7C3AED] text-white text-sm font-semibold hover:bg-[#6D28D9] transition-colors"
+              className="px-5 py-2.5 rounded-lg bg-[#8A19FF] text-white text-sm font-semibold hover:bg-[#5B00B8] transition-colors"
             >
               Contact Us
             </Link>
@@ -64,7 +64,7 @@ function LegalLayout({ icon: Icon, title, subtitle, badge, children }) {
 function Section({ title, children }) {
   return (
     <div>
-      <h2 className="text-xl font-bold text-[#1E1B4B] mb-3">{title}</h2>
+      <h2 className="text-xl font-bold text-[#151022] mb-3">{title}</h2>
       <div className="text-slate-600 text-sm leading-relaxed space-y-3">{children}</div>
     </div>
   )

@@ -95,7 +95,7 @@ export default function PWAInstallPrompt() {
           className="fixed bottom-4 left-4 right-4 sm:left-auto sm:right-6 sm:bottom-6 sm:max-w-sm z-[1050]"
         >
           <div className="bg-white rounded-2xl shadow-2xl shadow-purple-900/20 border border-slate-100 p-4 flex items-start gap-3">
-            <div className="flex-shrink-0 w-11 h-11 rounded-xl bg-gradient-to-br from-violet-600 to-purple-700 flex items-center justify-center shadow-md shadow-purple-500/30">
+            <div className="flex-shrink-0 w-11 h-11 rounded-xl bg-gradient-to-br from-[#151022] to-[#5B00B8] flex items-center justify-center shadow-md shadow-purple-500/30">
               <Download className="w-5 h-5 text-white" />
             </div>
             <div className="flex-1 min-w-0">
@@ -117,7 +117,7 @@ export default function PWAInstallPrompt() {
                   </p>
                   <div className="mt-2.5 flex gap-2">
                     <button onClick={handleInstall}
-                      className="px-3 py-1.5 rounded-lg text-xs font-bold text-white bg-gradient-to-r from-violet-600 to-purple-700 hover:from-violet-700 hover:to-purple-800 shadow-sm shadow-purple-500/30 transition-all">
+                      className="px-3 py-1.5 rounded-lg text-xs font-bold text-white bg-gradient-to-r from-[#151022] to-[#5B00B8] hover:from-[#5B00B8] hover:to-[#3D108A] shadow-sm shadow-purple-500/30 transition-all">
                       Install
                     </button>
                     <button onClick={handleDismiss}

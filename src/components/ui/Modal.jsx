@@ -80,7 +80,7 @@ const Modal = ({
         {title && (
           <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
             <div className="flex items-center gap-3">
-              <div className="w-1 h-5 rounded-full bg-gradient-to-b from-violet-600 to-purple-700" />
+              <div className="w-1 h-5 rounded-full bg-gradient-to-b from-[#151022] to-[#5B00B8]" />
               <h2
                 id="modal-title"
                 className="text-base font-semibold text-slate-800"

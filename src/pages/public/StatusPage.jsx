@@ -179,7 +179,7 @@ export default function StatusPage() {
       {/* Services table */}
       <section className="py-16 px-4 bg-slate-50">
         <div className="max-w-4xl mx-auto">
-          <h2 className="text-2xl font-extrabold text-[#1E1B4B] mb-8">Service Status</h2>
+          <h2 className="text-2xl font-extrabold text-[#151022] mb-8">Service Status</h2>
 
           <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
             {SERVICES.map((service, idx) => {
@@ -195,7 +195,7 @@ export default function StatusPage() {
                   <div className="flex items-center gap-3 min-w-0">
                     <span className={`w-2.5 h-2.5 rounded-full flex-shrink-0 ${cfg.dot}`} />
                     <div className="min-w-0">
-                      <p className="font-semibold text-[#1E1B4B] text-sm">{service.name}</p>
+                      <p className="font-semibold text-[#151022] text-sm">{service.name}</p>
                       <p className="text-slate-400 text-xs truncate">{service.description}</p>
                     </div>
                   </div>
@@ -219,7 +219,7 @@ export default function StatusPage() {
       <section className="py-10 px-4 bg-white border-t border-slate-100">
         <div className="max-w-4xl mx-auto">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-bold text-[#1E1B4B]">90-Day Uptime History</h2>
+            <h2 className="text-xl font-bold text-[#151022]">90-Day Uptime History</h2>
             <span className="text-green-600 font-bold text-sm flex items-center gap-1.5">
               <Shield className="w-4 h-4" />
               99.9% overall
@@ -253,10 +253,10 @@ export default function StatusPage() {
       {/* Incident history note */}
       <section className="py-12 px-4 bg-slate-50 border-t border-slate-100">
         <div className="max-w-4xl mx-auto">
-          <h2 className="text-xl font-bold text-[#1E1B4B] mb-5">Recent Incidents</h2>
+          <h2 className="text-xl font-bold text-[#151022] mb-5">Recent Incidents</h2>
           <div className="bg-white rounded-2xl border border-slate-200 p-8 text-center">
             <CheckCircle className="w-10 h-10 text-green-500 mx-auto mb-3" />
-            <p className="font-semibold text-[#1E1B4B] mb-1">No incidents in the last 90 days</p>
+            <p className="font-semibold text-[#151022] mb-1">No incidents in the last 90 days</p>
             <p className="text-slate-400 text-sm">ChurchFlow has maintained full operational status since launch.</p>
           </div>
         </div>

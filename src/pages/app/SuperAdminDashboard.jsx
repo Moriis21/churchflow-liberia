@@ -361,7 +361,7 @@ export default function SuperAdminDashboard() {
                     >
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
-                          <div className="flex-shrink-0 w-9 h-9 rounded-xl bg-gradient-to-br from-violet-600 to-purple-700 flex items-center justify-center shadow-sm">
+                          <div className="flex-shrink-0 w-9 h-9 rounded-xl bg-gradient-to-br from-[#151022] to-[#5B00B8] flex items-center justify-center shadow-sm">
                             <span className="text-white text-xs font-bold uppercase">
                               {(church.name || 'C').charAt(0)}
                             </span>
@@ -540,7 +540,7 @@ export default function SuperAdminDashboard() {
         {aiEnabled && (
           <div className="mt-8">
             <div className="flex items-center gap-2 mb-4">
-              <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-violet-600 to-purple-700 flex items-center justify-center">
+              <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-[#151022] to-[#5B00B8] flex items-center justify-center">
                 <MessageCircle className="w-3.5 h-3.5 text-white" />
               </div>
               <h2 className="text-base font-bold text-slate-800">Platform Intelligence</h2>

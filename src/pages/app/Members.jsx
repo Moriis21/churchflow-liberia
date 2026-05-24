@@ -71,7 +71,7 @@ function InviteModal({ data, onClose }) {
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6" onClick={e => e.stopPropagation()}>
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h3 className="font-bold text-[#1E1B4B] text-base">Member Invitation Ready 🎉</h3>
+            <h3 className="font-bold text-[#151022] text-base">Member Invitation Ready 🎉</h3>
             <p className="text-xs text-slate-500 mt-0.5">{memberName} added — share their login invite</p>
           </div>
           <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 transition-colors">
@@ -121,7 +121,7 @@ function InviteModal({ data, onClose }) {
             ⬇️ Download QR
           </a>
           <button onClick={onClose}
-            className="flex-1 py-2.5 bg-[#1E1B4B] hover:bg-purple-900 text-white rounded-xl text-sm font-semibold transition-colors">
+            className="flex-1 py-2.5 bg-[#151022] hover:bg-purple-900 text-white rounded-xl text-sm font-semibold transition-colors">
             Done
           </button>
         </div>
@@ -282,7 +282,7 @@ function MemberCard({ member, onView, onEdit, onDelete, showChurch = false }) {
 
   return (
     <div className="bg-white rounded-2xl border border-slate-100 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07)] hover:shadow-[0_8px_30px_-4px_rgba(124,58,237,0.12)] hover:-translate-y-0.5 transition-all duration-300 overflow-hidden flex flex-col">
-      <div className="h-1.5 w-full bg-gradient-to-r from-violet-600 to-purple-700" />
+      <div className="h-1.5 w-full bg-gradient-to-r from-[#151022] to-[#5B00B8]" />
       <div className="p-5 flex flex-col gap-4 flex-1">
         <div className="flex items-start gap-3">
           <Avatar src={member.profile_photo_path || member.profilePhoto || member.profile_photo_url} name={mName} size="lg" bucket="member-photos" />
@@ -356,7 +356,7 @@ function Pagination({ page, totalPages, onPage }) {
       </button>
       {pages[0] > 1 && <><button onClick={() => onPage(1)} className="min-w-[2rem] h-8 px-2 rounded-lg text-sm text-slate-600 hover:bg-purple-50 transition-colors">1</button>{pages[0] > 2 && <span className="text-slate-400 text-sm px-1">…</span>}</>}
       {pages.map(p => (
-        <button key={p} onClick={() => onPage(p)} className={['min-w-[2rem] h-8 px-2 rounded-lg text-sm font-medium transition-colors', p === page ? 'bg-gradient-to-r from-violet-600 to-purple-700 text-white shadow-sm' : 'text-slate-600 hover:text-purple-600 hover:bg-purple-50'].join(' ')}>{p}</button>
+        <button key={p} onClick={() => onPage(p)} className={['min-w-[2rem] h-8 px-2 rounded-lg text-sm font-medium transition-colors', p === page ? 'bg-gradient-to-r from-[#151022] to-[#5B00B8] text-white shadow-sm' : 'text-slate-600 hover:text-purple-600 hover:bg-purple-50'].join(' ')}>{p}</button>
       ))}
       {pages[pages.length - 1] < totalPages && <>{pages[pages.length - 1] < totalPages - 1 && <span className="text-slate-400 text-sm px-1">…</span>}<button onClick={() => onPage(totalPages)} className="min-w-[2rem] h-8 px-2 rounded-lg text-sm text-slate-600 hover:bg-purple-50 transition-colors">{totalPages}</button></>}
       <button onClick={() => onPage(page + 1)} disabled={page === totalPages}
@@ -673,7 +673,7 @@ export default function Members() {
             <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 leading-tight">
               {isSuperAdmin ? 'All Members' : 'Members'}
             </h1>
-            <span className="inline-flex items-center justify-center px-3 py-1 rounded-full text-sm font-bold bg-gradient-to-r from-violet-600 to-purple-700 text-white shadow-sm">{totalCount}</span>
+            <span className="inline-flex items-center justify-center px-3 py-1 rounded-full text-sm font-bold bg-gradient-to-r from-[#151022] to-[#5B00B8] text-white shadow-sm">{totalCount}</span>
             {isSuperAdmin && (
               <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-800 border border-amber-200">
                 Platform View

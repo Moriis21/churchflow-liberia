@@ -22,7 +22,7 @@ const VALUES = [
     title: 'Faith-Driven',
     description:
       'Every decision we make is guided by a genuine commitment to the church and its mission. We build tools that honour the sacred work of ministry.',
-    color: 'bg-purple-100 text-[#7C3AED]',
+    color: 'bg-purple-100 text-[#8A19FF]',
   },
   {
     icon: Users,
@@ -100,8 +100,8 @@ function TeamCard({ member }) {
           </div>
         )}
       </div>
-      <h3 className="font-bold text-[#1E1B4B] text-base mb-0.5">{member.name}</h3>
-      <p className="text-[#7C3AED] font-semibold text-xs mb-3">{member.role}</p>
+      <h3 className="font-bold text-[#151022] text-base mb-0.5">{member.name}</h3>
+      <p className="text-[#8A19FF] font-semibold text-xs mb-3">{member.role}</p>
       <p className="text-slate-500 text-sm leading-relaxed">{member.bio}</p>
     </div>
   )
@@ -111,7 +111,7 @@ export default function AboutPage() {
   return (
     <PublicLayout>
       {/* Hero */}
-      <section className="bg-gradient-to-br from-[#1E1B4B] via-[#312e81] to-[#7C3AED] py-24 px-4 text-center">
+      <section className="bg-gradient-to-br from-[#151022] via-[#2A1F4F] to-[#8A19FF] py-24 px-4 text-center">
         <div className="max-w-3xl mx-auto">
           <span className="inline-block px-4 py-1.5 rounded-full bg-white/10 text-[#F59E0B] text-xs font-semibold tracking-widest uppercase mb-6 border border-white/20">
             Our Story
@@ -131,7 +131,7 @@ export default function AboutPage() {
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-8 text-center">
             {STATS.map(stat => (
               <div key={stat.label}>
-                <div className="text-3xl font-black text-[#7C3AED] mb-1">{stat.value}</div>
+                <div className="text-3xl font-black text-[#8A19FF] mb-1">{stat.value}</div>
                 <div className="text-sm text-slate-500 font-medium">{stat.label}</div>
               </div>
             ))}
@@ -144,11 +144,11 @@ export default function AboutPage() {
         <div className="max-w-4xl mx-auto">
           <div className="flex flex-col lg:flex-row gap-12 items-center">
             <div className="w-full lg:w-1/2">
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-purple-50 text-[#7C3AED] text-xs font-semibold mb-5">
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-purple-50 text-[#8A19FF] text-xs font-semibold mb-5">
                 <Heart className="w-3.5 h-3.5" />
                 Our Mission
               </div>
-              <h2 className="text-3xl font-extrabold text-[#1E1B4B] mb-5 leading-tight">
+              <h2 className="text-3xl font-extrabold text-[#151022] mb-5 leading-tight">
                 Technology that serves the church
               </h2>
               <p className="text-slate-600 leading-relaxed mb-5">
@@ -159,7 +159,7 @@ export default function AboutPage() {
               </p>
             </div>
             <div className="w-full lg:w-1/2 bg-gradient-to-br from-purple-50 to-violet-50 rounded-2xl p-8 border border-purple-100">
-              <blockquote className="text-lg text-[#1E1B4B] font-semibold leading-relaxed italic mb-6">
+              <blockquote className="text-lg text-[#151022] font-semibold leading-relaxed italic mb-6">
                 "ChurchFlow exists to help Liberian churches stop losing members, records, and ministry opportunities through modern, affordable technology."
               </blockquote>
               <div className="flex items-center gap-3">
@@ -172,7 +172,7 @@ export default function AboutPage() {
                   />
                 </div>
                 <div>
-                  <p className="text-sm font-semibold text-[#1E1B4B]">Darius Paye</p>
+                  <p className="text-sm font-semibold text-[#151022]">Darius Paye</p>
                   <p className="text-xs text-slate-500">CEO & Founder, Innova-Liberia</p>
                 </div>
               </div>
@@ -188,11 +188,11 @@ export default function AboutPage() {
             <MapPin className="w-3.5 h-3.5" />
             Founded in Brewerville City, Montserrado County, Liberia
           </div>
-          <h2 className="text-3xl font-extrabold text-[#1E1B4B] mb-8 leading-tight">The ChurchFlow Story</h2>
+          <h2 className="text-3xl font-extrabold text-[#151022] mb-8 leading-tight">The ChurchFlow Story</h2>
 
           <div className="space-y-6 text-slate-600 leading-relaxed">
             <p>
-              ChurchFlow is an associate platform built by the <a href="https://www.innova-lib.com" target="_blank" rel="noopener noreferrer" className="text-[#7C3AED] font-semibold hover:underline">Innova-Liberia team</a> — Liberia's leading creative tech agency. Founded in 2026 in Brewerville City, Liberia, ChurchFlow was born out of a need witnessed firsthand in local churches.
+              ChurchFlow is an associate platform built by the <a href="https://www.innova-lib.com" target="_blank" rel="noopener noreferrer" className="text-[#8A19FF] font-semibold hover:underline">Innova-Liberia team</a> — Liberia's leading creative tech agency. Founded in 2026 in Brewerville City, Liberia, ChurchFlow was born out of a need witnessed firsthand in local churches.
             </p>
             <p>
               Darius Paye, CEO & Founder of Innova-Liberia, and lead developer Morris L. Dorley Jr spent years watching Liberian congregations struggle with paper attendance sheets, lost member records, and manual offering tracking that made it nearly impossible to understand where the ministry stood financially or pastorally.
@@ -206,7 +206,7 @@ export default function AboutPage() {
           </div>
 
           {/* Innova-Liberia badge */}
-          <div className="mt-8 p-5 bg-gradient-to-r from-[#1E1B4B] to-[#7C3AED] rounded-2xl text-white flex items-center gap-5">
+          <div className="mt-8 p-5 bg-gradient-to-r from-[#151022] to-[#8A19FF] rounded-2xl text-white flex items-center gap-5">
             <div className="w-14 h-14 rounded-xl bg-white flex items-center justify-center flex-shrink-0 overflow-hidden shadow">
               <img
                 src="/innova-logo.png"
@@ -214,7 +214,7 @@ export default function AboutPage() {
                 className="w-full h-full object-contain"
                 onError={e => { e.currentTarget.style.display='none'; e.currentTarget.nextSibling.style.display='flex' }}
               />
-              <span className="font-black text-xl text-[#1E1B4B] hidden items-center justify-center w-full h-full">IL</span>
+              <span className="font-black text-xl text-[#151022] hidden items-center justify-center w-full h-full">IL</span>
             </div>
             <div className="flex-1 min-w-0">
               <p className="font-bold text-base">Innova-Liberia</p>
@@ -233,10 +233,10 @@ export default function AboutPage() {
           <div className="mt-8 flex flex-col sm:flex-row gap-4">
             <div className="flex items-center gap-3 p-4 bg-white rounded-xl border border-slate-200">
               <div className="w-10 h-10 rounded-lg bg-purple-100 flex items-center justify-center">
-                <Building2 className="w-5 h-5 text-[#7C3AED]" />
+                <Building2 className="w-5 h-5 text-[#8A19FF]" />
               </div>
               <div>
-                <p className="font-semibold text-[#1E1B4B] text-sm">Founded 2026</p>
+                <p className="font-semibold text-[#151022] text-sm">Founded 2026</p>
                 <p className="text-xs text-slate-500">Brewerville City, Liberia</p>
               </div>
             </div>
@@ -245,7 +245,7 @@ export default function AboutPage() {
                 <TrendingUp className="w-5 h-5 text-amber-600" />
               </div>
               <div>
-                <p className="font-semibold text-[#1E1B4B] text-sm">500+ Churches</p>
+                <p className="font-semibold text-[#151022] text-sm">500+ Churches</p>
                 <p className="text-xs text-slate-500">Across Liberia</p>
               </div>
             </div>
@@ -254,7 +254,7 @@ export default function AboutPage() {
                 <Clock className="w-5 h-5 text-green-600" />
               </div>
               <div>
-                <p className="font-semibold text-[#1E1B4B] text-sm">99.9% Uptime</p>
+                <p className="font-semibold text-[#151022] text-sm">99.9% Uptime</p>
                 <p className="text-xs text-slate-500">Reliable and fast</p>
               </div>
             </div>
@@ -266,7 +266,7 @@ export default function AboutPage() {
       <section className="py-20 px-4 bg-white">
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-14">
-            <h2 className="text-3xl font-extrabold text-[#1E1B4B] mb-3">Our Core Values</h2>
+            <h2 className="text-3xl font-extrabold text-[#151022] mb-3">Our Core Values</h2>
             <p className="text-slate-500 max-w-xl mx-auto">
               These values guide every product decision, every customer interaction, and every line of code we write.
             </p>
@@ -279,7 +279,7 @@ export default function AboutPage() {
                   <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-4 ${v.color}`}>
                     <Icon className="w-6 h-6" />
                   </div>
-                  <h3 className="text-lg font-bold text-[#1E1B4B] mb-2">{v.title}</h3>
+                  <h3 className="text-lg font-bold text-[#151022] mb-2">{v.title}</h3>
                   <p className="text-slate-600 text-sm leading-relaxed">{v.description}</p>
                 </div>
               )
@@ -292,7 +292,7 @@ export default function AboutPage() {
       <section className="py-20 px-4 bg-slate-50">
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-14">
-            <h2 className="text-3xl font-extrabold text-[#1E1B4B] mb-3">The Team Behind ChurchFlow</h2>
+            <h2 className="text-3xl font-extrabold text-[#151022] mb-3">The Team Behind ChurchFlow</h2>
             <p className="text-slate-500 max-w-xl mx-auto">
               Built by the Innova-Liberia team — people who love the church and technology, with deep roots in Liberian ministry.
             </p>
@@ -306,7 +306,7 @@ export default function AboutPage() {
       </section>
 
       {/* CTA */}
-      <section className="bg-[#1E1B4B] py-16 px-4 text-center">
+      <section className="bg-[#151022] py-16 px-4 text-center">
         <div className="max-w-2xl mx-auto">
           <h2 className="text-3xl font-extrabold text-white mb-4">Join the ChurchFlow family</h2>
           <p className="text-purple-300 mb-8 leading-relaxed">
@@ -315,7 +315,7 @@ export default function AboutPage() {
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <Link
               to="/register"
-              className="inline-flex items-center justify-center gap-2 px-7 py-3 rounded-xl bg-[#F59E0B] text-[#1E1B4B] font-bold text-sm hover:bg-amber-400 transition-colors shadow-lg"
+              className="inline-flex items-center justify-center gap-2 px-7 py-3 rounded-xl bg-[#F59E0B] text-[#151022] font-bold text-sm hover:bg-amber-400 transition-colors shadow-lg"
             >
               Get Started Free
               <ArrowRight className="w-4 h-4" />

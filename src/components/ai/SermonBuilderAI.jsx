@@ -138,7 +138,7 @@ export default function SermonBuilderAI({ className = '' }) {
     <div className={`bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden ${className}`}>
 
       {/* Header */}
-      <div className="flex items-center gap-3 px-5 py-4 border-b border-slate-100 bg-gradient-to-r from-[#1E1B4B] to-[#7C3AED]">
+      <div className="flex items-center gap-3 px-5 py-4 border-b border-slate-100 bg-gradient-to-r from-[#151022] to-[#8A19FF]">
         <div className="w-9 h-9 rounded-xl bg-white/15 flex items-center justify-center flex-shrink-0">
           <BookOpen className="w-4.5 h-4.5 text-amber-300" />
         </div>
@@ -195,7 +195,7 @@ export default function SermonBuilderAI({ className = '' }) {
             </div>
 
             <button onClick={generate} disabled={!scripture.trim()}
-              className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-gradient-to-r from-violet-600 to-purple-700 text-white text-sm font-bold hover:from-violet-700 hover:to-purple-800 disabled:opacity-40 shadow-sm shadow-purple-500/20 transition-all">
+              className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-gradient-to-r from-[#151022] to-[#5B00B8] text-white text-sm font-bold hover:from-[#5B00B8] hover:to-[#3D108A] disabled:opacity-40 shadow-sm shadow-purple-500/20 transition-all">
               <Sparkles className="w-4 h-4" />
               Generate Sermon Outline
             </button>

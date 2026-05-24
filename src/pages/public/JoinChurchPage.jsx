@@ -75,13 +75,13 @@ export default function JoinChurchPage() {
           <div className="w-16 h-16 rounded-full bg-red-50 flex items-center justify-center mx-auto mb-4">
             <AlertCircle className="w-8 h-8 text-red-500" />
           </div>
-          <h2 className="text-xl font-bold text-[#1E1B4B] mb-2">Invalid Invitation Link</h2>
+          <h2 className="text-xl font-bold text-[#151022] mb-2">Invalid Invitation Link</h2>
           <p className="text-slate-500 text-sm mb-6">
             Invalid invitation link. Please contact your church administrator.
           </p>
           <Link
             to="/login"
-            className="inline-flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-violet-600 to-purple-700 text-white text-sm font-semibold rounded-xl hover:opacity-90 transition-opacity"
+            className="inline-flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-[#151022] to-[#5B00B8] text-white text-sm font-semibold rounded-xl hover:opacity-90 transition-opacity"
           >
             Go to Login
           </Link>
@@ -100,11 +100,11 @@ export default function JoinChurchPage() {
       <div className="relative w-full max-w-md">
         {/* Logo row */}
         <div className="flex items-center justify-center gap-3 mb-8">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-600 to-purple-700 flex items-center justify-center shadow-lg">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#151022] to-[#5B00B8] flex items-center justify-center shadow-lg">
             <span className="text-white font-black text-lg leading-none">+</span>
           </div>
           <div>
-            <p className="text-[#1E1B4B] font-bold text-lg leading-tight">ChurchFlow</p>
+            <p className="text-[#151022] font-bold text-lg leading-tight">ChurchFlow</p>
             <p className="text-[#F59E0B] text-xs tracking-widest uppercase font-semibold">Liberia</p>
           </div>
         </div>
@@ -112,7 +112,7 @@ export default function JoinChurchPage() {
         {/* Card */}
         <div className="bg-white rounded-2xl shadow-xl shadow-purple-100/60 border border-slate-100 p-8 text-center">
           {/* Church logo circle */}
-          <div className="w-20 h-20 rounded-full bg-gradient-to-br from-violet-600 to-purple-700 flex items-center justify-center mx-auto mb-5 shadow-lg shadow-purple-500/30">
+          <div className="w-20 h-20 rounded-full bg-gradient-to-br from-[#151022] to-[#5B00B8] flex items-center justify-center mx-auto mb-5 shadow-lg shadow-purple-500/30">
             <Church className="w-9 h-9 text-white" />
           </div>
 
@@ -122,7 +122,7 @@ export default function JoinChurchPage() {
           </p>
 
           {/* Church name */}
-          <h1 className="text-2xl font-extrabold text-[#1E1B4B] leading-tight mb-2">
+          <h1 className="text-2xl font-extrabold text-[#151022] leading-tight mb-2">
             {church.name}
           </h1>
 
@@ -144,7 +144,7 @@ export default function JoinChurchPage() {
           {/* Join button */}
           <button
             onClick={() => navigate('/register?role=member')}
-            className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-violet-600 to-purple-700 text-white text-sm font-bold rounded-xl hover:opacity-90 transition-opacity shadow-md shadow-purple-500/25 mb-4"
+            className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-[#151022] to-[#5B00B8] text-white text-sm font-bold rounded-xl hover:opacity-90 transition-opacity shadow-md shadow-purple-500/25 mb-4"
           >
             Join {church.name}
             <ArrowRight className="w-4 h-4" />

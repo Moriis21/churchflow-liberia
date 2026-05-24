@@ -30,7 +30,7 @@ const colorConfig = {
     border: 'border-blue-100',
   },
   navy: {
-    iconBg: 'bg-gradient-to-br from-indigo-800 to-[#1E1B4B]',
+    iconBg: 'bg-gradient-to-br from-indigo-800 to-[#151022]',
     iconText: 'text-white',
     accent: 'text-indigo-700',
     glow: 'shadow-indigo-900/20',

@@ -46,7 +46,7 @@ function Toggle({ enabled, onChange, size = 'md' }) {
     <button
       type="button"
       onClick={() => onChange(!enabled)}
-      className={`relative inline-flex items-center rounded-full transition-colors duration-200 focus:outline-none ${h} ${enabled ? 'bg-[#7C3AED]' : 'bg-slate-300'}`}
+      className={`relative inline-flex items-center rounded-full transition-colors duration-200 focus:outline-none ${h} ${enabled ? 'bg-[#8A19FF]' : 'bg-slate-300'}`}
     >
       <span className={`inline-block rounded-full bg-white shadow transition-transform duration-200 ${d} ${t}`} />
     </button>
@@ -126,7 +126,7 @@ function SectionCard({ title, description, children, action }) {
     <div className="bg-white rounded-2xl border border-slate-100 shadow-sm">
       <div className="flex items-start justify-between px-6 pt-5 pb-4 border-b border-slate-100">
         <div>
-          <h4 className="font-bold text-[#1E1B4B] text-base">{title}</h4>
+          <h4 className="font-bold text-[#151022] text-base">{title}</h4>
           {description && <p className="text-xs text-slate-500 mt-0.5">{description}</p>}
         </div>
         {action && <div>{action}</div>}
@@ -146,7 +146,7 @@ function PlatformSection() {
     support_phone: '+231 555 000 000',
     language: 'en',
     timezone: 'Africa/Monrovia',
-    theme_color: '#7C3AED',
+    theme_color: '#8A19FF',
   })
   const [maintenance, setMaintenance] = useState(false)
   const [maintMsg, setMaintMsg] = useState('System is under maintenance. We will be back shortly.')
@@ -154,7 +154,7 @@ function PlatformSection() {
   const [saving, setSaving] = useState(false)
 
   const colors = [
-    { label: 'Purple', value: '#7C3AED' },
+    { label: 'Purple', value: '#8A19FF' },
     { label: 'Blue',   value: '#2563EB' },
     { label: 'Green',  value: '#059669' },
     { label: 'Red',    value: '#DC2626' },
@@ -280,7 +280,7 @@ function PlatformSection() {
         <button
           onClick={handleSave}
           disabled={saving}
-          className="flex items-center gap-2 bg-[#7C3AED] hover:bg-purple-700 text-white px-6 py-2.5 rounded-xl font-semibold text-sm transition-colors disabled:opacity-60"
+          className="flex items-center gap-2 bg-[#8A19FF] hover:bg-purple-700 text-white px-6 py-2.5 rounded-xl font-semibold text-sm transition-colors disabled:opacity-60"
         >
           <Save size={16} />
           {saving ? 'Saving...' : 'Save Platform Settings'}
@@ -350,7 +350,7 @@ function ModalHeader({ title, subtitle, onClose }) {
   return (
     <div className="flex items-start justify-between px-6 pt-5 pb-4 border-b border-slate-100">
       <div>
-        <h3 className="font-bold text-[#1E1B4B] text-lg">{title}</h3>
+        <h3 className="font-bold text-[#151022] text-lg">{title}</h3>
         {subtitle && <p className="text-xs text-slate-500 mt-0.5">{subtitle}</p>}
       </div>
       <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 ml-4 flex-shrink-0">
@@ -526,7 +526,7 @@ function CreateChurchModal({ onClose, onCreated }) {
         <button
           onClick={() => handleSave(true)}
           disabled={saving}
-          className="px-4 py-2 text-sm font-semibold bg-[#1E1B4B] hover:bg-[#16134a] text-white rounded-xl disabled:opacity-60"
+          className="px-4 py-2 text-sm font-semibold bg-[#151022] hover:bg-[#16134a] text-white rounded-xl disabled:opacity-60"
         >
           Save & Create Admin
         </button>
@@ -822,7 +822,7 @@ function AnalyticsModal({ church, onClose }) {
                     <XAxis dataKey="month" tick={{ fontSize: 11 }} />
                     <YAxis tick={{ fontSize: 11 }} />
                     <Tooltip />
-                    <Area type="monotone" dataKey="count" stroke="#7C3AED" fill="#ede9fe" strokeWidth={2} />
+                    <Area type="monotone" dataKey="count" stroke="#8A19FF" fill="#ede9fe" strokeWidth={2} />
                   </AreaChart>
                 </ResponsiveContainer>
               </div>
@@ -833,7 +833,7 @@ function AnalyticsModal({ church, onClose }) {
                     <XAxis dataKey="month" tick={{ fontSize: 11 }} />
                     <YAxis tick={{ fontSize: 11 }} />
                     <Tooltip />
-                    <Bar dataKey="count" fill="#7C3AED" radius={[4, 4, 0, 0]} />
+                    <Bar dataKey="count" fill="#8A19FF" radius={[4, 4, 0, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
@@ -963,7 +963,7 @@ function ChurchProfileModal({ church: initialChurch, onClose, onUpdated }) {
       <div className="flex items-center gap-4 px-6 pt-5 pb-4 border-b border-slate-100">
         <ChurchAvatar name={church.name} size="lg" />
         <div className="flex-1 min-w-0">
-          <h3 className="font-bold text-[#1E1B4B] text-lg truncate">{church.name}</h3>
+          <h3 className="font-bold text-[#151022] text-lg truncate">{church.name}</h3>
           <div className="flex items-center gap-2 mt-0.5 flex-wrap">
             <ChurchStatusBadge status={church.is_active === false ? 'suspended' : 'active'} />
             <PlanBadge plan={church.plan || 'starter'} />
@@ -1023,7 +1023,7 @@ function ChurchProfileModal({ church: initialChurch, onClose, onUpdated }) {
         {/* Tab: Subscription */}
         {activeTab === 'subscription' && (
           <div className="space-y-5">
-            <div className="bg-gradient-to-r from-[#1E1B4B] to-[#7C3AED] rounded-2xl p-5 text-white">
+            <div className="bg-gradient-to-r from-[#151022] to-[#8A19FF] rounded-2xl p-5 text-white">
               <p className="text-xs font-medium text-purple-200 mb-1">Current Plan</p>
               <p className="text-2xl font-bold capitalize">{church.plan || 'Starter'}</p>
               <div className="flex gap-4 mt-3">
@@ -1693,7 +1693,7 @@ function BillingSection() {
       {editing && (
         <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl">
-            <h4 className="font-bold text-[#1E1B4B] text-base mb-4">Edit Plan: {editForm.name}</h4>
+            <h4 className="font-bold text-[#151022] text-base mb-4">Edit Plan: {editForm.name}</h4>
             <div className="grid grid-cols-2 gap-4">
               {[
                 { key: 'name',        label: 'Plan Name',     type: 'text' },
@@ -1721,7 +1721,7 @@ function BillingSection() {
             </div>
             <div className="flex gap-3 mt-5">
               <button onClick={() => setEditing(null)} className="flex-1 border border-slate-200 rounded-xl py-2 text-sm font-semibold text-slate-600 hover:bg-slate-50">Cancel</button>
-              <button onClick={saveEdit} className="flex-1 bg-[#7C3AED] hover:bg-purple-700 text-white rounded-xl py-2 text-sm font-semibold">Save Plan</button>
+              <button onClick={saveEdit} className="flex-1 bg-[#8A19FF] hover:bg-purple-700 text-white rounded-xl py-2 text-sm font-semibold">Save Plan</button>
             </div>
           </div>
         </div>
@@ -1731,7 +1731,7 @@ function BillingSection() {
         {plans.map(plan => (
           <div key={plan.id} className={`rounded-2xl border-2 p-5 relative ${colorMap[plan.color] || colorMap.slate}`}>
             {plan.popular && (
-              <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#7C3AED] text-white text-xs font-bold px-3 py-1 rounded-full">
+              <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#8A19FF] text-white text-xs font-bold px-3 py-1 rounded-full">
                 Most Popular
               </div>
             )}
@@ -1927,7 +1927,7 @@ function UsersSection() {
   }
 
   const roleColor = {
-    super_admin:   'bg-[#1E1B4B] text-white',
+    super_admin:   'bg-[#151022] text-white',
     church_admin:  'bg-purple-100 text-purple-700',
     pastor:        'bg-blue-100 text-blue-700',
     finance_admin: 'bg-amber-100 text-amber-700',
@@ -2120,7 +2120,7 @@ function PaymentsSection() {
             <input value={bankForm.branch} onChange={e => setBankForm({ ...bankForm, branch: e.target.value })} placeholder="e.g. Monrovia Main" className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-400" />
           </div>
         </div>
-        <button onClick={() => toast.success('Bank details saved.')} className="mt-4 flex items-center gap-2 bg-[#7C3AED] hover:bg-purple-700 text-white px-5 py-2 rounded-xl font-semibold text-sm transition-colors">
+        <button onClick={() => toast.success('Bank details saved.')} className="mt-4 flex items-center gap-2 bg-[#8A19FF] hover:bg-purple-700 text-white px-5 py-2 rounded-xl font-semibold text-sm transition-colors">
           <Save size={15} /> Save Bank Details
         </button>
       </SectionCard>
@@ -2171,7 +2171,7 @@ function SmsSection() {
               <input value={smsSender} onChange={e => setSmsSender(e.target.value)} className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-400" />
             </div>
             <div className="flex gap-2">
-              <button onClick={() => toast.success('SMS config saved.')} className="flex-1 bg-[#7C3AED] hover:bg-purple-700 text-white py-2 rounded-xl text-sm font-semibold transition-colors">
+              <button onClick={() => toast.success('SMS config saved.')} className="flex-1 bg-[#8A19FF] hover:bg-purple-700 text-white py-2 rounded-xl text-sm font-semibold transition-colors">
                 Save Config
               </button>
               <button onClick={() => toast('Test SMS sent.', { icon: '📱' })} className="flex-1 border border-slate-200 hover:bg-slate-50 text-slate-600 py-2 rounded-xl text-sm font-semibold transition-colors">
@@ -2201,7 +2201,7 @@ function SmsSection() {
               <label className="block text-xs font-semibold text-slate-600 mb-1.5">Sender Name</label>
               <input value={emailSender} onChange={e => setEmailSender(e.target.value)} className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-400" />
             </div>
-            <button onClick={() => toast.success('Email config saved.')} className="w-full bg-[#7C3AED] hover:bg-purple-700 text-white py-2 rounded-xl text-sm font-semibold transition-colors">
+            <button onClick={() => toast.success('Email config saved.')} className="w-full bg-[#8A19FF] hover:bg-purple-700 text-white py-2 rounded-xl text-sm font-semibold transition-colors">
               Save Config
             </button>
           </div>
@@ -2378,7 +2378,7 @@ function SecuritySection() {
       </div>
 
       <div className="flex justify-end">
-        <button onClick={() => toast.success('Security settings saved.')} className="flex items-center gap-2 bg-[#7C3AED] hover:bg-purple-700 text-white px-6 py-2.5 rounded-xl font-semibold text-sm transition-colors">
+        <button onClick={() => toast.success('Security settings saved.')} className="flex items-center gap-2 bg-[#8A19FF] hover:bg-purple-700 text-white px-6 py-2.5 rounded-xl font-semibold text-sm transition-colors">
           <Save size={16} /> Save Security Settings
         </button>
       </div>
@@ -2454,7 +2454,7 @@ function BackupSection() {
       </div>
 
       <div className="flex gap-3">
-        <button onClick={runBackup} disabled={running} className="flex items-center gap-2 bg-[#7C3AED] hover:bg-purple-700 disabled:opacity-60 text-white px-6 py-2.5 rounded-xl font-semibold text-sm transition-colors">
+        <button onClick={runBackup} disabled={running} className="flex items-center gap-2 bg-[#8A19FF] hover:bg-purple-700 disabled:opacity-60 text-white px-6 py-2.5 rounded-xl font-semibold text-sm transition-colors">
           {running ? <><div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> Running...</> : <><Database size={16} /> Run Manual Backup Now</>}
         </button>
         <button disabled className="flex items-center gap-2 border border-slate-200 text-slate-400 px-6 py-2.5 rounded-xl font-semibold text-sm cursor-not-allowed">
@@ -2575,7 +2575,7 @@ function AuditSection() {
             className="pl-9 pr-3 border border-slate-200 rounded-xl py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-400 min-w-[200px]" />
         </div>
         <button onClick={fetchLogs}
-          className="flex items-center gap-1.5 px-4 py-2 bg-[#7C3AED] hover:bg-purple-700 text-white rounded-xl text-sm font-semibold transition-colors">
+          className="flex items-center gap-1.5 px-4 py-2 bg-[#8A19FF] hover:bg-purple-700 text-white rounded-xl text-sm font-semibold transition-colors">
           <RefreshCw size={13} /> Apply
         </button>
       </div>
@@ -2721,7 +2721,7 @@ function NotificationsSection() {
       </SectionCard>
 
       <div className="flex justify-end">
-        <button onClick={() => toast.success('Notification settings saved.')} className="flex items-center gap-2 bg-[#7C3AED] hover:bg-purple-700 text-white px-6 py-2.5 rounded-xl font-semibold text-sm transition-colors">
+        <button onClick={() => toast.success('Notification settings saved.')} className="flex items-center gap-2 bg-[#8A19FF] hover:bg-purple-700 text-white px-6 py-2.5 rounded-xl font-semibold text-sm transition-colors">
           <Save size={16} /> Save Settings
         </button>
       </div>
@@ -2735,11 +2735,11 @@ function NotificationsSection() {
 function BrandingSection() {
   const [watermark, setWatermark] = useState(false)
   const [watermarkText, setWatermarkText] = useState('ChurchFlow Liberia')
-  const [emailHeaderColor, setEmailHeaderColor] = useState('#7C3AED')
+  const [emailHeaderColor, setEmailHeaderColor] = useState('#8A19FF')
   const logoRef = useRef(null)
   const invoiceRef = useRef(null)
 
-  const emailColors = ['#7C3AED', '#2563EB', '#059669', '#DC2626', '#1E1B4B', '#F59E0B']
+  const emailColors = ['#8A19FF', '#2563EB', '#059669', '#DC2626', '#151022', '#F59E0B']
 
   return (
     <div className="space-y-5">
@@ -2759,10 +2759,10 @@ function BrandingSection() {
           <div className="mt-3 p-3 bg-slate-50 rounded-xl">
             <p className="text-xs text-slate-500 mb-1">Current logo preview:</p>
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-[#1E1B4B] flex items-center justify-center">
+              <div className="w-8 h-8 rounded-lg bg-[#151022] flex items-center justify-center">
                 <span className="text-white text-xs font-black">CF</span>
               </div>
-              <span className="text-sm font-bold text-[#1E1B4B]">ChurchFlow Liberia</span>
+              <span className="text-sm font-bold text-[#151022]">ChurchFlow Liberia</span>
             </div>
           </div>
         </SectionCard>
@@ -2825,9 +2825,9 @@ function BrandingSection() {
       <SectionCard title="Login Page Preview" description="How your login page appears to church admins.">
         <div className="flex justify-center">
           <div className="w-72 rounded-2xl overflow-hidden border border-slate-200 shadow-md">
-            <div className="h-24 flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #1E1B4B, #7C3AED)' }}>
+            <div className="h-24 flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #151022, #8A19FF)' }}>
               <div className="text-center">
-                <div className="w-10 h-10 rounded-xl bg-amber-400 mx-auto flex items-center justify-center text-[#1E1B4B] font-black text-lg mb-1">C</div>
+                <div className="w-10 h-10 rounded-xl bg-amber-400 mx-auto flex items-center justify-center text-[#151022] font-black text-lg mb-1">C</div>
                 <p className="text-white text-sm font-bold">ChurchFlow Liberia</p>
               </div>
             </div>
@@ -2841,7 +2841,7 @@ function BrandingSection() {
       </SectionCard>
 
       <div className="flex justify-end">
-        <button onClick={() => toast.success('Branding settings saved.')} className="flex items-center gap-2 bg-[#7C3AED] hover:bg-purple-700 text-white px-6 py-2.5 rounded-xl font-semibold text-sm transition-colors">
+        <button onClick={() => toast.success('Branding settings saved.')} className="flex items-center gap-2 bg-[#8A19FF] hover:bg-purple-700 text-white px-6 py-2.5 rounded-xl font-semibold text-sm transition-colors">
           <Save size={16} /> Save Branding
         </button>
       </div>
@@ -2905,7 +2905,7 @@ function LegalSection() {
             <button
               onClick={() => savePolicy(p.key)}
               disabled={saving === p.key}
-              className="flex items-center gap-1.5 bg-[#7C3AED] hover:bg-purple-700 disabled:opacity-60 text-white px-4 py-1.5 rounded-xl font-semibold text-xs transition-colors"
+              className="flex items-center gap-1.5 bg-[#8A19FF] hover:bg-purple-700 disabled:opacity-60 text-white px-4 py-1.5 rounded-xl font-semibold text-xs transition-colors"
             >
               <Save size={13} />
               {saving === p.key ? 'Saving...' : 'Save'}
@@ -2995,7 +2995,7 @@ function MembersSection() {
       {/* Stats row */}
       <div className="grid grid-cols-3 gap-4">
         {[
-          { label: 'Total Members',   value: totalMembers,  color: 'text-[#1E1B4B]' },
+          { label: 'Total Members',   value: totalMembers,  color: 'text-[#151022]' },
           { label: 'Active Members',  value: activeMembers, color: 'text-green-600' },
           { label: 'New This Month',  value: newThisMonth,  color: 'text-purple-600' },
         ].map(s => (
@@ -3152,7 +3152,7 @@ function MembersSection() {
           <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl"
             onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-5">
-              <h4 className="font-bold text-[#1E1B4B] text-base">Member Details</h4>
+              <h4 className="font-bold text-[#151022] text-base">Member Details</h4>
               <button onClick={() => setSelectedMember(null)}
                 className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 transition-colors">
                 <XCircle size={18} />
@@ -3241,7 +3241,7 @@ function ApiSection() {
       {showAddModal && (
         <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl">
-            <h4 className="font-bold text-[#1E1B4B] text-base mb-4">Add New API Key</h4>
+            <h4 className="font-bold text-[#151022] text-base mb-4">Add New API Key</h4>
             <div className="space-y-3">
               <div>
                 <label className="block text-xs font-semibold text-slate-600 mb-1.5">Key Name</label>
@@ -3254,7 +3254,7 @@ function ApiSection() {
             </div>
             <div className="flex gap-3 mt-5">
               <button onClick={() => setShowAddModal(false)} className="flex-1 border border-slate-200 rounded-xl py-2 text-sm font-semibold text-slate-600 hover:bg-slate-50">Cancel</button>
-              <button onClick={addKey} className="flex-1 bg-[#7C3AED] hover:bg-purple-700 text-white rounded-xl py-2 text-sm font-semibold">Add Key</button>
+              <button onClick={addKey} className="flex-1 bg-[#8A19FF] hover:bg-purple-700 text-white rounded-xl py-2 text-sm font-semibold">Add Key</button>
             </div>
           </div>
         </div>
@@ -3262,7 +3262,7 @@ function ApiSection() {
 
       <div className="flex justify-between items-center">
         <p className="text-sm text-slate-500">Manage API keys for all platform integrations.</p>
-        <button onClick={() => setShowAddModal(true)} className="flex items-center gap-2 bg-[#7C3AED] hover:bg-purple-700 text-white px-4 py-2 rounded-xl font-semibold text-sm transition-colors">
+        <button onClick={() => setShowAddModal(true)} className="flex items-center gap-2 bg-[#8A19FF] hover:bg-purple-700 text-white px-4 py-2 rounded-xl font-semibold text-sm transition-colors">
           <Plus size={15} /> Add New Key
         </button>
       </div>
@@ -3311,7 +3311,7 @@ function ApiSection() {
           className="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-purple-400 resize-none font-mono"
         />
         <div className="flex gap-3 mt-3">
-          <button onClick={() => toast.success('Webhook URLs saved.')} className="flex items-center gap-2 bg-[#7C3AED] hover:bg-purple-700 text-white px-5 py-2 rounded-xl font-semibold text-sm transition-colors">
+          <button onClick={() => toast.success('Webhook URLs saved.')} className="flex items-center gap-2 bg-[#8A19FF] hover:bg-purple-700 text-white px-5 py-2 rounded-xl font-semibold text-sm transition-colors">
             <Save size={15} /> Save Webhooks
           </button>
           <button onClick={() => toast('Test webhook event sent.', { icon: '⚡' })} className="flex items-center gap-2 border border-slate-200 hover:bg-slate-50 text-slate-600 px-5 py-2 rounded-xl font-semibold text-sm transition-colors">
@@ -3405,7 +3405,7 @@ export default function SuperAdminSettings() {
       {/* Page Header */}
       <div className="flex items-start justify-between mb-5 gap-4">
         <div>
-          <h2 className="text-xl font-black text-[#1E1B4B]">Platform Settings</h2>
+          <h2 className="text-xl font-black text-[#151022]">Platform Settings</h2>
           <p className="text-slate-500 text-sm mt-0.5">Full control of the ChurchFlow Liberia platform</p>
         </div>
         <div className="flex items-center gap-2.5 flex-shrink-0">
@@ -3459,11 +3459,11 @@ export default function SuperAdminSettings() {
                 <button
                   key={section.id}
                   onClick={() => setActive(section.id)}
-                  className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm font-medium transition-colors text-left ${active === section.id ? 'bg-purple-50 text-[#7C3AED] font-semibold' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-800'}`}
+                  className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm font-medium transition-colors text-left ${active === section.id ? 'bg-purple-50 text-[#8A19FF] font-semibold' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-800'}`}
                 >
-                  <Icon size={16} className={active === section.id ? 'text-[#7C3AED]' : 'text-slate-400'} />
+                  <Icon size={16} className={active === section.id ? 'text-[#8A19FF]' : 'text-slate-400'} />
                   {section.label}
-                  {active === section.id && <ChevronRight size={14} className="ml-auto text-[#7C3AED]" />}
+                  {active === section.id && <ChevronRight size={14} className="ml-auto text-[#8A19FF]" />}
                 </button>
               )
             })}
@@ -3473,7 +3473,7 @@ export default function SuperAdminSettings() {
         {/* Sidebar — Mobile Drawer */}
         <div className={`fixed top-0 left-0 h-full w-72 z-50 bg-white shadow-2xl transform transition-transform duration-300 lg:hidden ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
           <div className="flex items-center justify-between p-4 border-b border-slate-100">
-            <p className="font-bold text-[#1E1B4B] text-sm">Settings Menu</p>
+            <p className="font-bold text-[#151022] text-sm">Settings Menu</p>
             <button onClick={() => setSidebarOpen(false)} className="p-1.5 rounded-xl hover:bg-slate-100 text-slate-500">
               <XCircle size={18} />
             </button>
@@ -3496,9 +3496,9 @@ export default function SuperAdminSettings() {
                 <button
                   key={section.id}
                   onClick={() => { setActive(section.id); setSidebarOpen(false) }}
-                  className={`w-full flex items-center gap-3 px-4 py-3 text-sm font-medium transition-colors text-left ${active === section.id ? 'bg-purple-50 text-[#7C3AED] font-semibold' : 'text-slate-600 hover:bg-slate-50'}`}
+                  className={`w-full flex items-center gap-3 px-4 py-3 text-sm font-medium transition-colors text-left ${active === section.id ? 'bg-purple-50 text-[#8A19FF] font-semibold' : 'text-slate-600 hover:bg-slate-50'}`}
                 >
-                  <Icon size={16} className={active === section.id ? 'text-[#7C3AED]' : 'text-slate-400'} />
+                  <Icon size={16} className={active === section.id ? 'text-[#8A19FF]' : 'text-slate-400'} />
                   {section.label}
                 </button>
               )
@@ -3514,7 +3514,7 @@ export default function SuperAdminSettings() {
                 <div className="w-8 h-8 rounded-xl bg-purple-100 flex items-center justify-center flex-shrink-0">
                   {activeSection.icon && <activeSection.icon size={16} className="text-purple-700" />}
                 </div>
-                <h3 className="text-base font-black text-[#1E1B4B]">{activeSection.label}</h3>
+                <h3 className="text-base font-black text-[#151022]">{activeSection.label}</h3>
               </>
             )}
           </div>

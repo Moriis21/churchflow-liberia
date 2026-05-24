@@ -10,7 +10,7 @@ import Header from './Header'
 // ─── Loading spinner ──────────────────────────────────────
 function LoadingScreen() {
   return (
-    <div className="fixed inset-0 flex flex-col items-center justify-center bg-[#1E1B4B] z-[9999]">
+    <div className="fixed inset-0 flex flex-col items-center justify-center bg-[#151022] z-[9999]">
       {/* Animated logo */}
       <div className="relative mb-6">
         <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-amber-400 to-amber-500 flex items-center justify-center shadow-lg shadow-amber-900/40">

@@ -322,7 +322,7 @@ function OverviewTab({ member, attendance, offerings, prayers }) {
       {/* Personal Info */}
       <div className="bg-white rounded-2xl border border-slate-100 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07)] p-6">
         <h3 className="text-sm font-bold text-slate-700 mb-4 flex items-center gap-2">
-          <div className="w-1 h-4 rounded-full bg-gradient-to-b from-violet-600 to-purple-700" />
+          <div className="w-1 h-4 rounded-full bg-gradient-to-b from-[#151022] to-[#5B00B8]" />
           Personal Information
         </h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -476,7 +476,7 @@ function AttendanceTab({ attendance }) {
         </div>
         <div className="w-full h-2.5 rounded-full bg-slate-100 overflow-hidden">
           <div
-            className="h-full rounded-full bg-gradient-to-r from-violet-600 to-purple-700 transition-all duration-700"
+            className="h-full rounded-full bg-gradient-to-r from-[#151022] to-[#5B00B8] transition-all duration-700"
             style={{ width: `${rate}%` }}
           />
         </div>
@@ -895,7 +895,7 @@ export default function MemberProfile() {
 
             {/* Profile card */}
             <div className="bg-white rounded-2xl border border-slate-100 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07)] overflow-hidden">
-              <div className="relative h-24 bg-gradient-to-r from-violet-600 to-purple-700">
+              <div className="relative h-24 bg-gradient-to-r from-[#151022] to-[#5B00B8]">
                 <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'radial-gradient(circle at 70% 50%, #F59E0B 0%, transparent 50%)' }} />
               </div>
 
@@ -960,7 +960,7 @@ export default function MemberProfile() {
             {/* Contact Info */}
             <div className="bg-white rounded-2xl border border-slate-100 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07)] p-5 space-y-4">
               <h3 className="text-sm font-bold text-slate-700 flex items-center gap-2">
-                <div className="w-1 h-4 rounded-full bg-gradient-to-b from-violet-600 to-purple-700" />
+                <div className="w-1 h-4 rounded-full bg-gradient-to-b from-[#151022] to-[#5B00B8]" />
                 Contact Information
               </h3>
               <InfoRow icon={Phone} label="Phone" value={formatPhone(member.phone)} color="text-purple-400" />
@@ -1026,7 +1026,7 @@ export default function MemberProfile() {
                     className={[
                       'flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all whitespace-nowrap flex-shrink-0',
                       isActive
-                        ? 'bg-gradient-to-r from-violet-600 to-purple-700 text-white shadow-md shadow-purple-500/25'
+                        ? 'bg-gradient-to-r from-[#151022] to-[#5B00B8] text-white shadow-md shadow-purple-500/25'
                         : 'text-slate-500 hover:text-slate-700 hover:bg-slate-50',
                     ].join(' ')}
                   >

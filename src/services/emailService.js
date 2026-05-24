@@ -30,10 +30,10 @@ function emailShell({ title, preheader, content }) {
       <table cellspacing="0" cellpadding="0" border="0" width="600" style="max-width:600px;background:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 4px 20px rgba(15,23,42,0.06);">
 
         <!-- Header -->
-        <tr><td style="background:linear-gradient(135deg,#1E1B4B 0%,#7C3AED 100%);padding:32px 32px 24px;">
+        <tr><td style="background:linear-gradient(135deg,#151022 0%,#8A19FF 100%);padding:32px 32px 24px;">
           <table cellspacing="0" cellpadding="0" border="0"><tr>
             <td style="vertical-align:middle;">
-              <div style="display:inline-block;width:42px;height:42px;background:#ffffff;border-radius:12px;text-align:center;line-height:42px;font-weight:900;color:#7C3AED;font-size:18px;">CF</div>
+              <div style="display:inline-block;width:42px;height:42px;background:#ffffff;border-radius:12px;text-align:center;line-height:42px;font-weight:900;color:#8A19FF;font-size:18px;">CF</div>
             </td>
             <td style="vertical-align:middle;padding-left:14px;">
               <div style="color:#ffffff;font-weight:800;font-size:18px;line-height:1;">ChurchFlow</div>
@@ -53,7 +53,7 @@ function emailShell({ title, preheader, content }) {
             ChurchFlow Liberia &middot; Brewerville City, Montserrado County
           </p>
           <p style="margin:0;color:#94a3b8;font-size:11px;">
-            Questions? Reply to this email or write to <a href="mailto:${REPLY_TO}" style="color:#7C3AED;text-decoration:none;">${REPLY_TO}</a>.
+            Questions? Reply to this email or write to <a href="mailto:${REPLY_TO}" style="color:#8A19FF;text-decoration:none;">${REPLY_TO}</a>.
           </p>
         </td></tr>
 
@@ -65,7 +65,7 @@ function emailShell({ title, preheader, content }) {
 
 // ─── Reusable elements ────────────────────────────────────────
 const button = (label, href) => `
-  <a href="${href}" style="display:inline-block;background:linear-gradient(135deg,#7C3AED 0%,#6D28D9 100%);color:#ffffff;text-decoration:none;font-weight:700;font-size:14px;padding:12px 26px;border-radius:10px;">
+  <a href="${href}" style="display:inline-block;background:linear-gradient(135deg,#8A19FF 0%,#5B00B8 100%);color:#ffffff;text-decoration:none;font-weight:700;font-size:14px;padding:12px 26px;border-radius:10px;">
     ${label}
   </a>`
 
@@ -91,13 +91,13 @@ export function sendWelcomeEmail({ to, churchName, userName }) {
     title: `Welcome to ChurchFlow, ${churchName}`,
     preheader: `Your church is set up and ready. Here's how to start.`,
     content: `
-      <h1 style="margin:0 0 12px;color:#1E1B4B;font-size:24px;font-weight:800;line-height:1.2;">
+      <h1 style="margin:0 0 12px;color:#151022;font-size:24px;font-weight:800;line-height:1.2;">
         Welcome to ChurchFlow, ${userName || 'Pastor'} 🎉
       </h1>
       <p style="margin:0 0 18px;color:#475569;font-size:15px;line-height:1.6;">
         <strong>${churchName}</strong> is officially live on ChurchFlow Liberia. You can start adding members, recording attendance, and tracking offerings right away.
       </p>
-      <h3 style="margin:24px 0 10px;color:#1E1B4B;font-size:15px;font-weight:700;">Suggested first steps</h3>
+      <h3 style="margin:24px 0 10px;color:#151022;font-size:15px;font-weight:700;">Suggested first steps</h3>
       <ol style="margin:0 0 22px;padding-left:20px;color:#475569;font-size:14px;line-height:1.7;">
         <li>Add your first 5–10 members</li>
         <li>Mark attendance for last Sunday's service</li>
@@ -106,7 +106,7 @@ export function sendWelcomeEmail({ to, churchName, userName }) {
       </ol>
       <p style="margin:0 0 22px;">${button('Open Dashboard', 'https://churchflow-liberia.vercel.app/app/dashboard')}</p>
       <p style="margin:0;color:#94a3b8;font-size:13px;line-height:1.6;">
-        Need help? Visit our <a href="https://churchflow-liberia.vercel.app/help" style="color:#7C3AED;">Help Centre</a> or reply to this email.
+        Need help? Visit our <a href="https://churchflow-liberia.vercel.app/help" style="color:#8A19FF;">Help Centre</a> or reply to this email.
       </p>`,
   })
   return safeSend({ to, from: FROM, replyTo: REPLY_TO, subject: `Welcome to ChurchFlow, ${churchName}!`, html }, 'welcome')
@@ -118,7 +118,7 @@ export function sendEventReminder({ to, memberName, eventTitle, eventDate, event
     title: `Reminder: ${eventTitle}`,
     preheader: `${eventTitle} is coming up on ${eventDate}`,
     content: `
-      <h1 style="margin:0 0 12px;color:#1E1B4B;font-size:22px;font-weight:800;">
+      <h1 style="margin:0 0 12px;color:#151022;font-size:22px;font-weight:800;">
         Reminder: ${eventTitle}
       </h1>
       <p style="margin:0 0 18px;color:#475569;font-size:15px;line-height:1.6;">
@@ -151,7 +151,7 @@ export function sendWeeklyDigest({ to, churchName, stats }) {
     title: `${churchName} — Weekly Summary`,
     preheader: `Your ministry at a glance for ${weekLabel}`,
     content: `
-      <h1 style="margin:0 0 6px;color:#1E1B4B;font-size:22px;font-weight:800;">
+      <h1 style="margin:0 0 6px;color:#151022;font-size:22px;font-weight:800;">
         ${churchName}
       </h1>
       <p style="margin:0 0 22px;color:#64748b;font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:1.5px;">
@@ -162,7 +162,7 @@ export function sendWeeklyDigest({ to, churchName, stats }) {
         <tr>
           <td style="width:50%;padding:6px;">
             <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:18px;text-align:center;">
-              <div style="color:#7C3AED;font-weight:800;font-size:28px;line-height:1;">${attendance}</div>
+              <div style="color:#8A19FF;font-weight:800;font-size:28px;line-height:1;">${attendance}</div>
               <div style="color:#64748b;font-size:11px;font-weight:700;text-transform:uppercase;margin-top:6px;letter-spacing:1px;">Sunday attendance</div>
             </div>
           </td>
@@ -217,7 +217,7 @@ export function sendTeamInvite({ to, churchName, inviterName, role, joinUrl }) {
     title: `${inviterName} invited you to ${churchName} on ChurchFlow`,
     preheader: `Join as ${roleLabel}`,
     content: `
-      <h1 style="margin:0 0 12px;color:#1E1B4B;font-size:22px;font-weight:800;">
+      <h1 style="margin:0 0 12px;color:#151022;font-size:22px;font-weight:800;">
         You're invited to join ${churchName}
       </h1>
       <p style="margin:0 0 18px;color:#475569;font-size:15px;line-height:1.6;">
@@ -240,7 +240,7 @@ export function sendNotification({ to, subject, heading, body, ctaLabel, ctaUrl 
     title: subject,
     preheader: heading,
     content: `
-      <h1 style="margin:0 0 12px;color:#1E1B4B;font-size:22px;font-weight:800;">${heading}</h1>
+      <h1 style="margin:0 0 12px;color:#151022;font-size:22px;font-weight:800;">${heading}</h1>
       <div style="margin:0 0 22px;color:#475569;font-size:15px;line-height:1.6;">${body}</div>
       ${ctaLabel && ctaUrl ? `<p style="margin:0 0 22px;">${button(ctaLabel, ctaUrl)}</p>` : ''}`,
   })

@@ -130,13 +130,13 @@ const RELEASES = [
 
 const TYPE_STYLES = {
   major: {
-    dot: 'bg-[#7C3AED] ring-4 ring-purple-100',
-    badge: 'bg-[#7C3AED] text-white',
-    border: 'border-[#7C3AED]',
+    dot: 'bg-[#8A19FF] ring-4 ring-purple-100',
+    badge: 'bg-[#8A19FF] text-white',
+    border: 'border-[#8A19FF]',
   },
   minor: {
-    dot: 'bg-[#1E1B4B] ring-4 ring-slate-100',
-    badge: 'bg-slate-100 text-[#1E1B4B]',
+    dot: 'bg-[#151022] ring-4 ring-slate-100',
+    badge: 'bg-slate-100 text-[#151022]',
     border: 'border-slate-200',
   },
 }
@@ -145,7 +145,7 @@ export default function ChangelogPage() {
   return (
     <PublicLayout>
       {/* Hero */}
-      <section className="bg-gradient-to-br from-[#1E1B4B] via-[#312e81] to-[#7C3AED] py-20 px-4 text-center">
+      <section className="bg-gradient-to-br from-[#151022] via-[#2A1F4F] to-[#8A19FF] py-20 px-4 text-center">
         <div className="max-w-3xl mx-auto">
           <span className="inline-block px-4 py-1.5 rounded-full bg-white/10 text-[#F59E0B] text-xs font-semibold tracking-widest uppercase mb-6 border border-white/20">
             Product Updates
@@ -165,7 +165,7 @@ export default function ChangelogPage() {
           <p className="text-sm text-slate-500">Looking ahead? Check the roadmap for upcoming features.</p>
           <Link
             to="/roadmap"
-            className="inline-flex items-center gap-2 text-sm text-[#7C3AED] font-semibold hover:underline"
+            className="inline-flex items-center gap-2 text-sm text-[#8A19FF] font-semibold hover:underline"
           >
             View Roadmap
             <ArrowRight className="w-4 h-4" />
@@ -198,13 +198,13 @@ export default function ChangelogPage() {
                           {release.version}
                         </span>
                         {release.badge && (
-                          <span className="px-3 py-1 rounded-full text-xs font-bold bg-[#F59E0B] text-[#1E1B4B]">
+                          <span className="px-3 py-1 rounded-full text-xs font-bold bg-[#F59E0B] text-[#151022]">
                             {release.badge}
                           </span>
                         )}
                         <span className="text-slate-400 text-sm">{release.date}</span>
                         <span className="text-slate-300 text-sm hidden sm:block">·</span>
-                        <span className="font-semibold text-[#1E1B4B] text-sm">{release.label}</span>
+                        <span className="font-semibold text-[#151022] text-sm">{release.label}</span>
                       </div>
 
                       {/* Summary */}
@@ -244,7 +244,7 @@ export default function ChangelogPage() {
       </section>
 
       {/* Subscribe nudge */}
-      <section className="bg-[#1E1B4B] py-12 px-4 text-center">
+      <section className="bg-[#151022] py-12 px-4 text-center">
         <div className="max-w-xl mx-auto">
           <h2 className="text-2xl font-extrabold text-white mb-3">Stay up to date</h2>
           <p className="text-purple-300 text-sm leading-relaxed mb-6">
@@ -252,7 +252,7 @@ export default function ChangelogPage() {
           </p>
           <Link
             to="/community"
-            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[#F59E0B] text-[#1E1B4B] font-bold text-sm hover:bg-amber-400 transition-colors"
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[#F59E0B] text-[#151022] font-bold text-sm hover:bg-amber-400 transition-colors"
           >
             Join the Community
             <ArrowRight className="w-4 h-4" />

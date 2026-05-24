@@ -140,8 +140,8 @@ function NavItem({ to, icon: Icon, label, onClick }) {
           'group flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium',
           'transition-all duration-200 ease-in-out',
           isActive
-            ? 'bg-gradient-to-r from-purple-500 to-violet-600 text-white shadow-lg shadow-purple-900/40'
-            : 'text-white/65 hover:text-white hover:bg-white/10',
+            ? 'bg-[#8A19FF]/20 text-white ring-1 ring-[#8A19FF]/50 shadow-[0_4px_14px_rgba(138,25,255,0.30)]'
+            : 'text-white/70 hover:text-white hover:bg-white/[0.06]',
         ].join(' ')
       }
     >
@@ -324,7 +324,7 @@ export default function Sidebar({ isOpen, onClose }) {
       {/* ── Desktop sidebar (always visible md+) ───────────── */}
       <aside
         className="hidden md:flex flex-col fixed left-0 top-0 h-screen w-[260px] z-30
-          bg-gradient-to-b from-[#1E1B4B] via-[#231C5A] to-[#1A1745]
+          bg-gradient-to-b from-[#151022] to-[#5B00B8]
           border-r border-white/8 shadow-xl shadow-black/20"
         aria-label="Main navigation"
       >
@@ -344,7 +344,7 @@ export default function Sidebar({ isOpen, onClose }) {
       <aside
         className={[
           'fixed left-0 top-0 h-screen w-[280px] z-50 md:hidden flex flex-col',
-          'bg-gradient-to-b from-[#1E1B4B] via-[#231C5A] to-[#1A1745]',
+          'bg-gradient-to-b from-[#151022] to-[#5B00B8]',
           'border-r border-white/8 shadow-2xl',
           'transform transition-transform duration-300 ease-in-out will-change-transform',
           isOpen ? 'translate-x-0' : '-translate-x-full',

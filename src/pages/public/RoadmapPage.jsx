@@ -15,10 +15,10 @@ const COLUMNS = [
     id: 'in-progress',
     label: 'In Progress',
     icon: Loader2,
-    iconClass: 'text-[#7C3AED] animate-spin',
-    headerBg: 'bg-purple-50 border-[#7C3AED]/20',
-    headerText: 'text-[#7C3AED]',
-    dotColor: 'bg-[#7C3AED]',
+    iconClass: 'text-[#8A19FF] animate-spin',
+    headerBg: 'bg-purple-50 border-[#8A19FF]/20',
+    headerText: 'text-[#8A19FF]',
+    dotColor: 'bg-[#8A19FF]',
     items: [
       {
         icon: CreditCard,
@@ -110,7 +110,7 @@ const COLUMNS = [
 ]
 
 const TAG_COLORS = {
-  'Payments':       'bg-purple-50 text-[#7C3AED]',
+  'Payments':       'bg-purple-50 text-[#8A19FF]',
   'Finance':        'bg-amber-50 text-amber-600',
   'Communications': 'bg-pink-50 text-pink-600',
   'Attendance':     'bg-green-50 text-green-600',
@@ -129,7 +129,7 @@ export default function RoadmapPage() {
   return (
     <PublicLayout>
       {/* Hero */}
-      <section className="bg-gradient-to-br from-[#1E1B4B] via-[#312e81] to-[#7C3AED] py-20 px-4 text-center">
+      <section className="bg-gradient-to-br from-[#151022] via-[#2A1F4F] to-[#8A19FF] py-20 px-4 text-center">
         <div className="max-w-3xl mx-auto">
           <span className="inline-block px-4 py-1.5 rounded-full bg-white/10 text-[#F59E0B] text-xs font-semibold tracking-widest uppercase mb-6 border border-white/20">
             Product Roadmap
@@ -147,7 +147,7 @@ export default function RoadmapPage() {
       <div className="bg-white border-b border-slate-100 py-4 px-4">
         <div className="max-w-6xl mx-auto flex flex-wrap items-center justify-center gap-6">
           {[
-            { dot: 'bg-[#7C3AED]', label: 'In Progress — actively being built' },
+            { dot: 'bg-[#8A19FF]', label: 'In Progress — actively being built' },
             { dot: 'bg-amber-500', label: 'Coming Soon — designed, planned for release' },
             { dot: 'bg-slate-300', label: 'Planned — on the roadmap, not yet started' },
           ].map(item => (
@@ -186,7 +186,7 @@ export default function RoadmapPage() {
                             <Icon className={`w-4 h-4 ${col.headerText}`} />
                           </div>
                           <div className="flex-1 min-w-0">
-                            <h3 className="font-bold text-[#1E1B4B] text-sm leading-tight">{item.title}</h3>
+                            <h3 className="font-bold text-[#151022] text-sm leading-tight">{item.title}</h3>
                           </div>
                         </div>
 
@@ -225,21 +225,21 @@ export default function RoadmapPage() {
             <CheckCircle className="w-3.5 h-3.5" />
             Your feedback shapes the roadmap
           </div>
-          <h2 className="text-2xl font-extrabold text-[#1E1B4B] mb-3">Have a feature request?</h2>
+          <h2 className="text-2xl font-extrabold text-[#151022] mb-3">Have a feature request?</h2>
           <p className="text-slate-500 mb-7 leading-relaxed">
             ChurchFlow is shaped by the churches that use it. If there is something you need that is not on the roadmap, let us know. Many of our most-used features started as user requests.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <Link
               to="/contact"
-              className="inline-flex items-center justify-center gap-2 px-7 py-3 rounded-xl bg-[#7C3AED] text-white font-bold text-sm hover:bg-[#6D28D9] transition-colors shadow-sm"
+              className="inline-flex items-center justify-center gap-2 px-7 py-3 rounded-xl bg-[#8A19FF] text-white font-bold text-sm hover:bg-[#5B00B8] transition-colors shadow-sm"
             >
               Submit a Request
               <ArrowRight className="w-4 h-4" />
             </Link>
             <Link
               to="/community"
-              className="inline-flex items-center justify-center gap-2 px-7 py-3 rounded-xl border border-[#7C3AED] text-[#7C3AED] font-semibold text-sm hover:bg-purple-50 transition-colors"
+              className="inline-flex items-center justify-center gap-2 px-7 py-3 rounded-xl border border-[#8A19FF] text-[#8A19FF] font-semibold text-sm hover:bg-purple-50 transition-colors"
             >
               Join the Community
             </Link>

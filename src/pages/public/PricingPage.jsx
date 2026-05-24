@@ -132,7 +132,7 @@ const TRUST_STATS = [
 ]
 
 const WHY_FEATURES = [
-  { icon: Shield,         title: 'No Hidden Fees',       desc: 'What you see is what you pay. No setup fees, no surprise charges.',          color: 'bg-purple-50 text-[#7C3AED]'  },
+  { icon: Shield,         title: 'No Hidden Fees',       desc: 'What you see is what you pay. No setup fees, no surprise charges.',          color: 'bg-purple-50 text-[#8A19FF]'  },
   { icon: Zap,            title: 'Instant Setup',         desc: 'Your church is up and running in under 5 minutes. No technical skills needed.', color: 'bg-amber-50 text-amber-600'   },
   { icon: Users,          title: 'Grows With You',        desc: 'Start on Starter and upgrade anytime as your congregation grows.',            color: 'bg-blue-50 text-blue-600'     },
   { icon: Phone,          title: 'Mobile Money Payments', desc: 'Pay via Orange Money or MTN MoMo — no international card needed.',           color: 'bg-green-50 text-green-600'   },
@@ -163,7 +163,7 @@ function BillingToggle({ isYearly, onChange }) {
           {!isYearly && (
             <motion.span
               layoutId="billing-pill"
-              className="absolute inset-0 rounded-full bg-gradient-to-r from-[#1E1B4B] to-[#7C3AED]"
+              className="absolute inset-0 rounded-full bg-gradient-to-r from-[#151022] to-[#8A19FF]"
               transition={{ type: 'spring', stiffness: 500, damping: 35 }}
             />
           )}
@@ -180,7 +180,7 @@ function BillingToggle({ isYearly, onChange }) {
           {isYearly && (
             <motion.span
               layoutId="billing-pill"
-              className="absolute inset-0 rounded-full bg-gradient-to-r from-[#1E1B4B] to-[#7C3AED]"
+              className="absolute inset-0 rounded-full bg-gradient-to-r from-[#151022] to-[#8A19FF]"
               transition={{ type: 'spring', stiffness: 500, damping: 35 }}
             />
           )}
@@ -252,7 +252,7 @@ function FAQItem({ q, a }) {
   return (
     <div className="border border-slate-200 rounded-xl overflow-hidden">
       <button onClick={() => setOpen(o => !o)} className="w-full flex items-center justify-between px-6 py-5 text-left hover:bg-slate-50 transition-colors">
-        <span className="font-semibold text-[#1E1B4B] text-sm sm:text-base">{q}</span>
+        <span className="font-semibold text-[#151022] text-sm sm:text-base">{q}</span>
         {open ? <ChevronUp className="w-5 h-5 text-slate-400 flex-shrink-0" /> : <ChevronDown className="w-5 h-5 text-slate-400 flex-shrink-0" />}
       </button>
       {open && (
@@ -270,7 +270,7 @@ export default function PricingPage() {
     <PublicLayout>
 
       {/* ── Hero ── */}
-      <section className="bg-gradient-to-br from-[#1E1B4B] via-[#312e81] to-[#7C3AED] py-20 px-4 text-center">
+      <section className="bg-gradient-to-br from-[#151022] via-[#2A1F4F] to-[#8A19FF] py-20 px-4 text-center">
         <div className="max-w-3xl mx-auto">
           <span className="inline-block px-4 py-1.5 rounded-full bg-white/10 text-[#F59E0B] text-xs font-semibold tracking-widest uppercase mb-6 border border-white/20">
             Transparent Pricing
@@ -289,7 +289,7 @@ export default function PricingPage() {
         <div className="max-w-4xl mx-auto grid grid-cols-2 sm:grid-cols-4 gap-6 text-center">
           {TRUST_STATS.map((s, i) => (
             <Reveal key={s.label} i={i}>
-              <div className="text-2xl font-black text-[#7C3AED] mb-0.5">{s.value}</div>
+              <div className="text-2xl font-black text-[#8A19FF] mb-0.5">{s.value}</div>
               <div className="text-xs text-slate-500 font-medium">{s.label}</div>
             </Reveal>
           ))}
@@ -331,7 +331,7 @@ export default function PricingPage() {
                     className={[
                       'relative rounded-3xl p-8 flex flex-col h-full',
                       plan.popular
-                        ? 'bg-gradient-to-br from-[#1E1B4B] via-purple-800 to-violet-700 text-white shadow-2xl shadow-purple-900/40 scale-105 ring-4 ring-purple-400/30'
+                        ? 'bg-gradient-to-br from-[#151022] via-purple-800 to-violet-700 text-white shadow-2xl shadow-purple-900/40 scale-105 ring-4 ring-purple-400/30'
                         : 'bg-white border border-slate-100 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07)]',
                     ].join(' ')}
                   >
@@ -417,7 +417,7 @@ export default function PricingPage() {
       <section className="py-16 px-4 bg-slate-50">
         <div className="max-w-5xl mx-auto">
           <Reveal i={0} className="text-center mb-10">
-            <h2 className="text-2xl font-extrabold text-[#1E1B4B] mb-2">Why churches choose ChurchFlow</h2>
+            <h2 className="text-2xl font-extrabold text-[#151022] mb-2">Why churches choose ChurchFlow</h2>
             <p className="text-slate-500 text-sm max-w-lg mx-auto">Every plan includes these guarantees.</p>
           </Reveal>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -430,7 +430,7 @@ export default function PricingPage() {
                       <Icon className="w-5 h-5" />
                     </div>
                     <div>
-                      <p className="font-bold text-[#1E1B4B] text-sm mb-1">{f.title}</p>
+                      <p className="font-bold text-[#151022] text-sm mb-1">{f.title}</p>
                       <p className="text-slate-500 text-xs leading-relaxed">{f.desc}</p>
                     </div>
                   </div>
@@ -445,11 +445,11 @@ export default function PricingPage() {
       <section className="py-12 px-4 bg-white border-y border-slate-100">
         <div className="max-w-4xl mx-auto text-center">
           <Reveal i={0}>
-            <h2 className="text-2xl font-bold text-[#1E1B4B] mb-3">Not sure which plan fits?</h2>
+            <h2 className="text-2xl font-bold text-[#151022] mb-3">Not sure which plan fits?</h2>
             <p className="text-slate-500 mb-6 leading-relaxed">
               Most growing churches start on <strong>Growth</strong>. Under 100 members? <strong>Starter</strong> is perfect. Large multi-campus ministry? <strong>Ministry Pro</strong> has everything.
             </p>
-            <Link to="/contact" className="inline-flex items-center gap-2 px-6 py-3 rounded-xl border border-[#7C3AED] text-[#7C3AED] font-semibold text-sm hover:bg-purple-50 transition-colors">
+            <Link to="/contact" className="inline-flex items-center gap-2 px-6 py-3 rounded-xl border border-[#8A19FF] text-[#8A19FF] font-semibold text-sm hover:bg-purple-50 transition-colors">
               Talk to our team <ArrowRight className="w-4 h-4" />
             </Link>
           </Reveal>
@@ -481,7 +481,7 @@ export default function PricingPage() {
       <section className="py-20 px-4 bg-white">
         <div className="max-w-3xl mx-auto">
           <Reveal i={0} className="text-center mb-12">
-            <h2 className="text-3xl font-extrabold text-[#1E1B4B] mb-3">Frequently Asked Questions</h2>
+            <h2 className="text-3xl font-extrabold text-[#151022] mb-3">Frequently Asked Questions</h2>
             <p className="text-slate-500">Everything you need to know about ChurchFlow pricing.</p>
           </Reveal>
           <div className="space-y-3">
@@ -507,7 +507,7 @@ export default function PricingPage() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link
                 to="/register"
-                className="inline-flex items-center justify-center gap-2 text-base font-bold text-white bg-gradient-to-r from-violet-700 to-purple-800 px-10 py-4 rounded-2xl shadow-xl shadow-purple-900/30 hover:from-violet-800 hover:to-purple-900 transition-all hover:-translate-y-1"
+                className="inline-flex items-center justify-center gap-2 text-base font-bold text-white bg-gradient-to-r from-[#5B00B8] to-[#3D108A] px-10 py-4 rounded-2xl shadow-xl shadow-purple-900/30 hover:from-violet-800 hover:to-purple-900 transition-all hover:-translate-y-1"
               >
                 Create Free Account <ArrowRight className="w-5 h-5" />
               </Link>

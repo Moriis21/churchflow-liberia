@@ -143,7 +143,7 @@ export default function MemberDashboard() {
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
 
         {/* ── Welcome Banner ── */}
-        <div className="relative bg-gradient-to-r from-[#1E1B4B] via-purple-800 to-violet-700 rounded-2xl p-6 sm:p-8 overflow-hidden shadow-lg">
+        <div className="relative bg-gradient-to-r from-[#151022] via-purple-800 to-violet-700 rounded-2xl p-6 sm:p-8 overflow-hidden shadow-lg">
           {/* Decorative circles */}
           <div className="absolute -top-8 -right-8 w-40 h-40 bg-white/5 rounded-full" />
           <div className="absolute -bottom-12 -left-8 w-48 h-48 bg-white/5 rounded-full" />

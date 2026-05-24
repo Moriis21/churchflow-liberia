@@ -241,7 +241,7 @@ export default function FeaturesPage() {
   return (
     <PublicLayout>
       {/* Hero */}
-      <section className="bg-gradient-to-br from-[#1E1B4B] via-[#312e81] to-[#7C3AED] py-20 px-4 text-center">
+      <section className="bg-gradient-to-br from-[#151022] via-[#2A1F4F] to-[#8A19FF] py-20 px-4 text-center">
         <div className="max-w-3xl mx-auto">
           <span className="inline-block px-4 py-1.5 rounded-full bg-white/10 text-[#F59E0B] text-xs font-semibold tracking-widest uppercase mb-6 border border-white/20">
             Full Feature Overview
@@ -255,7 +255,7 @@ export default function FeaturesPage() {
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <Link
               to="/register"
-              className="inline-flex items-center gap-2 px-7 py-3 rounded-xl bg-[#F59E0B] text-[#1E1B4B] font-bold text-sm hover:bg-amber-400 transition-colors shadow-lg"
+              className="inline-flex items-center gap-2 px-7 py-3 rounded-xl bg-[#F59E0B] text-[#151022] font-bold text-sm hover:bg-amber-400 transition-colors shadow-lg"
             >
               Start Free Trial
               <ArrowRight className="w-4 h-4" />
@@ -275,7 +275,7 @@ export default function FeaturesPage() {
         <div className="max-w-4xl mx-auto px-4 flex flex-wrap justify-center gap-8">
           {TRUST_ITEMS.map(({ icon: Icon, label }) => (
             <div key={label} className="flex items-center gap-2 text-slate-600">
-              <Icon className="w-4 h-4 text-[#7C3AED]" />
+              <Icon className="w-4 h-4 text-[#8A19FF]" />
               <span className="text-sm font-medium">{label}</span>
             </div>
           ))}
@@ -286,7 +286,7 @@ export default function FeaturesPage() {
       <section className="py-20 px-4 bg-slate-50">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-14">
-            <h2 className="text-3xl font-extrabold text-[#1E1B4B] mb-3">All 12 Modules, Fully Included</h2>
+            <h2 className="text-3xl font-extrabold text-[#151022] mb-3">All 12 Modules, Fully Included</h2>
             <p className="text-slate-500 max-w-xl mx-auto">Every feature listed below is available on the Growth and Ministry Pro plans. Starter plan includes core modules.</p>
           </div>
 
@@ -304,8 +304,8 @@ export default function FeaturesPage() {
                     <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${feature.color} flex items-center justify-center mb-6 shadow-md`}>
                       <Icon className="w-7 h-7 text-white" />
                     </div>
-                    <h3 className="text-2xl font-bold text-[#1E1B4B] mb-2">{feature.title}</h3>
-                    <p className="text-[#7C3AED] font-semibold text-sm mb-4">{feature.subtitle}</p>
+                    <h3 className="text-2xl font-bold text-[#151022] mb-2">{feature.title}</h3>
+                    <p className="text-[#8A19FF] font-semibold text-sm mb-4">{feature.subtitle}</p>
                     <p className="text-slate-600 leading-relaxed mb-6">{feature.description}</p>
                     <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                       {feature.highlights.map(h => (
@@ -322,7 +322,7 @@ export default function FeaturesPage() {
                     <div className={`w-12 h-12 rounded-full bg-gradient-to-br ${feature.color} flex items-center justify-center text-white font-black text-lg shadow`}>
                       {String(index + 1).padStart(2, '0')}
                     </div>
-                    <h3 className="text-3xl font-extrabold text-[#1E1B4B] leading-tight">{feature.title}</h3>
+                    <h3 className="text-3xl font-extrabold text-[#151022] leading-tight">{feature.title}</h3>
                     <p className="text-slate-500 leading-relaxed text-base">{feature.description}</p>
                     <Link
                       to="/register"
@@ -340,7 +340,7 @@ export default function FeaturesPage() {
       </section>
 
       {/* CTA */}
-      <section className="bg-[#1E1B4B] py-16 px-4 text-center">
+      <section className="bg-[#151022] py-16 px-4 text-center">
         <div className="max-w-2xl mx-auto">
           <h2 className="text-3xl font-extrabold text-white mb-4">Ready to transform your church administration?</h2>
           <p className="text-purple-300 mb-8 leading-relaxed">
@@ -348,7 +348,7 @@ export default function FeaturesPage() {
           </p>
           <Link
             to="/register"
-            className="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-[#F59E0B] text-[#1E1B4B] font-bold text-base hover:bg-amber-400 transition-colors shadow-lg"
+            className="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-[#F59E0B] text-[#151022] font-bold text-base hover:bg-amber-400 transition-colors shadow-lg"
           >
             Get Started Free
             <ArrowRight className="w-5 h-5" />

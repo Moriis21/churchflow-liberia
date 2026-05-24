@@ -42,7 +42,7 @@ const DEPT_ICONS = {
 const EMPTY_FORM = {
   name: '',
   description: '',
-  color: '#7C3AED',
+  color: '#8A19FF',
 }
 
 // ─── Department Card ─────────────────────────────────────────
@@ -54,16 +54,16 @@ function DeptCard({ dept, memberCount, onView }) {
       className="bg-white rounded-2xl border border-slate-100 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07)] overflow-hidden hover:-translate-y-1 hover:shadow-[0_8px_30px_-4px_rgba(124,58,237,0.12)] transition-all duration-300"
     >
       {/* Colored top border */}
-      <div className="h-1.5 w-full" style={{ backgroundColor: dept.color || '#7C3AED' }} />
+      <div className="h-1.5 w-full" style={{ backgroundColor: dept.color || '#8A19FF' }} />
 
       <div className="p-5 flex flex-col gap-4">
         {/* Icon + Name */}
         <div className="flex items-center gap-3">
           <div
             className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0"
-            style={{ backgroundColor: (dept.color || '#7C3AED') + '20' }}
+            style={{ backgroundColor: (dept.color || '#8A19FF') + '20' }}
           >
-            <Icon className="w-5 h-5" style={{ color: dept.color || '#7C3AED' }} />
+            <Icon className="w-5 h-5" style={{ color: dept.color || '#8A19FF' }} />
           </div>
           <div className="min-w-0">
             <h3 className="text-base font-bold text-slate-800 truncate">{dept.name}</h3>
@@ -106,9 +106,9 @@ function DeptDetailModal({ dept, members, isOpen, onClose }) {
         <div className="flex items-start gap-4 p-4 rounded-xl bg-slate-50">
           <div
             className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0"
-            style={{ backgroundColor: (dept.color || '#7C3AED') + '25' }}
+            style={{ backgroundColor: (dept.color || '#8A19FF') + '25' }}
           >
-            <Icon className="w-6 h-6" style={{ color: dept.color || '#7C3AED' }} />
+            <Icon className="w-6 h-6" style={{ color: dept.color || '#8A19FF' }} />
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-sm text-slate-600 leading-relaxed">{dept.description}</p>
@@ -163,7 +163,7 @@ function DeptDetailModal({ dept, members, isOpen, onClose }) {
                       <tr key={m.id} className="hover:bg-slate-50 transition-colors">
                         <td className="px-4 py-3">
                           <div className="flex items-center gap-2.5">
-                            <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-violet-600 to-purple-700 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
+                            <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#151022] to-[#5B00B8] flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
                               {initials}
                             </div>
                             <span className="font-medium text-slate-800">{name}</span>
@@ -259,7 +259,7 @@ function AddDeptModal({ isOpen, onClose, onSaved, churchId, branchId, userId }) 
     onClose()
   }
 
-  const COLOR_SWATCHES = ['#7C3AED', '#F59E0B', '#3B82F6', '#10B981', '#EC4899', '#EF4444', '#06B6D4', '#F97316']
+  const COLOR_SWATCHES = ['#8A19FF', '#F59E0B', '#3B82F6', '#10B981', '#EC4899', '#EF4444', '#06B6D4', '#F97316']
 
   return (
     <Modal
@@ -324,7 +324,7 @@ function DeptInviteModal({ data, onClose }) {
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6" onClick={e => e.stopPropagation()}>
         <div className="flex items-center justify-between mb-5">
           <div>
-            <h3 className="font-bold text-[#1E1B4B] text-base">Department Join Link Ready</h3>
+            <h3 className="font-bold text-[#151022] text-base">Department Join Link Ready</h3>
             <p className="text-xs text-slate-500 mt-0.5">Share this link for members to join {dept.name}</p>
           </div>
           <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400">
@@ -369,7 +369,7 @@ function DeptInviteModal({ data, onClose }) {
             ⬇️ Download QR
           </a>
           <button onClick={onClose}
-            className="flex-1 py-2.5 bg-[#1E1B4B] hover:bg-purple-900 text-white rounded-xl text-sm font-semibold transition-colors">
+            className="flex-1 py-2.5 bg-[#151022] hover:bg-purple-900 text-white rounded-xl text-sm font-semibold transition-colors">
             Done
           </button>
         </div>

@@ -62,7 +62,7 @@ const POSTS = [
 ]
 
 const CATEGORY_STYLES = {
-  'Church Management': 'bg-purple-50 text-[#7C3AED]',
+  'Church Management': 'bg-purple-50 text-[#8A19FF]',
   'Finance':           'bg-amber-50 text-amber-600',
   'Industry':          'bg-blue-50 text-blue-600',
   'Ministry Growth':   'bg-green-50 text-green-600',
@@ -80,7 +80,7 @@ function PostCard({ post, featured = false }) {
   if (featured) {
     return (
       <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden hover:shadow-md transition-shadow group">
-        <div className="bg-gradient-to-br from-[#1E1B4B] to-[#7C3AED] h-48 flex items-center justify-center p-8">
+        <div className="bg-gradient-to-br from-[#151022] to-[#8A19FF] h-48 flex items-center justify-center p-8">
           <BookOpen className="w-16 h-16 text-white/20" />
         </div>
         <div className="p-7">
@@ -93,7 +93,7 @@ function PostCard({ post, featured = false }) {
               <Clock className="w-3 h-3" />{post.readTime}
             </span>
           </div>
-          <h2 className="text-xl font-bold text-[#1E1B4B] mb-3 leading-tight group-hover:text-[#7C3AED] transition-colors">
+          <h2 className="text-xl font-bold text-[#151022] mb-3 leading-tight group-hover:text-[#8A19FF] transition-colors">
             {post.title}
           </h2>
           <p className="text-slate-500 text-sm leading-relaxed mb-6">{post.excerpt}</p>
@@ -103,13 +103,13 @@ function PostCard({ post, featured = false }) {
                 {authorInfo.initials}
               </div>
               <div>
-                <p className="text-xs font-semibold text-[#1E1B4B]">{post.author}</p>
+                <p className="text-xs font-semibold text-[#151022]">{post.author}</p>
                 <p className="text-xs text-slate-400">{post.date}</p>
               </div>
             </div>
             <Link
               to={`/blog/${post.slug}`}
-              className="flex items-center gap-1.5 text-sm text-[#7C3AED] font-semibold hover:underline"
+              className="flex items-center gap-1.5 text-sm text-[#8A19FF] font-semibold hover:underline"
             >
               Read more
               <ArrowRight className="w-3.5 h-3.5" />
@@ -131,7 +131,7 @@ function PostCard({ post, featured = false }) {
           <Clock className="w-3 h-3" />{post.readTime}
         </span>
       </div>
-      <h3 className="font-bold text-[#1E1B4B] text-base mb-2 leading-tight group-hover:text-[#7C3AED] transition-colors flex-1">
+      <h3 className="font-bold text-[#151022] text-base mb-2 leading-tight group-hover:text-[#8A19FF] transition-colors flex-1">
         {post.title}
       </h3>
       <p className="text-slate-500 text-sm leading-relaxed mb-5 line-clamp-3">{post.excerpt}</p>
@@ -141,13 +141,13 @@ function PostCard({ post, featured = false }) {
             {authorInfo.initials}
           </div>
           <div>
-            <p className="text-xs font-semibold text-[#1E1B4B]">{post.author}</p>
+            <p className="text-xs font-semibold text-[#151022]">{post.author}</p>
             <p className="text-xs text-slate-400">{post.date}</p>
           </div>
         </div>
         <Link
           to={`/blog/${post.slug}`}
-          className="flex items-center gap-1.5 text-xs text-[#7C3AED] font-semibold hover:underline"
+          className="flex items-center gap-1.5 text-xs text-[#8A19FF] font-semibold hover:underline"
         >
           Read
           <ArrowRight className="w-3 h-3" />
@@ -170,7 +170,7 @@ export default function BlogPage() {
   return (
     <PublicLayout>
       {/* Hero */}
-      <section className="bg-gradient-to-br from-[#1E1B4B] via-[#312e81] to-[#7C3AED] py-20 px-4 text-center">
+      <section className="bg-gradient-to-br from-[#151022] via-[#2A1F4F] to-[#8A19FF] py-20 px-4 text-center">
         <div className="max-w-3xl mx-auto">
           <span className="inline-block px-4 py-1.5 rounded-full bg-white/10 text-[#F59E0B] text-xs font-semibold tracking-widest uppercase mb-6 border border-white/20">
             Blog
@@ -193,7 +193,7 @@ export default function BlogPage() {
               onClick={() => setActiveCategory(cat)}
               className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${
                 activeCategory === cat
-                  ? 'bg-[#7C3AED] text-white'
+                  ? 'bg-[#8A19FF] text-white'
                   : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
               }`}
             >
@@ -216,8 +216,8 @@ export default function BlogPage() {
               {featuredPost && (
                 <div className="mb-10">
                   <div className="flex items-center gap-2 mb-5">
-                    <Tag className="w-3.5 h-3.5 text-[#7C3AED]" />
-                    <span className="text-xs font-bold text-[#7C3AED] uppercase tracking-widest">Featured</span>
+                    <Tag className="w-3.5 h-3.5 text-[#8A19FF]" />
+                    <span className="text-xs font-bold text-[#8A19FF] uppercase tracking-widest">Featured</span>
                   </div>
                   <PostCard post={featuredPost} featured />
                 </div>
@@ -225,7 +225,7 @@ export default function BlogPage() {
 
               {restPosts.length > 0 && (
                 <>
-                  <h2 className="text-lg font-bold text-[#1E1B4B] mb-5">More Articles</h2>
+                  <h2 className="text-lg font-bold text-[#151022] mb-5">More Articles</h2>
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
                     {restPosts.map(post => (
                       <PostCard key={post.id} post={post} />
@@ -239,7 +239,7 @@ export default function BlogPage() {
       </section>
 
       {/* Newsletter */}
-      <section className="bg-[#1E1B4B] py-16 px-4 text-center">
+      <section className="bg-[#151022] py-16 px-4 text-center">
         <div className="max-w-xl mx-auto">
           <h2 className="text-2xl font-extrabold text-white mb-3">Get articles in your inbox</h2>
           <p className="text-purple-300 text-sm mb-7 leading-relaxed">
@@ -247,7 +247,7 @@ export default function BlogPage() {
           </p>
           <Link
             to="/community"
-            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[#F59E0B] text-[#1E1B4B] font-bold text-sm hover:bg-amber-400 transition-colors"
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[#F59E0B] text-[#151022] font-bold text-sm hover:bg-amber-400 transition-colors"
           >
             Subscribe to Newsletter
             <ArrowRight className="w-4 h-4" />

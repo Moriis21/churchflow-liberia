@@ -147,7 +147,7 @@ function SermonCard({ sermon }) {
             href={sermon.url}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex-1 inline-flex items-center justify-center gap-2 text-xs font-semibold text-white bg-gradient-to-r from-violet-600 to-purple-700 px-3 py-2 rounded-xl hover:from-violet-700 hover:to-purple-800 transition-all"
+            className="flex-1 inline-flex items-center justify-center gap-2 text-xs font-semibold text-white bg-gradient-to-r from-[#151022] to-[#5B00B8] px-3 py-2 rounded-xl hover:from-[#5B00B8] hover:to-[#3D108A] transition-all"
           >
             <ExternalLink className="w-3.5 h-3.5" />
             Watch Now
@@ -359,7 +359,7 @@ function GenerateTranscriptModal({ isOpen, onClose, sermon, onGenerate }) {
         <div>
           <p className="text-sm font-semibold text-slate-700 mb-3">Transcription source</p>
           <div className="space-y-2.5">
-            <label className="flex items-start gap-3 p-3 rounded-xl border cursor-pointer transition-all hover:border-purple-200 hover:bg-purple-50/30" style={{ borderColor: mode === 'url' ? '#7C3AED' : undefined, backgroundColor: mode === 'url' ? '#F5F3FF' : undefined }}>
+            <label className="flex items-start gap-3 p-3 rounded-xl border cursor-pointer transition-all hover:border-purple-200 hover:bg-purple-50/30" style={{ borderColor: mode === 'url' ? '#8A19FF' : undefined, backgroundColor: mode === 'url' ? '#F5F3FF' : undefined }}>
               <input
                 type="radio"
                 name="transcribe-mode"
@@ -373,7 +373,7 @@ function GenerateTranscriptModal({ isOpen, onClose, sermon, onGenerate }) {
                 <p className="text-xs text-slate-500">Provide a direct link to the audio recording</p>
               </div>
             </label>
-            <label className="flex items-start gap-3 p-3 rounded-xl border cursor-pointer transition-all hover:border-purple-200 hover:bg-purple-50/30" style={{ borderColor: mode === 'manual' ? '#7C3AED' : undefined, backgroundColor: mode === 'manual' ? '#F5F3FF' : undefined }}>
+            <label className="flex items-start gap-3 p-3 rounded-xl border cursor-pointer transition-all hover:border-purple-200 hover:bg-purple-50/30" style={{ borderColor: mode === 'manual' ? '#8A19FF' : undefined, backgroundColor: mode === 'manual' ? '#F5F3FF' : undefined }}>
               <input
                 type="radio"
                 name="transcribe-mode"
@@ -599,7 +599,7 @@ function TranscriptionCard({ sermon, transcriptInfo, onGenerate, onView }) {
         {status === 'done' ? (
           <button
             onClick={() => onView(sermon)}
-            className="flex-1 inline-flex items-center justify-center gap-2 text-xs font-semibold text-white bg-gradient-to-r from-violet-600 to-purple-700 px-3 py-2 rounded-xl hover:from-violet-700 hover:to-purple-800 transition-all"
+            className="flex-1 inline-flex items-center justify-center gap-2 text-xs font-semibold text-white bg-gradient-to-r from-[#151022] to-[#5B00B8] px-3 py-2 rounded-xl hover:from-[#5B00B8] hover:to-[#3D108A] transition-all"
           >
             <FileText className="w-3.5 h-3.5" />
             View Transcript
@@ -867,7 +867,7 @@ export default function Sermons() {
               onClick={() => setActiveTab(key)}
               className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all whitespace-nowrap ${
                 activeTab === key
-                  ? 'bg-gradient-to-r from-violet-600 to-purple-700 text-white shadow-md shadow-purple-500/25'
+                  ? 'bg-gradient-to-r from-[#151022] to-[#5B00B8] text-white shadow-md shadow-purple-500/25'
                   : 'text-slate-500 hover:text-slate-700 hover:bg-slate-50'
               }`}
             >

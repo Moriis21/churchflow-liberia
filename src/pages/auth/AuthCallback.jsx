@@ -90,7 +90,7 @@ export default function AuthCallback() {
   }, [navigate])
 
   return (
-    <div className="min-h-screen bg-[#1E1B4B] flex flex-col items-center justify-center px-4">
+    <div className="min-h-screen bg-[#151022] flex flex-col items-center justify-center px-4">
       {/* Logo */}
       <div className="flex items-center gap-3 mb-10">
         <img src="/logo.png" alt="ChurchFlow" className="w-12 h-12 rounded-xl object-contain"

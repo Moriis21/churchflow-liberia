@@ -159,15 +159,15 @@ export function printSummaryReport(title, sections) {
   <title>${title}</title>
   <style>
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #1e293b; padding: 40px; max-width: 800px; margin: 0 auto; }
-    h1 { color: #1E1B4B; font-size: 24px; margin: 0 0 4px; }
+    h1 { color: #151022; font-size: 24px; margin: 0 0 4px; }
     .subtitle { color: #64748b; font-size: 13px; margin-bottom: 32px; }
-    h2 { color: #7C3AED; font-size: 16px; margin: 32px 0 12px; padding-bottom: 6px; border-bottom: 2px solid #ede9fe; }
+    h2 { color: #8A19FF; font-size: 16px; margin: 32px 0 12px; padding-bottom: 6px; border-bottom: 2px solid #ede9fe; }
     table { width: 100%; border-collapse: collapse; font-size: 13px; }
     th { text-align: left; padding: 8px 12px; background: #f8fafc; border-bottom: 1px solid #e2e8f0; font-weight: 600; color: #475569; }
     td { padding: 8px 12px; border-bottom: 1px solid #f1f5f9; }
     .stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 16px 0; }
     .stat { background: #f8fafc; border-radius: 8px; padding: 12px; border: 1px solid #e2e8f0; }
-    .stat-value { font-size: 20px; font-weight: 800; color: #1E1B4B; }
+    .stat-value { font-size: 20px; font-weight: 800; color: #151022; }
     .stat-label { font-size: 11px; color: #64748b; text-transform: uppercase; font-weight: 600; margin-top: 4px; }
     .footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid #e2e8f0; font-size: 11px; color: #94a3b8; text-align: center; }
     @media print { body { padding: 0; } }

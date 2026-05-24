@@ -26,7 +26,7 @@ const IS_DEV = import.meta.env.DEV
 function TypingDots() {
   return (
     <div className="flex items-center gap-2 px-4 py-3 bg-white border border-slate-100 shadow-sm rounded-2xl rounded-tl-sm w-fit">
-      <div className="w-7 h-7 rounded-xl bg-gradient-to-br from-violet-600 to-purple-700 flex items-center justify-center flex-shrink-0">
+      <div className="w-7 h-7 rounded-xl bg-[#8A19FF] flex items-center justify-center flex-shrink-0">
         <MessageCircle className="w-3.5 h-3.5 text-white" />
       </div>
       <div className="flex gap-1 items-center">
@@ -64,7 +64,7 @@ function MessageBubble({ msg, onAction, isStreaming }) {
     >
       {/* AI avatar */}
       {isAI && (
-        <div className="w-7 h-7 rounded-xl bg-gradient-to-br from-violet-600 to-purple-700 flex items-center justify-center flex-shrink-0 shadow-sm mt-0.5">
+        <div className="w-7 h-7 rounded-xl bg-[#8A19FF] flex items-center justify-center flex-shrink-0 shadow-sm mt-0.5">
           <MessageCircle className="w-3.5 h-3.5 text-white" />
         </div>
       )}
@@ -74,8 +74,8 @@ function MessageBubble({ msg, onAction, isStreaming }) {
         <div className={`
           px-3.5 py-2.5 rounded-2xl text-sm leading-relaxed
           ${isAI
-            ? 'bg-white border border-slate-100 shadow-sm text-slate-800 rounded-tl-sm whitespace-pre-wrap'
-            : 'bg-gradient-to-r from-violet-600 to-purple-700 text-white rounded-tr-sm'
+            ? 'bg-[#F7F8FA] border border-[#E4E7EC] text-[#151022] rounded-tl-sm whitespace-pre-wrap'
+            : 'bg-[#8A19FF] text-white rounded-tr-sm shadow-[0_2px_8px_rgba(138,25,255,0.25)]'
           }
         `}>
           {msg.content}
@@ -358,7 +358,7 @@ export default function AIChatPanel({
     <div className={`flex flex-col bg-white overflow-hidden ${className}`}>
 
       {/* ── Header ── */}
-      <div className="flex items-center gap-2.5 px-4 py-3 bg-gradient-to-r from-[#1E1B4B] to-[#7C3AED] flex-shrink-0">
+      <div className="flex items-center gap-2.5 px-4 py-3 bg-gradient-to-r from-[#151022] to-[#5B00B8] flex-shrink-0">
         <div className="w-8 h-8 rounded-xl bg-white/15 flex items-center justify-center flex-shrink-0">
           <MessageCircle className="w-4 h-4 text-white" />
         </div>
@@ -462,7 +462,7 @@ export default function AIChatPanel({
           ) : (
             <button onClick={() => send()}
               disabled={!input.trim() || streaming}
-              className="flex-shrink-0 w-9 h-9 rounded-xl bg-gradient-to-r from-violet-600 to-purple-700 text-white flex items-center justify-center disabled:opacity-35 hover:from-violet-700 hover:to-purple-800 transition-all shadow-sm shadow-purple-500/20 active:scale-95">
+              className="flex-shrink-0 w-9 h-9 rounded-xl bg-[#8A19FF] text-white flex items-center justify-center disabled:opacity-35 hover:bg-[#5B00B8] transition-all shadow-[0_2px_8px_rgba(138,25,255,0.30)] active:scale-95">
               <Send className="w-4 h-4" />
             </button>
           )}

@@ -85,7 +85,7 @@ function Navbar() {
 
           {/* Logo */}
           <a href="#" className="flex items-center gap-2 flex-shrink-0">
-            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-[10px] overflow-hidden bg-[#1E1B4B] flex items-center justify-center shadow-sm shadow-purple-500/20 flex-shrink-0">
+            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-[10px] overflow-hidden bg-[#151022] flex items-center justify-center shadow-sm shadow-purple-500/20 flex-shrink-0">
               <img src="/logo.png" alt="ChurchFlow Liberia" className="w-7 h-7 sm:w-8 sm:h-8 object-contain" />
             </div>
             <span className="font-bold text-sm sm:text-base leading-tight text-slate-900">
@@ -111,7 +111,7 @@ function Navbar() {
               Login
             </Link>
             <Link to="/register"
-              className="text-sm font-semibold text-white bg-gradient-to-r from-violet-600 to-purple-700 px-4 py-1.5 rounded-lg hover:from-violet-700 hover:to-purple-800 shadow-sm shadow-purple-500/20 transition-all hover:-translate-y-px">
+              className="text-sm font-semibold text-white bg-gradient-to-r from-[#151022] to-[#5B00B8] px-4 py-1.5 rounded-lg hover:from-[#5B00B8] hover:to-[#3D108A] shadow-sm shadow-purple-500/20 transition-all hover:-translate-y-px">
               Get Started
             </Link>
           </div>
@@ -149,7 +149,7 @@ function Navbar() {
                   Login
                 </Link>
                 <Link to="/register" onClick={() => setOpen(false)}
-                  className="text-center text-sm font-semibold text-white bg-gradient-to-r from-violet-600 to-purple-700 py-2.5 rounded-xl transition-all">
+                  className="text-center text-sm font-semibold text-white bg-gradient-to-r from-[#151022] to-[#5B00B8] py-2.5 rounded-xl transition-all">
                   Get Started Free
                 </Link>
               </div>
@@ -188,8 +188,8 @@ function DemoModal({ isOpen, onClose }) {
         </button>
 
         {/* Video header */}
-        <div className="bg-[#1E1B4B] px-6 py-4 flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-[#1E1B4B] overflow-hidden flex-shrink-0">
+        <div className="bg-[#151022] px-6 py-4 flex items-center gap-3">
+          <div className="w-8 h-8 rounded-lg bg-[#151022] overflow-hidden flex-shrink-0">
             <img src="/logo.png" alt="ChurchFlow" className="w-full h-full object-contain" />
           </div>
           <div>
@@ -211,7 +211,7 @@ function DemoModal({ isOpen, onClose }) {
         </div>
 
         {/* Footer note */}
-        <div className="bg-[#1E1B4B] px-6 py-3 flex items-center justify-between">
+        <div className="bg-[#151022] px-6 py-3 flex items-center justify-between">
           <p className="text-white/60 text-xs">
             See how ChurchFlow manages members, attendance, finance and more.
           </p>
@@ -248,7 +248,7 @@ function Hero() {
   ]
 
   return (
-    <section className="relative overflow-hidden bg-gradient-to-br from-[#1E1B4B] via-[#2D1F6E] to-[#4C1D95] pt-14 pb-12 sm:pt-24 sm:pb-20">
+    <section className="relative overflow-hidden bg-gradient-to-br from-[#151022] via-[#2D1F6E] to-[#3D108A] pt-14 pb-12 sm:pt-24 sm:pb-20">
 
       {/* Decorative blobs — scaled for mobile */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -588,7 +588,7 @@ function HowItWorks() {
       num: '01',
       title: 'Quick Setup',
       Icon: Zap,
-      color: 'from-[#1E1B4B] to-violet-700',
+      color: 'from-[#151022] to-violet-700',
       glow: 'shadow-violet-900/40',
       desc: 'Create your church profile in minutes. Add your church name, location, branches, and branding. No technical skills required.',
       delay: 0,
@@ -597,7 +597,7 @@ function HowItWorks() {
       num: '02',
       title: 'Add Your Members',
       Icon: Users,
-      color: 'from-violet-600 to-purple-700',
+      color: 'from-[#151022] to-[#5B00B8]',
       glow: 'shadow-purple-700/40',
       desc: 'Import or manually add your congregation. Assign departments, record baptism status, and track membership history.',
       delay: 200,
@@ -747,7 +747,7 @@ function HowItWorks() {
         >
           <Link
             to="/register"
-            className="inline-flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r from-violet-600 to-purple-700 px-6 py-3 rounded-full shadow-md shadow-purple-500/25 hover:from-violet-700 hover:to-purple-800 hover:-translate-y-0.5 hover:shadow-purple-500/40 transition-all"
+            className="inline-flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r from-[#151022] to-[#5B00B8] px-6 py-3 rounded-full shadow-md shadow-purple-500/25 hover:from-[#5B00B8] hover:to-[#3D108A] hover:-translate-y-0.5 hover:shadow-purple-500/40 transition-all"
           >
             Start your free church account today — no credit card required
             <ArrowRight className="w-4 h-4" />
@@ -939,7 +939,7 @@ function Pricing() {
               className={[
                 'relative rounded-3xl p-8 flex flex-col',
                 plan.popular
-                  ? 'bg-gradient-to-br from-[#1E1B4B] via-purple-800 to-violet-700 text-white shadow-2xl shadow-purple-900/40 scale-105 ring-4 ring-purple-400/30'
+                  ? 'bg-gradient-to-br from-[#151022] via-purple-800 to-violet-700 text-white shadow-2xl shadow-purple-900/40 scale-105 ring-4 ring-purple-400/30'
                   : 'bg-white border border-slate-100 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07)]',
               ].join(' ')}
               style={
@@ -1003,7 +1003,7 @@ function Pricing() {
                   'block text-center font-bold py-3.5 px-6 rounded-2xl transition-all hover:-translate-y-0.5 text-sm',
                   plan.popular
                     ? 'bg-gradient-to-r from-yellow-400 to-amber-500 text-amber-950 shadow-lg shadow-amber-500/30 hover:shadow-amber-500/50'
-                    : 'bg-gradient-to-r from-violet-600 to-purple-700 text-white shadow-md shadow-purple-500/25 hover:shadow-purple-500/40',
+                    : 'bg-gradient-to-r from-[#151022] to-[#5B00B8] text-white shadow-md shadow-purple-500/25 hover:shadow-purple-500/40',
                 ].join(' ')}
               >
                 {plan.cta}
@@ -1033,7 +1033,7 @@ function CTABanner() {
         </p>
         <Link
           to="/register"
-          className="inline-flex items-center gap-2 text-base font-bold text-white bg-gradient-to-r from-violet-700 to-purple-800 px-10 py-4 rounded-2xl shadow-xl shadow-purple-900/30 hover:from-violet-800 hover:to-purple-900 transition-all hover:-translate-y-1 hover:shadow-purple-900/50"
+          className="inline-flex items-center gap-2 text-base font-bold text-white bg-gradient-to-r from-[#5B00B8] to-[#3D108A] px-10 py-4 rounded-2xl shadow-xl shadow-purple-900/30 hover:from-violet-800 hover:to-purple-900 transition-all hover:-translate-y-1 hover:shadow-purple-900/50"
         >
           Get Started Free — It&apos;s Free for 14 Days
           <ArrowRight className="w-5 h-5" />
@@ -1095,7 +1095,7 @@ function Footer() {
   ]
 
   return (
-    <footer id="contact" className="bg-[#1E1B4B] text-white">
+    <footer id="contact" className="bg-[#151022] text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-8">
         {/* Top row */}
         <div className="grid grid-cols-2 md:grid-cols-6 gap-10 pb-12 border-b border-white/10">

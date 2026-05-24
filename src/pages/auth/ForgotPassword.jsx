@@ -31,7 +31,7 @@ function AppLogo() {
         </svg>
       </div>
       <div className="leading-tight">
-        <span className="block text-base font-extrabold tracking-tight text-[#1E1B4B]">ChurchFlow</span>
+        <span className="block text-base font-extrabold tracking-tight text-[#151022]">ChurchFlow</span>
         <span className="block text-[10px] font-semibold text-amber-500 tracking-widest uppercase">Liberia</span>
       </div>
     </div>
@@ -136,7 +136,7 @@ export default function ForgotPassword() {
           {/* ── STEP 1 ── */}
           {step === 1 && (
             <>
-              <h1 className="text-xl font-extrabold text-[#1E1B4B] mb-1">Forgot Password?</h1>
+              <h1 className="text-xl font-extrabold text-[#151022] mb-1">Forgot Password?</h1>
               <p className="text-sm text-slate-500 mb-6">
                 Enter your email and we'll send a reset code to your inbox.
               </p>
@@ -165,7 +165,7 @@ export default function ForgotPassword() {
           {/* ── STEP 2 ── */}
           {step === 2 && (
             <>
-              <h1 className="text-xl font-extrabold text-[#1E1B4B] mb-1">Reset Your Password</h1>
+              <h1 className="text-xl font-extrabold text-[#151022] mb-1">Reset Your Password</h1>
               <p className="text-sm text-slate-500 mb-1">
                 A reset code was sent to <span className="font-semibold text-slate-700">{email}</span>.
               </p>
@@ -259,7 +259,7 @@ export default function ForgotPassword() {
                 flex items-center justify-center mx-auto mb-5">
                 <ShieldCheck className="w-8 h-8 text-emerald-600" />
               </div>
-              <h1 className="text-2xl font-extrabold text-[#1E1B4B] mb-2">Password Updated!</h1>
+              <h1 className="text-2xl font-extrabold text-[#151022] mb-2">Password Updated!</h1>
               <p className="text-sm text-slate-500 mb-6">
                 Sign in with your new password.
               </p>

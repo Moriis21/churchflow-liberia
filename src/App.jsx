@@ -86,7 +86,7 @@ function AuthSkeleton() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-slate-50">
       <div className="flex flex-col items-center gap-3">
-        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-violet-600 to-purple-700 flex items-center justify-center shadow-lg animate-pulse">
+        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#151022] to-[#5B00B8] flex items-center justify-center shadow-lg animate-pulse">
           <span className="text-white font-black text-xl leading-none">✝</span>
         </div>
         <div className="space-y-2 text-center">
@@ -247,7 +247,7 @@ export default function App() {
               duration: 4000,
               style: {
                 borderRadius: '12px',
-                background: '#1E1B4B',
+                background: '#151022',
                 color: '#fff',
                 fontSize: '14px',
                 fontWeight: '500',
@@ -256,7 +256,7 @@ export default function App() {
               success: {
                 iconTheme: {
                   primary: '#F59E0B',
-                  secondary: '#1E1B4B',
+                  secondary: '#151022',
                 },
               },
               error: {

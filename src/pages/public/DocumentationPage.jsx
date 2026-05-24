@@ -357,7 +357,7 @@ export default function DocumentationPage() {
   return (
     <PublicLayout>
       {/* Hero */}
-      <section className="bg-gradient-to-br from-[#1E1B4B] to-[#312e81] py-14 px-4">
+      <section className="bg-gradient-to-br from-[#151022] to-[#2A1F4F] py-14 px-4">
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center gap-2 text-purple-300 text-sm mb-3">
             <Link to="/landing" className="hover:text-white transition-colors">Home</Link>
@@ -393,8 +393,8 @@ export default function DocumentationPage() {
                           onClick={() => setActiveSection(item.anchor)}
                           className={`block px-3 py-2 rounded-lg text-sm transition-colors ${
                             activeSection === item.anchor
-                              ? 'bg-purple-50 text-[#7C3AED] font-semibold'
-                              : 'text-slate-600 hover:text-[#7C3AED] hover:bg-slate-50'
+                              ? 'bg-purple-50 text-[#8A19FF] font-semibold'
+                              : 'text-slate-600 hover:text-[#8A19FF] hover:bg-slate-50'
                           }`}
                         >
                           {item.label}
@@ -415,11 +415,11 @@ export default function DocumentationPage() {
           <div id="intro" className="mb-12">
             <div className="flex items-center gap-3 mb-4">
               <div className="w-10 h-10 rounded-xl bg-purple-100 flex items-center justify-center">
-                <BookOpen className="w-5 h-5 text-[#7C3AED]" />
+                <BookOpen className="w-5 h-5 text-[#8A19FF]" />
               </div>
               <div>
                 <p className="text-xs text-slate-400 font-semibold uppercase tracking-wider">Getting Started</p>
-                <h2 className="text-2xl font-extrabold text-[#1E1B4B]">Getting Started with ChurchFlow</h2>
+                <h2 className="text-2xl font-extrabold text-[#151022]">Getting Started with ChurchFlow</h2>
               </div>
             </div>
             <p className="text-slate-600 leading-relaxed mb-4">
@@ -427,7 +427,7 @@ export default function DocumentationPage() {
             </p>
             <div className="flex flex-wrap gap-3">
               {['5 setup steps', '~15 minutes', 'No technical knowledge required'].map(tag => (
-                <span key={tag} className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-purple-50 text-[#7C3AED] rounded-full text-xs font-semibold">
+                <span key={tag} className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-purple-50 text-[#8A19FF] rounded-full text-xs font-semibold">
                   <CheckCircle2 className="w-3.5 h-3.5" />
                   {tag}
                 </span>
@@ -442,11 +442,11 @@ export default function DocumentationPage() {
               return (
                 <div key={step.anchor} id={step.anchor} className="scroll-mt-20">
                   <div className="flex items-start gap-4 mb-5">
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#7C3AED] to-violet-700 flex items-center justify-center text-white font-black text-sm flex-shrink-0 shadow">
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#8A19FF] to-violet-700 flex items-center justify-center text-white font-black text-sm flex-shrink-0 shadow">
                       {step.number}
                     </div>
                     <div>
-                      <h3 className="text-xl font-bold text-[#1E1B4B]">{step.title}</h3>
+                      <h3 className="text-xl font-bold text-[#151022]">{step.title}</h3>
                     </div>
                   </div>
 
@@ -454,7 +454,7 @@ export default function DocumentationPage() {
                     <p className="text-slate-600 leading-relaxed mb-5">{step.content}</p>
 
                     {step.code && (
-                      <div className="bg-[#1E1B4B] rounded-xl overflow-hidden mb-5">
+                      <div className="bg-[#151022] rounded-xl overflow-hidden mb-5">
                         <div className="flex items-center justify-between px-4 py-2 bg-white/5 border-b border-white/10">
                           <span className="text-xs text-slate-400 font-mono">Example</span>
                         </div>
@@ -485,7 +485,7 @@ export default function DocumentationPage() {
 
           {/* ── Full guides ── */}
           <div className="mt-20 mb-12">
-            <h2 className="text-2xl font-extrabold text-[#1E1B4B] mb-3">Core Guides</h2>
+            <h2 className="text-2xl font-extrabold text-[#151022] mb-3">Core Guides</h2>
             <p className="text-slate-500 mb-10 max-w-2xl">
               Step-by-step guides for the essential things you'll do every week in ChurchFlow.
             </p>
@@ -497,10 +497,10 @@ export default function DocumentationPage() {
                   <article key={guide.anchor} id={guide.anchor} className="scroll-mt-20">
                     <div className="flex items-start gap-4 mb-5">
                       <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-violet-100 to-purple-100 flex items-center justify-center flex-shrink-0">
-                        <Icon className="w-5 h-5 text-[#7C3AED]" />
+                        <Icon className="w-5 h-5 text-[#8A19FF]" />
                       </div>
                       <div>
-                        <h3 className="text-xl font-extrabold text-[#1E1B4B] leading-tight">{guide.title}</h3>
+                        <h3 className="text-xl font-extrabold text-[#151022] leading-tight">{guide.title}</h3>
                         <p className="text-slate-500 text-sm leading-relaxed mt-1.5">{guide.intro}</p>
                       </div>
                     </div>
@@ -534,12 +534,12 @@ export default function DocumentationPage() {
 
           {/* FAQ */}
           <div id="faq" className="mt-16 scroll-mt-20">
-            <h2 className="text-2xl font-extrabold text-[#1E1B4B] mb-8">Frequently Asked Questions</h2>
+            <h2 className="text-2xl font-extrabold text-[#151022] mb-8">Frequently Asked Questions</h2>
             <div className="space-y-6">
               {FAQ_ITEMS.map(item => (
                 <div key={item.q} className="border-b border-slate-100 pb-6 last:border-0">
-                  <h4 className="font-bold text-[#1E1B4B] mb-2 flex items-start gap-2">
-                    <HelpCircle className="w-4 h-4 text-[#7C3AED] flex-shrink-0 mt-0.5" />
+                  <h4 className="font-bold text-[#151022] mb-2 flex items-start gap-2">
+                    <HelpCircle className="w-4 h-4 text-[#8A19FF] flex-shrink-0 mt-0.5" />
                     {item.q}
                   </h4>
                   <p className="text-slate-600 text-sm leading-relaxed pl-6">{item.a}</p>
@@ -552,14 +552,14 @@ export default function DocumentationPage() {
           <div className="mt-16 pt-8 border-t border-slate-200 flex flex-col sm:flex-row justify-between gap-4">
             <Link
               to="/help"
-              className="flex items-center gap-2 text-sm text-[#7C3AED] font-semibold hover:underline"
+              className="flex items-center gap-2 text-sm text-[#8A19FF] font-semibold hover:underline"
             >
               Visit Help Centre
               <ChevronRight className="w-4 h-4" />
             </Link>
             <Link
               to="/contact"
-              className="flex items-center gap-2 text-sm text-[#7C3AED] font-semibold hover:underline"
+              className="flex items-center gap-2 text-sm text-[#8A19FF] font-semibold hover:underline"
             >
               Contact Support
               <ChevronRight className="w-4 h-4" />

@@ -219,7 +219,7 @@ function ChurchProfileSection({ church, onChurchUpdated }) {
 
       {/* Logo Upload */}
       <div className="flex items-center gap-6 p-5 rounded-2xl bg-slate-50 border border-slate-100">
-        <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-violet-600 to-purple-700 flex items-center justify-center overflow-hidden flex-shrink-0 shadow-lg">
+        <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-[#151022] to-[#5B00B8] flex items-center justify-center overflow-hidden flex-shrink-0 shadow-lg">
           {logoPreview
             ? <img
                 src={logoPreview}
@@ -297,7 +297,7 @@ function ChurchProfileSection({ church, onChurchUpdated }) {
             <button key={c} onClick={() => setForm(p => ({ ...p, currency: c }))}
               className={`px-6 py-2.5 rounded-xl text-sm font-bold transition-all border ${
                 form.currency === c
-                  ? 'bg-gradient-to-r from-violet-600 to-purple-700 text-white border-transparent shadow-md shadow-purple-500/25'
+                  ? 'bg-gradient-to-r from-[#151022] to-[#5B00B8] text-white border-transparent shadow-md shadow-purple-500/25'
                   : 'bg-white border-slate-200 text-slate-600 hover:border-purple-200 hover:text-purple-600'
               }`}>
               {c}
@@ -558,16 +558,16 @@ function SMSSettingsSection() {
 function AppearanceSection() {
   const { church } = useChurch()
   const churchName = church?.name || 'Your Church'
-  const [primaryColor, setPrimaryColor] = useState('#7C3AED')
+  const [primaryColor, setPrimaryColor] = useState('#8A19FF')
   const [fontSize, setFontSize] = useState('medium')
 
   const COLORS = [
-    { name: 'Purple', hex: '#7C3AED' },
+    { name: 'Purple', hex: '#8A19FF' },
     { name: 'Blue',   hex: '#2563EB' },
     { name: 'Green',  hex: '#059669' },
     { name: 'Red',    hex: '#DC2626' },
     { name: 'Gold',   hex: '#D97706' },
-    { name: 'Navy',   hex: '#1E1B4B' },
+    { name: 'Navy',   hex: '#151022' },
   ]
   const FONTS = [{ key: 'small', label: 'Small' }, { key: 'medium', label: 'Medium' }, { key: 'large', label: 'Large' }]
 
@@ -598,7 +598,7 @@ function AppearanceSection() {
           {FONTS.map(({ key, label }) => (
             <button key={key} onClick={() => setFontSize(key)}
               className={`px-5 py-2.5 rounded-xl text-sm font-semibold border transition-all ${
-                fontSize === key ? 'bg-gradient-to-r from-violet-600 to-purple-700 text-white border-transparent shadow-md' : 'bg-white border-slate-200 text-slate-600 hover:border-purple-200'
+                fontSize === key ? 'bg-gradient-to-r from-[#151022] to-[#5B00B8] text-white border-transparent shadow-md' : 'bg-white border-slate-200 text-slate-600 hover:border-purple-200'
               }`}>
               {label}
             </button>
@@ -739,7 +739,7 @@ export default function Settings() {
                 <button key={key} onClick={() => setActiveSection(key)}
                   className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all ${
                     activeSection === key
-                      ? 'bg-gradient-to-r from-violet-600 to-purple-700 text-white shadow-md shadow-purple-500/20'
+                      ? 'bg-gradient-to-r from-[#151022] to-[#5B00B8] text-white shadow-md shadow-purple-500/20'
                       : 'text-slate-600 hover:bg-slate-50 hover:text-slate-800'
                   }`}>
                   <Icon className="w-4 h-4 flex-shrink-0" />

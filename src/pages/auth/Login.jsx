@@ -168,7 +168,7 @@ const BENEFITS = [
 ]
 
 const DEMO_ROLES = [
-  { label: 'Church Admin', role: 'church_admin', color: 'from-violet-600 to-purple-700' },
+  { label: 'Church Admin', role: 'church_admin', color: 'from-[#151022] to-[#5B00B8]' },
   { label: 'Pastor',        role: 'pastor',       color: 'from-indigo-500 to-blue-600' },
   { label: 'Treasurer',     role: 'treasurer',    color: 'from-amber-500 to-yellow-600' },
 ]
@@ -282,7 +282,7 @@ export default function Login() {
       {/* ════════════ LEFT PANEL (desktop only) ════════════ */}
       <div
         className="hidden md:flex md:w-[52%] relative flex-col justify-between p-10 xl:p-14 overflow-hidden"
-        style={{ background: 'linear-gradient(150deg, #1E1B4B 0%, #2D1B69 40%, #4C1D95 70%, #7C3AED 100%)' }}
+        style={{ background: 'linear-gradient(150deg, #151022 0%, #2D1B69 40%, #3D108A 70%, #8A19FF 100%)' }}
       >
         {/* Blur blobs */}
         <div className="absolute -top-32 -left-32 w-96 h-96 rounded-full bg-purple-600/20 blur-3xl pointer-events-none" />
@@ -352,10 +352,10 @@ export default function Login() {
               <img
                 src="/logo.png"
                 alt="ChurchFlow Liberia"
-                className="w-12 h-12 object-contain rounded-xl bg-[#1E1B4B]"
+                className="w-12 h-12 object-contain rounded-xl bg-[#151022]"
               />
               <div>
-                <p className="text-[#1E1B4B] font-bold text-lg leading-tight">ChurchFlow</p>
+                <p className="text-[#151022] font-bold text-lg leading-tight">ChurchFlow</p>
                 <p className="text-purple-500 text-[11px] tracking-widest uppercase font-semibold">Liberia</p>
               </div>
             </div>
@@ -366,7 +366,7 @@ export default function Login() {
 
             {/* Heading */}
             <div className="mb-5">
-              <h2 className="text-xl sm:text-2xl font-extrabold text-[#1E1B4B]">Welcome Back</h2>
+              <h2 className="text-xl sm:text-2xl font-extrabold text-[#151022]">Welcome Back</h2>
               <p className="mt-0.5 text-slate-500 text-sm">Sign in to your ChurchFlow account</p>
             </div>
 

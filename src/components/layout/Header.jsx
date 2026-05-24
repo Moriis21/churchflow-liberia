@@ -323,7 +323,7 @@ export default function Header({ onMenuToggle }) {
           </button>
 
           <div>
-            <h1 className="text-lg font-bold text-[#1E1B4B] leading-tight tracking-tight">
+            <h1 className="text-lg font-bold text-[#151022] leading-tight tracking-tight">
               {pageTitle}
             </h1>
             <p className="hidden md:block text-xs text-slate-400 leading-none mt-0.5">

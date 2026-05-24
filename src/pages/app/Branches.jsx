@@ -31,7 +31,7 @@ function BranchCard({ branch, onView, onEdit, onDelete }) {
       <div
         className={`relative h-24 flex items-end p-5 ${
           isMain
-            ? 'bg-gradient-to-br from-violet-600 to-purple-700'
+            ? 'bg-gradient-to-br from-[#151022] to-[#5B00B8]'
             : 'bg-gradient-to-br from-slate-600 to-slate-800'
         }`}
       >
@@ -148,7 +148,7 @@ function BranchDetailModal({ branch, isOpen, onClose }) {
         <div>
           <h4 className="text-sm font-bold text-slate-700 mb-3">Branch Pastor</h4>
           <div className="flex items-center gap-3 p-3 rounded-xl border border-slate-100">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-600 to-purple-700 flex items-center justify-center text-white font-bold text-sm">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#151022] to-[#5B00B8] flex items-center justify-center text-white font-bold text-sm">
               {branch.pastor
                 ? branch.pastor.split(' ').map((w) => w[0]).slice(0, 2).join('')
                 : '?'}

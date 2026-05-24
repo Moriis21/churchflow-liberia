@@ -37,7 +37,7 @@ const WEBINARS = [
     seats: 12,
     icon: Video,
     color: 'bg-purple-50 border-purple-200',
-    badge: 'bg-[#7C3AED] text-white',
+    badge: 'bg-[#8A19FF] text-white',
   },
   {
     title: 'Building a Visitor Follow-Up System That Works',
@@ -90,7 +90,7 @@ function ChannelCard({ icon: Icon, title, description, members, label, color, bo
       <div className={`w-12 h-12 rounded-2xl flex items-center justify-center mb-5 ${color}`}>
         <Icon className="w-6 h-6" />
       </div>
-      <h3 className="font-bold text-[#1E1B4B] text-base mb-2">{title}</h3>
+      <h3 className="font-bold text-[#151022] text-base mb-2">{title}</h3>
       <p className="text-slate-500 text-sm leading-relaxed mb-4 flex-1">{description}</p>
 
       <div className="flex items-center gap-1 text-xs text-slate-400 mb-4">
@@ -142,7 +142,7 @@ export default function CommunityPage() {
   return (
     <PublicLayout>
       {/* Hero */}
-      <section className="bg-gradient-to-br from-[#1E1B4B] via-[#312e81] to-[#7C3AED] py-24 px-4 text-center">
+      <section className="bg-gradient-to-br from-[#151022] via-[#2A1F4F] to-[#8A19FF] py-24 px-4 text-center">
         <div className="max-w-3xl mx-auto">
           <span className="inline-block px-4 py-1.5 rounded-full bg-white/10 text-[#F59E0B] text-xs font-semibold tracking-widest uppercase mb-6 border border-white/20">
             Community
@@ -172,7 +172,7 @@ export default function CommunityPage() {
       <section className="py-20 px-4 bg-white">
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-extrabold text-[#1E1B4B] mb-3">Where We Connect</h2>
+            <h2 className="text-3xl font-extrabold text-[#151022] mb-3">Where We Connect</h2>
             <p className="text-slate-500 max-w-xl mx-auto leading-relaxed">
               Sign up for your preferred community channel below. All spaces are free and moderated by the ChurchFlow team.
             </p>
@@ -230,21 +230,21 @@ export default function CommunityPage() {
         <div className="max-w-4xl mx-auto">
           <div className="flex flex-col lg:flex-row gap-10 items-center">
             <div className="w-full lg:w-1/2">
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-purple-50 text-[#7C3AED] rounded-lg text-xs font-semibold mb-5">
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-purple-50 text-[#8A19FF] rounded-lg text-xs font-semibold mb-5">
                 <Heart className="w-3.5 h-3.5" />
                 Community Benefits
               </div>
-              <h2 className="text-2xl font-extrabold text-[#1E1B4B] mb-5">Why join the community?</h2>
+              <h2 className="text-2xl font-extrabold text-[#151022] mb-5">Why join the community?</h2>
               <ul className="space-y-3">
                 {BENEFITS.map(b => (
                   <li key={b} className="flex items-start gap-2.5 text-sm text-slate-600">
-                    <CheckCircle className="w-4 h-4 text-[#7C3AED] flex-shrink-0 mt-0.5" />
+                    <CheckCircle className="w-4 h-4 text-[#8A19FF] flex-shrink-0 mt-0.5" />
                     {b}
                   </li>
                 ))}
               </ul>
             </div>
-            <div className="w-full lg:w-1/2 bg-gradient-to-br from-[#1E1B4B] to-[#7C3AED] rounded-2xl p-8 text-white">
+            <div className="w-full lg:w-1/2 bg-gradient-to-br from-[#151022] to-[#8A19FF] rounded-2xl p-8 text-white">
               <TrendingUp className="w-8 h-8 text-[#F59E0B] mb-4" />
               <h3 className="text-xl font-bold mb-3">Growing Together</h3>
               <p className="text-purple-200 text-sm leading-relaxed mb-6">
@@ -272,7 +272,7 @@ export default function CommunityPage() {
         <div className="max-w-4xl mx-auto">
           <div className="flex items-center justify-between mb-8">
             <div>
-              <h2 className="text-2xl font-extrabold text-[#1E1B4B] mb-1">Upcoming Webinars</h2>
+              <h2 className="text-2xl font-extrabold text-[#151022] mb-1">Upcoming Webinars</h2>
               <p className="text-slate-400 text-sm">Free, live sessions for all ChurchFlow users and community members.</p>
             </div>
             <Mic2 className="w-6 h-6 text-slate-200" />
@@ -289,14 +289,14 @@ export default function CommunityPage() {
                     </div>
                     <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${webinar.badge}`}>Free</span>
                   </div>
-                  <h3 className="font-bold text-[#1E1B4B] text-sm leading-tight mb-2">{webinar.title}</h3>
+                  <h3 className="font-bold text-[#151022] text-sm leading-tight mb-2">{webinar.title}</h3>
                   <p className="text-slate-500 text-xs leading-relaxed mb-4">{webinar.description}</p>
                   <div className="flex items-center justify-between gap-3">
                     <div>
-                      <p className="text-xs font-semibold text-[#1E1B4B]">{webinar.speaker}</p>
+                      <p className="text-xs font-semibold text-[#151022]">{webinar.speaker}</p>
                       <p className="text-xs text-slate-400">{webinar.seats} seats remaining</p>
                     </div>
-                    <button className="px-4 py-2 rounded-lg bg-[#7C3AED] text-white text-xs font-bold hover:bg-[#6D28D9] transition-colors">
+                    <button className="px-4 py-2 rounded-lg bg-[#8A19FF] text-white text-xs font-bold hover:bg-[#5B00B8] transition-colors">
                       Register
                     </button>
                   </div>
@@ -308,7 +308,7 @@ export default function CommunityPage() {
       </section>
 
       {/* Bottom CTA */}
-      <section className="py-16 px-4 bg-[#1E1B4B]">
+      <section className="py-16 px-4 bg-[#151022]">
         <div className="max-w-xl mx-auto text-center">
           <h2 className="text-2xl font-extrabold text-white mb-3">Ready to get started?</h2>
           <p className="text-purple-300 text-sm leading-relaxed mb-8">
@@ -316,7 +316,7 @@ export default function CommunityPage() {
           </p>
           <a
             href="/register"
-            className="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl bg-[#F59E0B] text-[#1E1B4B] font-bold text-sm hover:bg-amber-400 transition-colors shadow-lg"
+            className="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl bg-[#F59E0B] text-[#151022] font-bold text-sm hover:bg-amber-400 transition-colors shadow-lg"
           >
             Register Your Church Free
             <ArrowRight className="w-4 h-4" />

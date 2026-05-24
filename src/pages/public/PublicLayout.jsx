@@ -30,8 +30,8 @@ function PublicNav() {
               className="w-9 h-9 rounded-lg object-contain"
               onError={e => { e.currentTarget.style.display='none' }}
             />
-            <span className="text-[#1E1B4B] font-bold text-lg tracking-tight leading-tight">
-              ChurchFlow <span className="text-[#7C3AED]">Liberia</span>
+            <span className="text-[#151022] font-bold text-lg tracking-tight leading-tight">
+              ChurchFlow <span className="text-[#8A19FF]">Liberia</span>
             </span>
           </Link>
 
@@ -43,8 +43,8 @@ function PublicNav() {
                 to={link.to}
                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                   pathname === link.to
-                    ? 'bg-purple-50 text-[#7C3AED]'
-                    : 'text-slate-600 hover:text-[#7C3AED] hover:bg-purple-50'
+                    ? 'bg-purple-50 text-[#8A19FF]'
+                    : 'text-slate-600 hover:text-[#8A19FF] hover:bg-purple-50'
                 }`}
               >
                 {link.label}
@@ -56,13 +56,13 @@ function PublicNav() {
           <div className="hidden md:flex items-center gap-3">
             <Link
               to="/login"
-              className="px-4 py-2 text-sm font-semibold text-[#1E1B4B] hover:text-[#7C3AED] transition-colors"
+              className="px-4 py-2 text-sm font-semibold text-[#151022] hover:text-[#8A19FF] transition-colors"
             >
               Login
             </Link>
             <Link
               to="/register"
-              className="px-5 py-2 rounded-lg bg-[#7C3AED] text-white text-sm font-semibold hover:bg-[#6D28D9] transition-colors shadow-sm"
+              className="px-5 py-2 rounded-lg bg-[#8A19FF] text-white text-sm font-semibold hover:bg-[#5B00B8] transition-colors shadow-sm"
             >
               Get Started
             </Link>
@@ -89,7 +89,7 @@ function PublicNav() {
               onClick={() => setOpen(false)}
               className={`block px-4 py-2.5 rounded-lg text-sm font-medium transition-colors ${
                 pathname === link.to
-                  ? 'bg-purple-50 text-[#7C3AED]'
+                  ? 'bg-purple-50 text-[#8A19FF]'
                   : 'text-slate-700 hover:bg-slate-50'
               }`}
             >
@@ -100,14 +100,14 @@ function PublicNav() {
             <Link
               to="/login"
               onClick={() => setOpen(false)}
-              className="block text-center px-4 py-2.5 rounded-lg border border-slate-200 text-sm font-semibold text-[#1E1B4B]"
+              className="block text-center px-4 py-2.5 rounded-lg border border-slate-200 text-sm font-semibold text-[#151022]"
             >
               Login
             </Link>
             <Link
               to="/register"
               onClick={() => setOpen(false)}
-              className="block text-center px-4 py-2.5 rounded-lg bg-[#7C3AED] text-white text-sm font-semibold"
+              className="block text-center px-4 py-2.5 rounded-lg bg-[#8A19FF] text-white text-sm font-semibold"
             >
               Get Started
             </Link>
@@ -121,7 +121,7 @@ function PublicNav() {
 // ─── Public Footer ───────────────────────────────────────────
 function PublicFooter() {
   return (
-    <footer className="bg-[#1E1B4B] text-slate-300">
+    <footer className="bg-[#151022] text-slate-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-10">
 
