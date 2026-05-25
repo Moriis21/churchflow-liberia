@@ -238,9 +238,11 @@ export default function Login() {
   async function handleGoogleLogin() {
     setGoogleLoading(true)
     try {
-      // redirectTo uses the current origin so it works on any deployment:
-      // nihu7zi9.insforge.site, churchflow-liberia.vercel.app, localhost, etc.
-      const redirectTo = `${window.location.origin}/app/dashboard`
+      // Route OAuth back through /auth/callback so the session is fully
+      // hydrated and the user's role is detected BEFORE we land on a
+      // protected page. Skipping this caused blank-screen issues where
+      // the dashboard rendered before AuthContext had the new session.
+      const redirectTo = `${window.location.origin}/auth/callback`
 
       const result = await insforge.auth.signInWithOAuth({
         provider: 'google',

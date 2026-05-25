@@ -925,12 +925,14 @@ export default function Register() {
                     type="button"
                     onClick={async () => {
                       try {
+                        // Route through /auth/callback so session/profile
+                        // are fully loaded before reaching the dashboard.
                         await insforge.auth.signInWithOAuth({
                           provider: 'google',
-                          redirectTo: `${window.location.origin}/app/dashboard`,
+                          redirectTo: `${window.location.origin}/auth/callback`,
                         })
-                        toast.success('Signed in with Google. Please complete your church setup.')
-                        navigate('/app/dashboard')
+                        // If the SDK didn't redirect (rare), nudge the user along.
+                        // The toast/navigate below only run on the same-page fallback path.
                       } catch {
                         toast.error('Google sign-in failed. Please try again.')
                       }
