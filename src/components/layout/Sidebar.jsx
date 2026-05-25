@@ -11,6 +11,11 @@ import {
   Building2,
   ShieldCheck,
   LayoutDashboard,
+  Users,
+  Wallet,
+  PlaySquare,
+  BarChart3,
+  Settings,
 } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { useChurch } from '../../context/ChurchContext'
