@@ -6,6 +6,7 @@ import { Link } from 'react-router-dom'
 import React from 'react'
 import { motion, AnimatePresence } from 'motion/react'
 import FloatingAIAssistant from '../../components/ai/FloatingAIAssistant'
+import ChurchFlowBackground from '../../components/ui/ChurchFlowBackground'
 import { insforge } from '../../lib/insforge'
 import {
   Users,
@@ -248,16 +249,12 @@ function Hero() {
   ]
 
   return (
-    <section className="relative overflow-hidden bg-gradient-to-br from-[#151022] via-[#2D1F6E] to-[#3D108A] pt-14 pb-12 sm:pt-24 sm:pb-20">
+    <section className="relative overflow-hidden pt-14 pb-12 sm:pt-24 sm:pb-20">
 
-      {/* Decorative blobs — scaled for mobile */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-24 -right-24 w-64 h-64 sm:w-96 sm:h-96 bg-purple-500/20 rounded-full blur-3xl" />
-        <div className="absolute -bottom-16 -left-16 w-56 h-56 sm:w-80 sm:h-80 bg-violet-600/15 rounded-full blur-3xl" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[320px] sm:w-[600px] h-[320px] sm:h-[600px] bg-indigo-700/10 rounded-full blur-3xl" />
-      </div>
+      {/* ── Soft, spiritual, animated mesh-gradient background ── */}
+      <ChurchFlowBackground />
 
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center max-w-4xl mx-auto">
 
           {/* Top badge — smaller on mobile */}
