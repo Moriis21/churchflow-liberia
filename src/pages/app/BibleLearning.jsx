@@ -13,7 +13,7 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import {
   Search, Play, ExternalLink, Filter, Loader2, BookOpen,
-  Video, GraduationCap, Download, Smartphone, Youtube, Baby,
+  Video, GraduationCap, Download, Smartphone, PlaySquare, Baby,
   FileText, Star, AlertCircle, X,
 } from 'lucide-react'
 import { listMediaResources, isFeatureEnabled, resolveEmbed, listMyWatchHistory, logMediaView } from '../../services/mediaService'
@@ -32,7 +32,7 @@ const CATEGORY_META = {
   study_guide:     { icon: FileText,     label: 'Bible Study Guides' },
   download:        { icon: Download,     label: 'Downloads' },
   app:             { icon: Smartphone,   label: 'Apps' },
-  youtube_channel: { icon: Youtube,      label: 'YouTube Channels' },
+  youtube_channel: { icon: PlaySquare,   label: 'YouTube Channels' },
   children:        { icon: Baby,         label: "Children's Bible Lessons" },
 }
 
