@@ -61,6 +61,11 @@ export default function MediaPlayerModal({ resource, onClose }) {
 
   const embed = resolveEmbed(resource)
   const canEmbed = embed && resource.resource_type !== 'app' && resource.resource_type !== 'website' && resource.resource_type !== 'channel' && resource.resource_type !== 'download'
+  // External URL we can attempt to iframe in-app when no proper video embed exists.
+  // Some sites set X-Frame-Options: DENY and will show blank — the "Open in new tab"
+  // link below the iframe is the graceful fallback for those cases.
+  const externalUrl = resource.external_url || resource.video_url || ''
+  const canIframeExternal = !canEmbed && /^https:\/\//i.test(externalUrl)
 
   async function handleShare() {
     const url = resource.external_url || resource.video_url || resource.embed_url || window.location.href
@@ -143,21 +148,31 @@ export default function MediaPlayerModal({ resource, onClose }) {
                 referrerPolicy="strict-origin-when-cross-origin"
               />
             </div>
+          ) : canIframeExternal ? (
+            <div className="relative w-full bg-white" style={{ height: 'min(70vh, 640px)' }}>
+              <iframe
+                key={externalUrl}
+                src={externalUrl}
+                title={resource.title}
+                className="absolute inset-0 w-full h-full border-0"
+                loading="lazy"
+                referrerPolicy="no-referrer"
+                sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-presentation"
+              />
+              <a
+                href={externalUrl}
+                target="_blank" rel="noopener noreferrer"
+                className="absolute top-3 right-3 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-white/90 hover:bg-white text-[#5B00B8] shadow-md backdrop-blur-sm"
+              >
+                Open in new tab <ExternalLink className="w-3.5 h-3.5" />
+              </a>
+            </div>
           ) : (
             <div className="aspect-video flex flex-col items-center justify-center text-center px-6 bg-gradient-to-br from-[#151022] to-[#5B00B8] text-white">
               <p className="text-sm font-semibold mb-2">This resource isn't embeddable.</p>
               <p className="text-xs text-white/70 mb-4 max-w-md">
-                {(resource.resource_type || 'website').replace('_', ' ')}s open in a new browser tab.
+                No preview is available for this {(resource.resource_type || 'item').replace('_', ' ')}.
               </p>
-              {(resource.external_url || resource.video_url) && (
-                <a
-                  href={resource.external_url || resource.video_url}
-                  target="_blank" rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold bg-white text-[#5B00B8] hover:bg-amber-50 transition-colors"
-                >
-                  Open externally <ExternalLink className="w-4 h-4" />
-                </a>
-              )}
             </div>
           )}
         </div>

@@ -50,6 +50,9 @@ function ResourceCard({ resource, onWatch }) {
   const canEmbed = embed && resource.resource_type !== 'app' && resource.resource_type !== 'website' && resource.resource_type !== 'channel' && resource.resource_type !== 'download'
   const meta = CATEGORY_META[resource.category] || CATEGORY_META.video
   const Icon = meta.icon
+  // Everything opens in the in-app modal now — the modal iframes external URLs
+  // when there's no proper video embed.
+  const ctaLabel = canEmbed ? 'Watch' : 'Open'
 
   return (
     <div className="group bg-white rounded-2xl border border-slate-100 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07)] hover:shadow-[0_8px_30px_-4px_rgba(124,58,237,0.18)] hover:-translate-y-0.5 transition-all duration-300 overflow-hidden flex flex-col">
@@ -74,17 +77,15 @@ function ResourceCard({ resource, onWatch }) {
         <span className="absolute top-2 right-2 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-white/95 text-purple-700">
           {PROVIDER_BADGE[resource.provider] || resource.provider}
         </span>
-        {canEmbed && (
-          <button
-            onClick={() => onWatch(resource)}
-            aria-label="Play"
-            className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors flex items-center justify-center"
-          >
-            <span className="w-14 h-14 rounded-full bg-white/95 flex items-center justify-center shadow-lg opacity-0 group-hover:opacity-100 transition-opacity">
-              <Play className="w-6 h-6 text-purple-700 ml-1" fill="currentColor" />
-            </span>
-          </button>
-        )}
+        <button
+          onClick={() => onWatch(resource)}
+          aria-label={ctaLabel}
+          className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors flex items-center justify-center"
+        >
+          <span className="w-14 h-14 rounded-full bg-white/95 flex items-center justify-center shadow-lg opacity-0 group-hover:opacity-100 transition-opacity">
+            <Play className="w-6 h-6 text-purple-700 ml-1" fill="currentColor" />
+          </span>
+        </button>
       </div>
 
       {/* Body */}
@@ -103,22 +104,12 @@ function ResourceCard({ resource, onWatch }) {
         )}
 
         <div className="mt-auto pt-3 flex items-center gap-2">
-          {canEmbed ? (
-            <button
-              onClick={() => onWatch(resource)}
-              className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold bg-gradient-to-r from-[#151022] to-[#5B00B8] text-white hover:opacity-95 transition-opacity"
-            >
-              <Play className="w-3.5 h-3.5" /> Watch
-            </button>
-          ) : (
-            <a
-              href={resource.external_url || resource.video_url}
-              target="_blank" rel="noopener noreferrer"
-              className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold bg-gradient-to-r from-[#151022] to-[#5B00B8] text-white hover:opacity-95 transition-opacity"
-            >
-              Open Resource <ExternalLink className="w-3.5 h-3.5" />
-            </a>
-          )}
+          <button
+            onClick={() => onWatch(resource)}
+            className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold bg-gradient-to-r from-[#151022] to-[#5B00B8] text-white hover:opacity-95 transition-opacity"
+          >
+            <Play className="w-3.5 h-3.5" /> {ctaLabel}
+          </button>
         </div>
       </div>
     </div>
