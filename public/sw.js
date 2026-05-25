@@ -5,7 +5,7 @@
 //   • Network-first for API calls.
 //   • Cache-first for hashed static assets in /assets/ (immutable).
 //   • Skip cache entirely for everything else (safest default).
-const CACHE_NAME = 'churchflow-v3'
+const CACHE_NAME = 'churchflow-v4'
 
 self.addEventListener('install', (event) => {
   // Take over immediately on update
@@ -26,6 +26,10 @@ self.addEventListener('fetch', (event) => {
 
   const url = new URL(req.url)
 
+  // Never touch non-http(s) schemes (chrome-extension://, data:, blob:, etc.)
+  // The Cache API rejects them and they're not ours to handle anyway.
+  if (url.protocol !== 'http:' && url.protocol !== 'https:') return
+
   // ── 1. Navigation requests (HTML pages) → network-first ─────
   // Critical: prevents stale index.html that references old JS/CSS hashes.
   if (req.mode === 'navigate' || (req.headers.get('accept') || '').includes('text/html')) {
@@ -45,7 +49,8 @@ self.addEventListener('fetch', (event) => {
 
   // ── 3. Hashed static assets in /assets/ → cache-first ──────
   // Vite emits content-hashed filenames so cache-first is safe forever.
-  if (url.pathname.startsWith('/assets/')) {
+  // Same-origin only — never cache cross-origin or extension responses.
+  if (url.origin === self.location.origin && url.pathname.startsWith('/assets/')) {
     event.respondWith(
       caches.match(req).then((cached) => {
         if (cached) return cached

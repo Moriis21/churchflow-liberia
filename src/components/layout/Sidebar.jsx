@@ -10,6 +10,7 @@ import {
   X,
   Building2,
   ShieldCheck,
+  LayoutDashboard,
 } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { useChurch } from '../../context/ChurchContext'
