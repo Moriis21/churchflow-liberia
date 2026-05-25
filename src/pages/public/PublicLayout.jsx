@@ -186,11 +186,13 @@ function PublicFooter() {
             <h4 className="text-white font-semibold text-sm mb-4 uppercase tracking-wider">Support</h4>
             <ul className="space-y-2.5">
               {[
-                { label: 'Help Centre',  to: '/help'    },
-                { label: 'Docs',         to: '/docs'    },
-                { label: 'Contact',      to: '/contact' },
-                { label: 'Privacy',      to: '/privacy' },
-                { label: 'Terms',        to: '/terms'   },
+                { label: 'Help Centre',  to: '/help'      },
+                { label: 'Docs',         to: '/docs'      },
+                { label: 'Tutorials',    to: '/tutorials' },
+                { label: 'Webinars',     to: '/webinars'  },
+                { label: 'Contact',      to: '/contact'   },
+                { label: 'Privacy',      to: '/privacy'   },
+                { label: 'Terms',        to: '/terms'     },
               ].map(l => (
                 <li key={l.to}>
                   <Link to={l.to} className="text-sm text-slate-400 hover:text-white transition-colors">

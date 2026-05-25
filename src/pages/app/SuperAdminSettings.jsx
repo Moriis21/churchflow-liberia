@@ -11,11 +11,13 @@ import {
   Eye, EyeOff, RefreshCw, Download, Upload, Lock, Unlock,
   Globe, Phone, Mail, Clock, BarChart3, Server, Activity,
   ChevronRight, Plus, Minus, Ban, CheckCheck, LogIn, Key,
+  Video, Mic2,
 } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { insforge } from '../../lib/insforge'
 import { Input, Button } from '../../components/ui'
 import toast from 'react-hot-toast'
+import { TutorialsManager, WebinarsManager } from '../../components/admin/TutorialsManager'
 import { AreaChart, Area, BarChart, Bar, LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts'
 
 // ─── Section Registry ────────────────────────────────────────
@@ -34,6 +36,8 @@ const SECTIONS = [
   { id: 'branding',      label: 'Branding',         icon: Palette },
   { id: 'legal',         label: 'Legal',            icon: Scale },
   { id: 'members',       label: 'Members',          icon: Users },
+  { id: 'tutorials',     label: 'Tutorials',        icon: Video },
+  { id: 'webinars',      label: 'Webinars',         icon: Mic2 },
   { id: 'api',           label: 'API Keys',         icon: Code2 },
 ]
 
@@ -3342,6 +3346,8 @@ function SectionContent({ active }) {
     case 'branding':      return <BrandingSection />
     case 'legal':         return <LegalSection />
     case 'members':       return <MembersSection />
+    case 'tutorials':     return <TutorialsManager />
+    case 'webinars':      return <WebinarsManager />
     case 'api':           return <ApiSection />
     default:              return <PlatformSection />
   }

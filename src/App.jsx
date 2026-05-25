@@ -50,6 +50,8 @@ const AboutPage       = React.lazy(() => import('./pages/public/AboutPage'))
 const ContactPage     = React.lazy(() => import('./pages/public/ContactPage'))
 const DocumentationPage = React.lazy(() => import('./pages/public/DocumentationPage'))
 const HelpCentrePage  = React.lazy(() => import('./pages/public/HelpCentrePage'))
+const TutorialsPage   = React.lazy(() => import('./pages/public/TutorialsPage'))
+const WebinarsPage    = React.lazy(() => import('./pages/public/WebinarsPage'))
 const ChangelogPage   = React.lazy(() => import('./pages/public/ChangelogPage'))
 const RoadmapPage     = React.lazy(() => import('./pages/public/RoadmapPage'))
 const StatusPage      = React.lazy(() => import('./pages/public/StatusPage'))
@@ -138,6 +140,8 @@ function AppRoutes() {
         <Route path="/contact"    element={<ContactPage />} />
         <Route path="/docs"       element={<DocumentationPage />} />
         <Route path="/help"       element={<HelpCentrePage />} />
+        <Route path="/tutorials"  element={<TutorialsPage />} />
+        <Route path="/webinars"   element={<WebinarsPage />} />
         <Route path="/changelog"  element={<ChangelogPage />} />
         <Route path="/roadmap"    element={<RoadmapPage />} />
         <Route path="/status"     element={<StatusPage />} />
