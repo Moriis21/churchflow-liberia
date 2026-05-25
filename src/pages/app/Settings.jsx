@@ -16,10 +16,16 @@ import { useAuth } from '../../context/AuthContext'
 import { insforge } from '../../lib/insforge'
 import { uploadChurchLogo, getReadableFileUrl, validateImageUpload as validateImageFile, BUCKETS } from '../../services/imageStorage'
 import { createAuditLog, buildActor, AUDIT_ACTIONS } from '../../services/auditLog'
+import {
+  createInvite, listInvites, setInviteStatus, inviteLinkFor,
+} from '../../services/inviteService'
+import TwoFactorSection from '../../components/security/TwoFactorSection'
 
 // ─── Sidebar nav items ────────────────────────────────────────
 const NAV_ITEMS = [
   { key: 'profile',       label: 'Church Profile',    icon: Church },
+  { key: 'invites',       label: 'Invite Links',      icon: Link2 },
+  { key: 'security',      label: 'Security (2FA)',    icon: Shield },
   { key: 'roles',         label: 'User Roles',        icon: Users },
   { key: 'notifications', label: 'Notifications',     icon: Bell },
   { key: 'sms',           label: 'SMS Settings',      icon: MessageSquare },
@@ -700,6 +706,207 @@ function BackupSection() {
   )
 }
 
+// ─── Invite Links Section ─────────────────────────────────────
+function InviteLinksSection() {
+  const { church } = useChurch()
+  const { user }   = useAuth()
+  const [invites, setInvites]   = useState([])
+  const [loading, setLoading]   = useState(true)
+  const [creating, setCreating] = useState(false)
+  // Pre-fill defaults: 50 uses, expires 30 days out
+  const [form, setForm] = useState(() => {
+    const d = new Date()
+    d.setDate(d.getDate() + 30)
+    return {
+      role:      'member',
+      maxUses:   50,
+      expiresAt: d.toISOString().split('T')[0],
+    }
+  })
+
+  async function reload() {
+    if (!church?.id) { setLoading(false); return }
+    setLoading(true)
+    setInvites(await listInvites(church.id))
+    setLoading(false)
+  }
+  useEffect(() => { reload() }, [church?.id])
+
+  async function handleCreate(e) {
+    e.preventDefault()
+    if (!church?.id) return
+    setCreating(true)
+    try {
+      await createInvite({
+        churchId:  church.id,
+        role:      form.role,
+        maxUses:   Math.max(1, parseInt(form.maxUses, 10) || 1),
+        expiresAt: form.expiresAt ? new Date(form.expiresAt + 'T23:59:59Z').toISOString() : null,
+        createdBy: user?.id || null,
+      })
+      createAuditLog({
+        action:      AUDIT_ACTIONS.INVITE_CREATED || 'invite_created',
+        actor:       buildActor(user, church),
+        description: `Invite link created for role: ${form.role}`,
+      })
+      toast.success('Invite link created.')
+      await reload()
+    } catch (err) {
+      toast.error(err.message || 'Failed to create invite.')
+    } finally {
+      setCreating(false)
+    }
+  }
+
+  async function handleCopy(token) {
+    const url = inviteLinkFor(token)
+    try {
+      await navigator.clipboard.writeText(url)
+      toast.success('Invite link copied!')
+    } catch {
+      window.prompt('Copy this invite link:', url)
+    }
+  }
+
+  async function handleToggle(invite) {
+    try {
+      const next = invite.status === 'active' ? 'disabled' : 'active'
+      await setInviteStatus(invite.id, next)
+      toast.success(`Invite ${next}.`)
+      await reload()
+    } catch (err) {
+      toast.error(err.message || 'Failed to update invite.')
+    }
+  }
+
+  function fmtDate(s) {
+    if (!s) return '—'
+    try { return new Date(s).toLocaleDateString() } catch { return s }
+  }
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <h2 className="text-lg font-bold text-slate-800">Invite Links</h2>
+        <p className="text-sm text-slate-500 mt-1">
+          Mint signed links that let new people register directly into your church
+          (with limits and expiry). Anyone with the link can join until it expires
+          or hits its use cap.
+        </p>
+      </div>
+
+      {/* Create form */}
+      <form onSubmit={handleCreate} className="grid grid-cols-1 sm:grid-cols-4 gap-3 p-4 rounded-2xl bg-slate-50 border border-slate-100">
+        <div className="flex flex-col gap-1.5">
+          <label className="text-xs font-bold uppercase tracking-wider text-slate-500">Role</label>
+          <select
+            value={form.role}
+            onChange={e => setForm({ ...form, role: e.target.value })}
+            className="rounded-xl border border-slate-200 bg-white text-sm px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-purple-100 focus:border-purple-500"
+          >
+            <option value="member">Member</option>
+            <option value="dept_leader">Department Leader</option>
+            <option value="secretary">Secretary</option>
+            <option value="treasurer">Treasurer</option>
+            <option value="pastor">Pastor</option>
+          </select>
+        </div>
+        <Input
+          label="Max uses" type="number" min="1"
+          value={form.maxUses}
+          onChange={e => setForm({ ...form, maxUses: e.target.value })}
+        />
+        <Input
+          label="Expires (optional)" type="date"
+          value={form.expiresAt}
+          onChange={e => setForm({ ...form, expiresAt: e.target.value })}
+        />
+        <div className="flex items-end">
+          <Button type="submit" variant="primary" loading={creating} className="w-full">
+            Create Link
+          </Button>
+        </div>
+      </form>
+
+      {/* List */}
+      {loading ? (
+        <div className="flex items-center gap-2 text-sm text-slate-400 py-6">
+          <Loader2 className="w-4 h-4 animate-spin" /> Loading invites…
+        </div>
+      ) : invites.length === 0 ? (
+        <div className="p-8 text-center rounded-2xl border-2 border-dashed border-slate-200">
+          <Link2 className="w-8 h-8 text-slate-300 mx-auto mb-2" />
+          <p className="text-sm font-semibold text-slate-600">No invite links yet</p>
+          <p className="text-xs text-slate-400 mt-1">Create one above to start inviting people.</p>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {invites.map((inv) => {
+            const expired   = inv.expires_at && new Date(inv.expires_at) < new Date()
+            const exhausted = inv.used_count >= inv.max_uses
+            const dead      = expired || exhausted || inv.status !== 'active'
+            return (
+              <div key={inv.id} className="p-4 rounded-2xl bg-white border border-slate-100 shadow-sm">
+                <div className="flex flex-col sm:flex-row sm:items-start gap-3 sm:justify-between">
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2 flex-wrap mb-1">
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-purple-50 text-purple-700">
+                        {inv.role}
+                      </span>
+                      {inv.status === 'disabled' && (
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-slate-200 text-slate-600">
+                          Disabled
+                        </span>
+                      )}
+                      {expired && (
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-red-50 text-red-700">
+                          Expired
+                        </span>
+                      )}
+                      {exhausted && (
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-amber-50 text-amber-700">
+                          Used up
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-xs text-slate-500 break-all font-mono">
+                      {inviteLinkFor(inv.invite_token)}
+                    </p>
+                    <p className="text-xs text-slate-400 mt-1">
+                      {inv.used_count}/{inv.max_uses} used · expires {fmtDate(inv.expires_at)} · created {fmtDate(inv.created_at)}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2 flex-shrink-0">
+                    <button
+                      onClick={() => handleCopy(inv.invite_token)}
+                      disabled={dead}
+                      className="p-2 rounded-lg text-slate-500 hover:text-purple-600 hover:bg-purple-50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                      title="Copy link"
+                    >
+                      <Copy className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={() => handleToggle(inv)}
+                      disabled={expired || exhausted}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors disabled:opacity-30 disabled:cursor-not-allowed ${
+                        inv.status === 'active'
+                          ? 'text-red-600 hover:bg-red-50 border border-red-200'
+                          : 'text-emerald-600 hover:bg-emerald-50 border border-emerald-200'
+                      }`}
+                    >
+                      {inv.status === 'active' ? 'Disable' : 'Re-enable'}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      )}
+    </div>
+  )
+}
+
 // ─── Main Page ────────────────────────────────────────────────
 export default function Settings() {
   const [activeSection, setActiveSection] = useState('profile')
@@ -712,6 +919,8 @@ export default function Settings() {
   const renderSection = () => {
     switch (activeSection) {
       case 'profile':       return <ChurchProfileSection church={church} onChurchUpdated={handleChurchUpdated} />
+      case 'invites':       return <InviteLinksSection />
+      case 'security':      return <TwoFactorSection />
       case 'roles':         return <UserRolesSection />
       case 'notifications': return <NotificationsSection />
       case 'sms':           return <SMSSettingsSection />

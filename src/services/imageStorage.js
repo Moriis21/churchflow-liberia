@@ -73,6 +73,43 @@ export function extractPath(pathOrUrl, bucket) {
   return null
 }
 
+// ─── Module-level signed-URL cache ────────────────────────────
+//
+// Without this, a list of 50 avatars triggers 50 createSignedUrl
+// round-trips on every render. With it: each (bucket, path) pair
+// resolves once per page load and lives in memory for a configurable
+// TTL. Cache key is `bucket|path` so different buckets stay isolated.
+//
+const _signedUrlCache = new Map()
+const _inflight       = new Map()
+const CACHE_TTL_MS = 60 * 60 * 1000  // refresh signed URL every hour (TTL is 7d but stay safe)
+
+function _cacheGet(key) {
+  const entry = _signedUrlCache.get(key)
+  if (!entry) return null
+  if (Date.now() - entry.at > CACHE_TTL_MS) {
+    _signedUrlCache.delete(key)
+    return null
+  }
+  return entry.value
+}
+function _cacheSet(key, value) {
+  _signedUrlCache.set(key, { value, at: Date.now() })
+}
+
+// Public: drop the cache when you intentionally want a fresh URL
+// (e.g. just after re-uploading an avatar with the same path).
+export function clearImageUrlCache(bucket = null, path = null) {
+  if (!bucket) { _signedUrlCache.clear(); return }
+  if (!path) {
+    for (const k of _signedUrlCache.keys()) {
+      if (k.startsWith(bucket + '|')) _signedUrlCache.delete(k)
+    }
+    return
+  }
+  _signedUrlCache.delete(`${bucket}|${path}`)
+}
+
 // ─── Generate a signed URL (primary display method) ──────────
 //
 // Signed URLs include the token as a query param → work in
@@ -111,6 +148,29 @@ export async function getReadableFileUrl(bucket, pathOrUrl) {
     return pathOrUrl
   }
 
+  // Cache hit? Skip the round-trip entirely.
+  const cacheKey = `${bucket}|${pathOrUrl}`
+  const cached = _cacheGet(cacheKey)
+  if (cached) return cached
+
+  // In-flight de-dup: parallel callers for the same key share one
+  // promise instead of firing N round-trips for the same avatar.
+  const inflight = _inflight.get(cacheKey)
+  if (inflight) return inflight
+
+  const promise = _resolveReadableUrl(bucket, pathOrUrl)
+  _inflight.set(cacheKey, promise)
+  try {
+    const out = await promise
+    if (out) _cacheSet(cacheKey, out)
+    return out
+  } finally {
+    _inflight.delete(cacheKey)
+  }
+}
+
+// Inner resolver — actually does the work without caching.
+async function _resolveReadableUrl(bucket, pathOrUrl) {
   // 1. Signed URL — most reliable for InsForge
   const signed = await getSignedImageUrl(bucket, pathOrUrl)
   if (signed) return signed
@@ -187,6 +247,7 @@ export async function uploadProfilePhoto({ file, userId, churchId }) {
   }
 
   const storedPath = uploaded?.path || path
+  clearImageUrlCache(BUCKETS.PROFILE_PHOTOS, storedPath)
   const url = await getReadableFileUrl(BUCKETS.PROFILE_PHOTOS, storedPath)
 
   return { path: storedPath, url: url || '', bucket: BUCKETS.PROFILE_PHOTOS }
@@ -223,6 +284,7 @@ export async function uploadChurchLogo({ file, churchId }) {
   }
 
   const storedPath = uploaded?.path || path
+  clearImageUrlCache(BUCKETS.CHURCH_LOGOS, storedPath)
   const url = await getReadableFileUrl(BUCKETS.CHURCH_LOGOS, storedPath)
 
   return { path: storedPath, url: url || '', bucket: BUCKETS.CHURCH_LOGOS }
@@ -246,6 +308,7 @@ export async function uploadMemberPhoto({ file, memberId, churchId }) {
   if (uploadErr) throw new Error(`Member photo upload failed: ${uploadErr.message}`)
 
   const storedPath = uploaded?.path || path
+  clearImageUrlCache(BUCKETS.MEMBER_PHOTOS, storedPath)
   const url = await getReadableFileUrl(BUCKETS.MEMBER_PHOTOS, storedPath)
 
   return { path: storedPath, url: url || '', bucket: BUCKETS.MEMBER_PHOTOS }

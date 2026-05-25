@@ -16,6 +16,7 @@ import {
   PlaySquare,
   BarChart3,
   Settings,
+  FileClock,
 } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { useChurch } from '../../context/ChurchContext'
@@ -52,6 +53,7 @@ const SUPER_ADMIN_NAV_SECTIONS = [
     label: 'SYSTEM',
     items: [
       { to: '/app/users', icon: ShieldCheck, label: 'User Management' },
+      { to: '/app/audit-logs', icon: FileClock, label: 'Audit Logs' },
       { to: '/app/super-admin-settings', icon: Settings, label: 'Platform Settings' },
     ],
   },

@@ -139,9 +139,10 @@ export default function CompleteSetup() {
       // Send welcome email (best-effort, never blocks)
       if (user?.email) {
         sendWelcomeEmail({
-          to: user.email,
+          to:         user.email,
+          userName:   church.fullName.trim(),
+          role:       'church_admin',
           churchName: church.name.trim(),
-          userName: church.fullName.trim().split(' ')[0],
         })
       }
 

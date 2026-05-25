@@ -1,1 +1,39 @@
-{"rewrites":[{"source":"/((?!assets|icons|manifest.json|sw.js|favicon.svg|icons.svg).*)","destination":"/index.html"}]}
+{
+  "rewrites": [
+    {
+      "source": "/((?!assets|icons|manifest.json|sw.js|favicon.svg|icons.svg).*)",
+      "destination": "/index.html"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "Content-Security-Policy",
+          "value": "default-src 'self'; script-src 'self' 'unsafe-inline' https://api.qrserver.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https://nihu7zi9.us-east.insforge.app https://nihu7zi9.insforge.site https://*.insforge.app https://*.insforge.site https://api.qrserver.com; connect-src 'self' https://nihu7zi9.us-east.insforge.app https://*.insforge.app https://nihu7zi9.functions.insforge.app https://api.groq.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'"
+        },
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        },
+        {
+          "key": "Permissions-Policy",
+          "value": "camera=(), microphone=(), geolocation=(), interest-cohort=()"
+        },
+        {
+          "key": "Strict-Transport-Security",
+          "value": "max-age=63072000; includeSubDomains; preload"
+        }
+      ]
+    }
+  ]
+}

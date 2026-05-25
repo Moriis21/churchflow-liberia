@@ -176,7 +176,7 @@ const DEMO_ROLES = [
 // ─── Component ───────────────────────────────────────────────
 export default function Login() {
   const navigate = useNavigate()
-  const { login, demoLogin } = useAuth()
+  const { login, demoLogin, pendingTwoFactor, completeTwoFactor, cancelTwoFactor } = useAuth()
 
   const [email,       setEmail]       = useState('')
   const [password,    setPassword]    = useState('')
@@ -186,6 +186,24 @@ export default function Login() {
   const [demoLoading, setDemoLoading] = useState(null)
   const [googleLoading, setGoogleLoading] = useState(false)
   const [errors,      setErrors]      = useState({})
+
+  // 2FA step
+  const [twoFactorCode, setTwoFactorCode] = useState('')
+  const [twoFactorErr,  setTwoFactorErr]  = useState('')
+
+  async function handleVerify2FA(e) {
+    e.preventDefault()
+    setTwoFactorErr('')
+    setLoading(true)
+    const { ok, error } = await completeTwoFactor(twoFactorCode)
+    setLoading(false)
+    if (ok) {
+      navigate('/app/dashboard', { replace: true })
+    } else {
+      setTwoFactorErr(error || 'Invalid code.')
+      setTwoFactorCode('')
+    }
+  }
 
   function validate() {
     const e = {}
@@ -263,7 +281,7 @@ export default function Login() {
       // 2. Google OAuth not enabled in InsForge project
       // 3. Network error
       toast.error(msg)
-      console.error('[Google OAuth]', msg, err)
+      console.error('[Google OAuth]', msg)
       setGoogleLoading(false)
     }
   }
@@ -276,6 +294,52 @@ export default function Login() {
       navigate('/app/dashboard')
     } catch { toast.error('Demo login failed.') }
     finally { setDemoLoading(null) }
+  }
+
+  // ── 2FA gate: if password succeeded but TOTP is pending, render
+  // ONLY the code-entry screen. No nav, no other auth options.
+  if (pendingTwoFactor) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#151022] via-[#2D1B69] to-[#5B00B8] p-4">
+        <div className="w-full max-w-md bg-white rounded-2xl shadow-2xl p-8">
+          <div className="text-center mb-6">
+            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#151022] to-[#5B00B8] mx-auto flex items-center justify-center mb-3">
+              <span className="text-white font-black text-xl">2FA</span>
+            </div>
+            <h1 className="text-xl font-extrabold text-[#151022] mb-1">Two-Factor Authentication</h1>
+            <p className="text-sm text-slate-500">
+              Enter the 6-digit code from your authenticator app, or a backup code.
+            </p>
+          </div>
+          <form onSubmit={handleVerify2FA} className="space-y-4">
+            <input
+              type="text" inputMode="text" autoComplete="one-time-code" autoFocus
+              value={twoFactorCode}
+              onChange={(e) => setTwoFactorCode(e.target.value)}
+              placeholder="123456 or backup-code"
+              className="w-full text-center text-xl tracking-[0.3em] font-mono rounded-xl border border-slate-200 px-3 py-3 focus:outline-none focus:ring-2 focus:ring-purple-100 focus:border-purple-500"
+            />
+            {twoFactorErr && (
+              <p className="text-xs text-red-600 text-center">{twoFactorErr}</p>
+            )}
+            <button
+              type="submit"
+              disabled={loading || !twoFactorCode.trim()}
+              className="w-full px-4 py-3 rounded-xl text-sm font-semibold bg-gradient-to-r from-[#151022] to-[#5B00B8] text-white hover:opacity-95 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {loading ? 'Verifying…' : 'Verify & continue'}
+            </button>
+            <button
+              type="button"
+              onClick={() => { cancelTwoFactor(); setTwoFactorCode(''); setTwoFactorErr('') }}
+              className="w-full text-xs text-slate-500 hover:text-slate-700"
+            >
+              ← Sign out and try a different account
+            </button>
+          </form>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -465,7 +529,8 @@ export default function Login() {
             </p>
           </div>
 
-          {/* ── Demo section ─────────────────────────────── */}
+          {/* ── Demo section — DEV BUILDS ONLY ────────────── */}
+          {import.meta.env.DEV && (
           <div className="mt-4 bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
             <div className="flex items-center gap-3 mb-3">
               <div className="flex-1 h-px bg-slate-100" />
@@ -497,6 +562,7 @@ export default function Login() {
               ))}
             </div>
           </div>
+          )}
 
           <p className="mt-4 text-center text-xs text-slate-400">
             Secure church management for Liberian ministries

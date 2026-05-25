@@ -39,3 +39,4 @@ Thumbs.db
 *.tsbuildinfo
 
 .vercel
+schema.sql.bak

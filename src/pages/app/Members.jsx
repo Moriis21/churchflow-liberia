@@ -20,6 +20,7 @@ import { useChurch } from '../../context/ChurchContext'
 import toast from 'react-hot-toast'
 import { createMemberWithAuth } from '../../services/memberAuth'
 import { createAuditLog, buildActor, AUDIT_ACTIONS } from '../../services/auditLog'
+import { uploadMemberPhoto, validateImageUpload } from '../../services/imageStorage'
 
 // ─── Constants ───────────────────────────────────────────────
 const PAGE_SIZE = 10
@@ -33,6 +34,8 @@ const blankForm = {
   baptismStatus: false, maritalStatus: 'single',
   emergencyContact: '', notes: '', profilePhoto: '',
   password: '',
+  photoFile: null,
+  profile_photo_path: '',
 }
 
 // ─── Toast ───────────────────────────────────────────────────
@@ -143,9 +146,17 @@ function MemberForm({ form, onChange, errors, deptNames = [] }) {
       <div className="flex flex-col items-center gap-3 pb-2">
         <div className="relative">
           <div className="w-24 h-24 rounded-full overflow-hidden bg-slate-100 border-2 border-dashed border-purple-300 flex items-center justify-center">
-            {form.profilePhoto
-              ? <img src={form.profilePhoto} alt="Preview" className="w-full h-full object-cover" />
-              : <span className="text-2xl font-bold text-purple-400">{form.name ? getInitials(form.name) : '?'}</span>}
+            {form.profilePhoto ? (
+              <Avatar
+                src={form.profilePhoto}
+                name={form.name}
+                size="xl"
+                bucket={form.profilePhoto.startsWith('blob:') ? null : 'member-photos'}
+                className="!ring-0 !shadow-none"
+              />
+            ) : (
+              <span className="text-2xl font-bold text-purple-400">{form.name ? getInitials(form.name) : '?'}</span>
+            )}
           </div>
           <button type="button" onClick={() => fileRef.current?.click()}
             className="absolute bottom-0 right-0 w-7 h-7 rounded-full bg-purple-600 text-white flex items-center justify-center shadow-md hover:bg-purple-700 transition-colors">
@@ -153,8 +164,19 @@ function MemberForm({ form, onChange, errors, deptNames = [] }) {
           </button>
         </div>
         <input ref={fileRef} type="file" accept="image/*" className="hidden"
-          onChange={e => { const f = e.target.files?.[0]; if (f) onChange({ ...form, profilePhoto: URL.createObjectURL(f) }) }} />
+          onChange={e => {
+            const f = e.target.files?.[0]
+            if (!f) return
+            const err = validateImageUpload(f)
+            if (err) { alert(err); return }
+            onChange({ ...form, photoFile: f, profilePhoto: URL.createObjectURL(f) })
+          }} />
         <p className="text-xs text-slate-400">Click camera icon to upload photo</p>
+        {form.photoFile && (
+          <p className="text-[11px] text-emerald-600 font-medium">
+            New photo ready — will upload when you save.
+          </p>
+        )}
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -537,7 +559,30 @@ export default function Members() {
         notes:            form.notes,
         churchId,
         branchId:         currentBranch?.id || null,
+        role:             'member',
+        churchName:       church?.name || '',
       })
+
+      // ── Upload photo (if picked at create-time) ───────────
+      if (form.photoFile && result?.memberId) {
+        try {
+          const { path, url } = await uploadMemberPhoto({
+            file:     form.photoFile,
+            memberId: result.memberId,
+            churchId,
+          })
+          if (url) {
+            await insforge.database.rpc('update_member_photo', {
+              p_member_id:  result.memberId,
+              p_photo_url:  url,
+              p_photo_path: path,
+            })
+          }
+        } catch (photoErr) {
+          console.warn('[Members] photo upload after create failed:', photoErr?.message)
+          showToast('Member created, but photo upload failed. You can re-upload from the profile.', 'error')
+        }
+      }
 
       // ── Session guard ─────────────────────────────────────
       // insforge.auth.signUp() with verification disabled may switch
@@ -575,7 +620,9 @@ export default function Members() {
       }
     } catch (err) {
       showToast(err.message || 'Failed to create member. Please try again.', 'error')
-      console.error('createMemberWithAuth error:', err)
+      // Don't log the full error object — it can contain the member's email
+      // in stack traces from auth errors. Audit log keeps the full record.
+      console.error('[Members] createMemberWithAuth failed')
     } finally {
       setSaving(false)
     }
@@ -588,6 +635,22 @@ export default function Members() {
 
     setSaving(true)
     try {
+      // ── Photo upload first (if new file picked) ───────────
+      if (form.photoFile) {
+        const { path, url } = await uploadMemberPhoto({
+          file:     form.photoFile,
+          memberId: editMember.id,
+          churchId: editMember.church_id || church?.id,
+        })
+        if (!url) throw new Error('Photo uploaded but no readable URL was returned.')
+        const { error: photoErr } = await insforge.database.rpc('update_member_photo', {
+          p_member_id:  editMember.id,
+          p_photo_url:  url,
+          p_photo_path: path,
+        })
+        if (photoErr) throw new Error(`Failed to save photo to member record: ${photoErr.message}`)
+      }
+
       const { error } = await insforge.database.rpc('update_member', {
         p_member_id:        editMember.id,
         p_full_name:        form.name,
@@ -605,7 +668,7 @@ export default function Members() {
 
       if (error) throw error
       setEditMember(null)
-      await loadData()
+      await loadData()      // refetch from DB → UI reflects new photo
       showToast(`${form.name}'s profile has been updated.`)
     } catch (err) {
       showToast(err.message || 'Failed to update member.', 'error')
@@ -643,7 +706,8 @@ export default function Members() {
       maritalStatus:    member.maritalStatus || member.marital_status || 'single',
       emergencyContact: member.emergencyContact || member.emergency_contact || '',
       notes:            member.notes || '',
-      profilePhoto:     member.profilePhoto || member.profile_photo_url || '',
+      profilePhoto:     member.profile_photo_path || member.profilePhoto || member.profile_photo_url || '',
+      photoFile:        null,
     })
     setFormErrors({})
     setEditMember(member)

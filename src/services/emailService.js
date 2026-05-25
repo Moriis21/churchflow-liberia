@@ -85,31 +85,61 @@ async function safeSend(payload, kind) {
   }
 }
 
-// ─── 1. Welcome email (after church setup) ────────────────────
-export function sendWelcomeEmail({ to, churchName, userName }) {
-  const html = emailShell({
-    title: `Welcome to ChurchFlow, ${churchName}`,
-    preheader: `Your church is set up and ready. Here's how to start.`,
-    content: `
-      <h1 style="margin:0 0 12px;color:#151022;font-size:24px;font-weight:800;line-height:1.2;">
-        Welcome to ChurchFlow, ${userName || 'Pastor'} 🎉
-      </h1>
-      <p style="margin:0 0 18px;color:#475569;font-size:15px;line-height:1.6;">
-        <strong>${churchName}</strong> is officially live on ChurchFlow Liberia. You can start adding members, recording attendance, and tracking offerings right away.
-      </p>
-      <h3 style="margin:24px 0 10px;color:#151022;font-size:15px;font-weight:700;">Suggested first steps</h3>
-      <ol style="margin:0 0 22px;padding-left:20px;color:#475569;font-size:14px;line-height:1.7;">
-        <li>Add your first 5–10 members</li>
-        <li>Mark attendance for last Sunday's service</li>
-        <li>Record the most recent offering</li>
-        <li>Invite your pastor, treasurer, or secretary to join</li>
-      </ol>
-      <p style="margin:0 0 22px;">${button('Open Dashboard', 'https://churchflow-liberia.vercel.app/app/dashboard')}</p>
-      <p style="margin:0;color:#94a3b8;font-size:13px;line-height:1.6;">
-        Need help? Visit our <a href="https://churchflow-liberia.vercel.app/help" style="color:#8A19FF;">Help Centre</a> or reply to this email.
-      </p>`,
-  })
-  return safeSend({ to, from: FROM, replyTo: REPLY_TO, subject: `Welcome to ChurchFlow, ${churchName}!`, html }, 'welcome')
+// ─── 1. Welcome email — goes through the server function ─────
+//
+// The Resend API key is NEVER shipped to the browser. We POST to an
+// InsForge edge function (insforge/functions/send-welcome-email) which
+// reads RESEND_API_KEY + FROM_EMAIL from env and calls Resend itself.
+//
+// Always resolves — failures are logged but never throw, so a Resend
+// outage never breaks registration.
+//
+// Args: { to, userName, role?, churchName?, loginUrl? }
+//
+// ⚠ Disabled until a sending domain is verified in Resend. Until you
+// own a domain and add DNS records, Resend will not deliver mail to
+// anyone except the email on your own Resend account. To re-enable:
+//   1. Verify a domain in Resend
+//   2. `insforge secrets update FROM_EMAIL` to use that domain
+//   3. Set VITE_EMAIL_ENABLED=true in your .env / Vercel env
+export async function sendWelcomeEmail({ to, userName, role, churchName, loginUrl }) {
+  if (!to) return { ok: false, error: 'missing-email' }
+  if (import.meta.env.VITE_EMAIL_ENABLED !== 'true') {
+    return { ok: false, skipped: true, error: 'email-disabled' }
+  }
+
+  const base = (import.meta.env.VITE_INSFORGE_URL || '').replace(/\/+$/, '')
+  const apikey = import.meta.env.VITE_INSFORGE_ANON_KEY || ''
+  const endpoint = `${base}/functions/v1/send-welcome-email`
+
+  const payload = {
+    to,
+    name:       userName || '',
+    role:       role || '',
+    churchName: churchName || '',
+    loginUrl:   loginUrl || 'https://churchflow-liberia.vercel.app/login',
+  }
+
+  try {
+    const res = await fetch(endpoint, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(apikey ? { 'apikey': apikey, 'Authorization': `Bearer ${apikey}` } : {}),
+      },
+      body: JSON.stringify(payload),
+    })
+    const body = await res.json().catch(() => ({}))
+    if (!res.ok || body?.ok === false) {
+      console.warn('[email:welcome] server function failed:', body?.error || `HTTP ${res.status}`)
+      return { ok: false, error: body?.error || `HTTP ${res.status}` }
+    }
+    console.debug('[email:welcome] sent', body?.id)
+    return { ok: true, id: body?.id }
+  } catch (err) {
+    console.warn('[email:welcome] fetch threw:', err?.message || err)
+    return { ok: false, error: err?.message || String(err) }
+  }
 }
 
 // ─── 2. Event reminder ────────────────────────────────────────

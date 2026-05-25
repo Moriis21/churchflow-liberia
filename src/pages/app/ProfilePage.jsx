@@ -15,6 +15,8 @@ import { formatDate } from '../../utils/helpers'
 import toast from 'react-hot-toast'
 import { uploadProfilePhoto, getReadableFileUrl, validateImageUpload as validateImageFile, BUCKETS } from '../../services/imageStorage'
 import { createAuditLog, buildActor, AUDIT_ACTIONS } from '../../services/auditLog'
+import { downloadMyData, deleteMyAccount, DELETE_CONFIRM_PHRASE } from '../../services/gdprService'
+import { useNavigate } from 'react-router-dom'
 
 const ROLE_LABELS = {
   super_admin:  'Super Admin',
@@ -59,8 +61,9 @@ function ProfileAvatar({ src, initials }) {
 }
 
 export default function ProfilePage() {
-  const { user } = useAuth()
+  const { user, logout } = useAuth()
   const { church } = useChurch()
+  const navigate = useNavigate()
 
   const [editMode, setEditMode]         = useState(false)
   const [saving, setSaving]             = useState(false)
@@ -69,6 +72,38 @@ export default function ProfilePage() {
   const [form, setForm]                 = useState({ full_name: '', phone: '' })
   const [photoPreview, setPhotoPreview] = useState(null)  // local blob URL for preview
   const fileInputRef                    = useRef(null)
+
+  // GDPR state
+  const [exporting,   setExporting]   = useState(false)
+  const [showDelete,  setShowDelete]  = useState(false)
+  const [confirmText, setConfirmText] = useState('')
+  const [deleting,    setDeleting]    = useState(false)
+
+  async function handleExport() {
+    setExporting(true)
+    try {
+      await downloadMyData()
+      toast.success('Your data has been downloaded.')
+    } catch (err) {
+      toast.error(err.message || 'Could not export data.')
+    } finally {
+      setExporting(false)
+    }
+  }
+
+  async function handleDelete() {
+    if (confirmText !== DELETE_CONFIRM_PHRASE) return
+    setDeleting(true)
+    try {
+      await deleteMyAccount(confirmText)
+      toast.success('Your account has been deleted.')
+      await logout()
+      navigate('/landing', { replace: true })
+    } catch (err) {
+      toast.error(err.message || 'Could not delete account.')
+      setDeleting(false)
+    }
+  }
 
   // Resolve role — prioritise live profile state, then auth context, then default
   const role      = profile?.role || user?.role || user?.profile?.role || 'member'
@@ -440,12 +475,100 @@ export default function ProfilePage() {
               <p className="text-sm font-medium text-slate-700">Two-Factor Authentication</p>
               <p className="text-xs text-slate-400">Add an extra layer of security</p>
             </div>
-            <span className="text-xs text-slate-400 bg-slate-100 px-2.5 py-1 rounded-full font-semibold">
-              Coming Soon
-            </span>
+            <button
+              onClick={() => navigate('/app/settings')}
+              className="text-xs font-semibold text-purple-600 hover:text-purple-800 bg-purple-50 hover:bg-purple-100 px-3 py-1.5 rounded-lg transition-colors"
+            >
+              Manage in Settings →
+            </button>
           </div>
         </div>
       </div>
+
+      {/* ── Privacy & Data (GDPR) ────────────────────────────── */}
+      <div className="mt-6 bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+        <div className="px-6 py-5 border-b border-slate-100">
+          <h2 className="text-base font-bold text-slate-800">Privacy &amp; Your Data</h2>
+          <p className="text-xs text-slate-400 mt-0.5">Your data rights under privacy laws (GDPR Articles 15 &amp; 17).</p>
+        </div>
+
+        <div className="divide-y divide-slate-100">
+          {/* Export */}
+          <div className="px-6 py-4 flex items-center justify-between gap-4">
+            <div className="min-w-0">
+              <p className="text-sm font-medium text-slate-700">Download my data</p>
+              <p className="text-xs text-slate-400">
+                Export everything we store about you as a single JSON file.
+              </p>
+            </div>
+            <button
+              onClick={handleExport}
+              disabled={exporting}
+              className="flex-shrink-0 inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 disabled:opacity-50 transition-colors"
+            >
+              {exporting ? 'Preparing…' : 'Download'}
+            </button>
+          </div>
+
+          {/* Delete */}
+          <div className="px-6 py-4 flex items-center justify-between gap-4">
+            <div className="min-w-0">
+              <p className="text-sm font-medium text-red-700">Delete my account</p>
+              <p className="text-xs text-slate-400">
+                Permanently scrub your profile, member record, and personal info. This cannot be undone.
+              </p>
+            </div>
+            <button
+              onClick={() => { setConfirmText(''); setShowDelete(true) }}
+              className="flex-shrink-0 inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold border border-red-200 text-red-600 hover:bg-red-50 transition-colors"
+            >
+              Delete account…
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* ── Delete confirmation modal ─────────────────────────── */}
+      {showDelete && (
+        <div className="fixed inset-0 z-[100] bg-black/50 backdrop-blur-sm flex items-center justify-center p-4"
+             onClick={() => !deleting && setShowDelete(false)}>
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6" onClick={(e) => e.stopPropagation()}>
+            <h3 className="font-bold text-[#151022] text-base mb-1">Delete your account?</h3>
+            <p className="text-sm text-slate-600 leading-relaxed">
+              This will scrub your profile, member record, and personal information from
+              ChurchFlow Liberia. Church attendance and offering totals will keep their
+              aggregates but your personal details will be removed.
+            </p>
+            <p className="text-sm text-slate-600 mt-3">
+              Type <code className="px-1 py-0.5 bg-slate-100 rounded text-xs font-mono">{DELETE_CONFIRM_PHRASE}</code> below to confirm.
+            </p>
+            <input
+              type="text" value={confirmText}
+              onChange={(e) => setConfirmText(e.target.value)}
+              placeholder={DELETE_CONFIRM_PHRASE}
+              className="mt-3 w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-red-100 focus:border-red-500"
+              autoFocus
+              disabled={deleting}
+            />
+            <div className="mt-5 flex items-center justify-end gap-3">
+              <button
+                onClick={() => setShowDelete(false)}
+                disabled={deleting}
+                className="px-4 py-2 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-100 transition-colors disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDelete}
+                disabled={confirmText !== DELETE_CONFIRM_PHRASE || deleting}
+                className="px-4 py-2 rounded-xl text-sm font-semibold text-white bg-red-600 hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {deleting ? 'Deleting…' : 'Yes, delete my account'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

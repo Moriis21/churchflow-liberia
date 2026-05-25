@@ -27,6 +27,12 @@ export const AUDIT_ACTIONS = {
   PASSWORD_RESET:           'password_reset',
   EMAIL_VERIFIED:           'email_verified',
   CHURCH_SETUP_COMPLETED:   'church_setup_completed',
+  INVITE_CREATED:           'invite_created',
+  INVITE_USED:              'invite_used',
+  INVITE_DISABLED:          'invite_disabled',
+  ACCESS_DENIED:            'access_denied',
+  ACCOUNT_SUSPENDED:        'account_suspended',
+  ADMIN_PASSWORD_RESET:     'admin_password_reset',
 }
 
 // ─── Get browser/device info ──────────────────────────────────

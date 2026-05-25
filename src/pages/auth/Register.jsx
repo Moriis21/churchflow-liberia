@@ -24,6 +24,7 @@ import {
 import { useAuth } from '../../context/AuthContext'
 import { Input, Button } from '../../components/ui'
 import { insforge } from '../../lib/insforge'
+import { sendWelcomeEmail } from '../../services/emailService'
 
 // ─── Church SVG Illustration (same as Login page) ────────────
 function ChurchIllustration() {
@@ -192,6 +193,15 @@ function MemberRegisterForm({ pendingChurchName, pendingChurchId }) {
       } else {
         sessionStorage.removeItem('pending_church_id')
         sessionStorage.removeItem('pending_church_name')
+        // Branded welcome — never blocks the redirect
+        sendWelcomeEmail({
+          to:         form.email,
+          userName:   form.fullName,
+          role:       ROLES.MEMBER,
+          churchName: pendingChurchName,
+        }).then((r) => {
+          if (!r?.ok) console.warn('[register-member] welcome email failed:', r?.error)
+        })
         toast.success('Welcome to ' + pendingChurchName + '!')
         navigate('/app/dashboard')
       }
@@ -525,21 +535,14 @@ export default function Register() {
 
   const [errors, setErrors] = useState({})
 
-  // ── Detect member invite mode ────────────────────────────
-  const searchParams = new URLSearchParams(window.location.search)
-  const isMemberMode = searchParams.get('role') === 'member'
-  const pendingChurchId = sessionStorage.getItem('pending_church_id')
-  const pendingChurchName = sessionStorage.getItem('pending_church_name')
-
-  // If arriving via invite link, render the simplified member form
-  if (isMemberMode && pendingChurchId) {
-    return (
-      <MemberRegisterForm
-        pendingChurchName={pendingChurchName || 'Your Church'}
-        pendingChurchId={pendingChurchId}
-      />
-    )
-  }
+  // Member registration is no longer self-serve via /register.
+  // Members must use an admin-issued /invite/:token link. /register
+  // is reserved for church-admins onboarding a brand-new church.
+  // (Stale sessionStorage from old /join/:id flow is cleaned up below.)
+  try {
+    sessionStorage.removeItem('pending_church_id')
+    sessionStorage.removeItem('pending_church_name')
+  } catch {}
 
   // ── Field updaters ───────────────────────────────────────
   function updateChurch(field, value) {
@@ -612,6 +615,15 @@ export default function Register() {
         setVerifyStep(true)
         toast.success('Check your email for a 6-digit verification code.')
       } else {
+        // Branded welcome — never blocks the redirect
+        sendWelcomeEmail({
+          to:         adminForm.email,
+          userName:   adminForm.fullName,
+          role:       ROLES.CHURCH_ADMIN,
+          churchName: churchForm.churchName,
+        }).then((r) => {
+          if (!r?.ok) console.warn('[register] welcome email failed:', r?.error)
+        })
         toast.success('Church registered successfully! Welcome to ChurchFlow.')
         navigate('/app/dashboard')
       }
@@ -1119,7 +1131,8 @@ export default function Register() {
             </p>
           </div>
 
-          {/* ── Demo section (same as Login page) ── */}
+          {/* ── Demo section — DEV BUILDS ONLY ── */}
+          {import.meta.env.DEV && (
           <div className="mt-4 bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
             <div className="flex items-center gap-3 mb-3">
               <div className="flex-1 h-px bg-slate-100" />
@@ -1151,6 +1164,7 @@ export default function Register() {
               ))}
             </div>
           </div>
+          )}
 
           {/* Footer note */}
           <p className="mt-4 mb-4 text-center text-xs text-slate-400">

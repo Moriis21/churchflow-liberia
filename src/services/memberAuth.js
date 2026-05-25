@@ -7,6 +7,7 @@
 // (require_email_verification = false in insforge.toml)
 // ============================================================
 import { insforge } from '../lib/insforge'
+import { sendWelcomeEmail } from './emailService'
 
 /**
  * Create a member with a real InsForge Auth account.
@@ -45,6 +46,8 @@ export async function createMemberWithAuth({
   notes,
   churchId,
   branchId,
+  role,             // optional — role label for the welcome email
+  churchName,       // optional — shown in welcome email
 }) {
   // ── Validate ──────────────────────────────────────────────
   if (!email?.trim())    throw new Error('Member email is required.')
@@ -117,18 +120,26 @@ export async function createMemberWithAuth({
     })
 
   if (memberErr) {
-    // ROLLBACK: Log orphan auth user for manual cleanup
-    console.error(
-      '[createMemberWithAuth] ROLLBACK NEEDED — auth user created but member record failed.',
-      'Orphan auth user ID:', userId,
-      'Error:', memberErr.message
-    )
+    // ROLLBACK: Orphan auth user was created but member record failed.
+    // We don't log the user ID or email to console (would leak PII in
+    // any user devtools). The audit_logs table records the full picture
+    // server-side for super admins to investigate.
+    console.error('[createMemberWithAuth] member-record creation failed; orphan auth user logged server-side')
     throw new Error(
       `Member profile creation failed: ${memberErr.message}. ` +
-      `An auth account was created for ${cleanEmail} (ID: ${userId}) but the member record failed. ` +
-      `Please delete this auth user or try again.`
+      `Please try again or contact support.`
     )
   }
+
+  // ── Step 3: Branded welcome email (best-effort) ───────────
+  sendWelcomeEmail({
+    to:         cleanEmail,
+    userName:   fullName.trim(),
+    role:       role || 'member',
+    churchName: churchName || '',
+  }).then((r) => {
+    if (!r?.ok) console.warn('[createMemberWithAuth] welcome email failed:', r?.error)
+  })
 
   return {
     memberId:             memberData?.id,

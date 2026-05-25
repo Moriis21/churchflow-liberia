@@ -1,13 +1,18 @@
 // ============================================================
 // ChurchFlow Liberia — Auth Context (InsForge SDK)
-// Role resolution order (JWT-first, no RLS dependency):
-//   1. data.user.profile.role  — InsForge auth profile (JWT claim)
-//   2. user_profiles DB row    — if RLS + JWT work correctly
-//   3. Email hard-guarantee    — morrisldorleyjr21@gmail.com = super_admin
+//
+// Role resolution order (DB is source of truth):
+//   1. user_profiles.role     — definitive (set by SQL grant)
+//   2. data.user.profile.role — cached on JWT for fast first render
+//
+// There is NO email-based super_admin fallback. The role lives in
+// the DB only. To grant a super admin, run:
+//   UPDATE user_profiles SET role='super_admin' WHERE id='<uuid>';
 // ============================================================
 import { createContext, useContext, useEffect, useState } from 'react'
 import { insforge } from '../lib/insforge'
 import { createAuditLog, AUDIT_ACTIONS } from '../services/auditLog'
+import { userHasTwoFactor, verifyTwoFactorCode } from '../services/twoFactorService'
 
 // ─── Role constants ───────────────────────────────────────────
 export const ROLES = {
@@ -19,9 +24,6 @@ export const ROLES = {
   DEPT_LEADER:  'dept_leader',
   MEMBER:       'member',
 }
-
-// ─── Platform super admin email — never changes ───────────────
-const SUPER_ADMIN_EMAIL = 'morrisldorleyjr21@gmail.com'
 
 // ─── Demo users (landing page only — no real DB) ─────────────
 const DEMO_USERS = {
@@ -59,6 +61,10 @@ export function AuthProvider({ children }) {
   const [churchData, setChurchData] = useState(null)
   const [pendingVerificationEmail, setPendingVerificationEmail] = useState(null)
   const [pendingRegData, setPendingRegData] = useState(null)
+  // ── 2FA gating: when set, the user has passed password but
+  // hasn't yet entered their TOTP / backup code. UI must show the
+  // code-entry form and call completeTwoFactor() before app loads.
+  const [pendingTwoFactor, setPendingTwoFactor] = useState(null)
 
   // ── Hydrate on mount ─────────────────────────────────────
   useEffect(() => {
@@ -68,6 +74,14 @@ export function AuthProvider({ children }) {
         const { data, error } = await insforge.auth.getCurrentUser()
         if (cancelled) return
         if (!error && data?.user) {
+          // 2FA gate: if the user has 2FA on AND this tab hasn't
+          // verified yet, force re-verification.
+          const verified = sessionStorage.getItem('cf_2fa_verified')
+          const hasTwoFA = await userHasTwoFactor(data.user.id)
+          if (hasTwoFA && verified !== data.user.id) {
+            setPendingTwoFactor({ userId: data.user.id, email: data.user.email })
+            return
+          }
           await resolveUser(data.user)
         } else {
           setUser(null)
@@ -90,35 +104,19 @@ export function AuthProvider({ children }) {
   async function resolveUser(authUser) {
     const email = authUser.email || ''
 
-    // ── Layer 1: JWT profile role ──────────────────────────
-    // InsForge stores profile in auth.users.profile JSON column.
-    // After setProfile() is called, this is available in the JWT.
+    // ── Fast path: JWT profile claim (avoids DB round-trip on first render)
     const jwtProfile = authUser.profile || {}
-    const jwtRole    = jwtProfile.role || authUser.metadata?.role
+    const jwtRole    = jwtProfile.role || authUser.metadata?.role || null
 
-    // Email guarantee — super admin email ALWAYS gets super_admin role
-    const emailIsSuperAdmin = email.toLowerCase() === SUPER_ADMIN_EMAIL.toLowerCase()
-    const guaranteedRole    = emailIsSuperAdmin ? ROLES.SUPER_ADMIN : null
-
-    // Apply the best known role immediately (before DB query)
-    const earlyRole = guaranteedRole || jwtRole || null
     setUser({
       ...authUser,
-      role:    earlyRole,
+      role:    jwtRole,
       churchId: null,
-      profile: earlyRole ? { ...jwtProfile, role: earlyRole, full_name: jwtProfile.name || jwtProfile.full_name } : null,
+      profile: jwtRole ? { ...jwtProfile, role: jwtRole, full_name: jwtProfile.name || jwtProfile.full_name } : null,
     })
 
-    // Super admin doesn't need church data — resolve early
-    if (earlyRole === ROLES.SUPER_ADMIN) {
-      setChurchData(null)
-      // Sync role to auth profile so Layer 1 always works on next login
-      await syncRoleToAuthProfile(ROLES.SUPER_ADMIN, jwtProfile.name || 'Morris L. Dorley Jr')
-      return
-    }
-
-    // ── Layer 2: DB lookup ─────────────────────────────────
-    await fetchUserProfile(authUser.id, email, earlyRole)
+    // Definitive DB lookup — overrides any JWT claim if they differ
+    await fetchUserProfile(authUser.id, email, jwtRole)
   }
 
   // ── Sync role into InsForge auth profile (JWT claim) ─────
@@ -165,23 +163,19 @@ export function AuthProvider({ children }) {
       }
 
       // Path D: create profile via RPC if still nothing
+      // (Regular users only — never auto-create with super_admin role.)
       if (!profileData && userId) {
-        const emailIsSuperAdmin = userEmail?.toLowerCase() === SUPER_ADMIN_EMAIL.toLowerCase()
-        if (!emailIsSuperAdmin) {
-          // For regular users with no profile, create one without a church
-          // They'll be sent to /complete-setup to finish
-          const { data: upserted } = await insforge.database
-            .from('user_profiles')
-            .upsert([{
-              id:        userId,
-              email:     userEmail || null,
-              full_name: userEmail?.split('@')[0] || 'User',
-              role:      knownRole || ROLES.MEMBER,
-              is_active: true,
-            }], { onConflict: 'id' })
-            .select().maybeSingle()
-          if (upserted) profileData = upserted
-        }
+        const { data: upserted } = await insforge.database
+          .from('user_profiles')
+          .upsert([{
+            id:        userId,
+            email:     userEmail || null,
+            full_name: userEmail?.split('@')[0] || 'User',
+            role:      knownRole === ROLES.SUPER_ADMIN ? ROLES.MEMBER : (knownRole || ROLES.MEMBER),
+            is_active: true,
+          }], { onConflict: 'id' })
+          .select().maybeSingle()
+        if (upserted) profileData = upserted
       }
 
       // ── Apply DB profile ───────────────────────────────────
@@ -221,16 +215,66 @@ export function AuthProvider({ children }) {
   }
 
   // ── Login ─────────────────────────────────────────────────
+  // 1. InsForge auth via email + password
+  // 2. Resolve profile (DB row) — single source of truth for role
+  // 3. Block account if is_active = false or access_revoked = true
+  // 4. Audit log success/failure
   async function login(email, password) {
     setLoading(true)
     try {
       const { data, error } = await insforge.auth.signInWithPassword({ email, password })
-      if (error) throw error
+      if (error) {
+        // Surface a clean message regardless of InsForge wording
+        const msg = (error.message || '').toLowerCase()
+        const friendly = /invalid|password|credential|not.*found|user|email/i.test(msg)
+          ? new Error('Invalid email or password.')
+          : error
+        throw friendly
+      }
+
+      // ── 2FA gate ────────────────────────────────────────────
+      // Before resolving the full app session, ask whether this
+      // user has 2FA on. If yes, hold off — UI shows code entry.
+      const hasTwoFA = await userHasTwoFactor(data.user.id)
+      if (hasTwoFA) {
+        setPendingTwoFactor({ userId: data.user.id, email })
+        // Don't resolveUser yet — user state stays null until verified.
+        return { data, error: null, requires2fa: true }
+      }
+
       await resolveUser(data.user)
-      // Non-blocking audit log
+
+      // ── Suspended / access-revoked check ────────────────────
+      // resolveUser() populates user.profile asynchronously, so check
+      // the DB row directly here too — single round-trip, definitive.
+      const { data: profile } = await insforge.database
+        .from('user_profiles')
+        .select('id, is_active, access_revoked, status, role')
+        .eq('id', data.user.id)
+        .maybeSingle()
+
+      const inactive = profile && (
+        profile.is_active === false ||
+        profile.access_revoked === true ||
+        ['suspended', 'deleted', 'disabled'].includes((profile.status || '').toLowerCase())
+      )
+
+      if (inactive) {
+        createAuditLog({
+          action:      AUDIT_ACTIONS.ACCESS_DENIED || 'access_denied',
+          actor:       { id: data.user.id, name: email, role: profile?.role || 'unknown' },
+          description: `Suspended/revoked account tried to log in: ${email}`,
+        })
+        // Sign them right back out and clear local state
+        try { await insforge.auth.signOut() } catch {}
+        setUser(null)
+        setChurchData(null)
+        return { data: null, error: new Error('Your account access has been disabled. Please contact your church administrator.') }
+      }
+
       createAuditLog({
         action:      AUDIT_ACTIONS.LOGIN,
-        actor:       { id: data.user.id, name: email, role: data.user.profile?.role || 'unknown' },
+        actor:       { id: data.user.id, name: email, role: data.user.profile?.role || profile?.role || 'unknown' },
         description: `Signed in: ${email}`,
       })
       return { data, error: null }
@@ -244,6 +288,51 @@ export function AuthProvider({ children }) {
     } finally {
       setLoading(false)
     }
+  }
+
+  // ── Complete the 2FA step started by login() ──────────────
+  // Returns { ok, error }. On success, the full session loads.
+  async function completeTwoFactor(code) {
+    if (!pendingTwoFactor) {
+      return { ok: false, error: 'No pending 2FA login.' }
+    }
+    setLoading(true)
+    try {
+      const ok = await verifyTwoFactorCode(code)
+      if (!ok) {
+        createAuditLog({
+          action:      AUDIT_ACTIONS.FAILED_LOGIN,
+          actor:       { id: pendingTwoFactor.userId, name: pendingTwoFactor.email, role: 'unknown' },
+          description: `Failed 2FA code: ${pendingTwoFactor.email}`,
+        })
+        return { ok: false, error: 'Invalid code. Try again or use a backup code.' }
+      }
+      // Re-hydrate from the active session
+      const { data } = await insforge.auth.getCurrentUser()
+      if (data?.user) {
+        sessionStorage.setItem('cf_2fa_verified', data.user.id)
+        await resolveUser(data.user)
+      }
+      setPendingTwoFactor(null)
+      createAuditLog({
+        action:      AUDIT_ACTIONS.LOGIN,
+        actor:       { id: pendingTwoFactor.userId, name: pendingTwoFactor.email, role: 'unknown' },
+        description: `2FA-verified login: ${pendingTwoFactor.email}`,
+      })
+      return { ok: true }
+    } catch (err) {
+      return { ok: false, error: err?.message || 'Verification failed.' }
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // ── Cancel pending 2FA (used by Login form's "back" button) ──
+  async function cancelTwoFactor() {
+    setPendingTwoFactor(null)
+    try { await insforge.auth.signOut() } catch {}
+    setUser(null)
+    setChurchData(null)
   }
 
   // ── Register ──────────────────────────────────────────────
@@ -358,14 +447,37 @@ export function AuthProvider({ children }) {
     } catch (err) {
       console.error('Logout error:', err.message)
     } finally {
+      // ── Clear ALL cached session state ─────────────────────
+      // Role / churchId / profile must never survive a logout.
       setUser(null)
       setChurchData(null)
+      try {
+        if (typeof window !== 'undefined') {
+          // App-owned keys (be explicit; don't blow away unrelated data)
+          ;[
+            'pending_church_id', 'pending_church_name',
+            'cf_role', 'cf_church_id', 'cf_profile',
+            'church_id', 'current_branch_id',
+            'cf_2fa_verified',
+          ].forEach((k) => {
+            try { window.localStorage.removeItem(k) } catch {}
+            try { window.sessionStorage.removeItem(k) } catch {}
+          })
+        }
+      } catch {}
       setLoading(false)
     }
   }
 
-  // ── Demo login (landing page only — no real DB) ───────────
+  // ── Demo login — DEV BUILDS ONLY ───────────────────────────
+  // Production builds get a no-op so the UI buttons (if they leak)
+  // can't bypass real auth. We're explicit so the build can statically
+  // tree-shake DEMO_USERS in prod.
   function demoLogin(role = ROLES.CHURCH_ADMIN) {
+    if (!import.meta.env.DEV) {
+      console.warn('[AuthContext] demoLogin disabled in production')
+      return
+    }
     const mockUser    = DEMO_USERS[role] ?? DEMO_USERS[ROLES.CHURCH_ADMIN]
     const demoChurchId = 'church-demo'
     setUser({
@@ -389,21 +501,20 @@ export function AuthProvider({ children }) {
   // ── Derived values ────────────────────────────────────────
   const churchId = user?.churchId || user?.profile?.church_id || null
 
-  // isSuperAdmin checks ALL possible role storage locations
+  // isSuperAdmin reads ONLY from the resolved role (DB-backed).
+  // No email-based fallback — role lives in user_profiles.role only.
   const isSuperAdmin = !!(
     user?.role === ROLES.SUPER_ADMIN ||
-    user?.profile?.role === ROLES.SUPER_ADMIN ||
-    user?.metadata?.role === ROLES.SUPER_ADMIN ||
-    user?.user_metadata?.role === ROLES.SUPER_ADMIN ||
-    // Email hard-guarantee: even if all state is wrong, email never lies
-    user?.email?.toLowerCase() === SUPER_ADMIN_EMAIL.toLowerCase()
+    user?.profile?.role === ROLES.SUPER_ADMIN
   )
 
   return (
     <AuthContext.Provider value={{
       user, loading, churchData, churchId, isSuperAdmin,
       pendingVerificationEmail,
-      login, register, verifyEmail, resendVerification, logout, demoLogin,
+      pendingTwoFactor,
+      login, completeTwoFactor, cancelTwoFactor,
+      register, verifyEmail, resendVerification, logout, demoLogin,
     }}>
       {children}
     </AuthContext.Provider>

@@ -25,6 +25,7 @@ import {
   User,
   Building2,
   SlidersHorizontal,
+  FileClock,
 } from 'lucide-react'
 
 // ─── Route keys each role may access ─────────────────────────
@@ -37,6 +38,7 @@ export const ROLE_ROUTES = {
     'events','visitors','prayer-requests',
     'sermons','live-streams','reports',
     'branches','settings','users','profile',
+    'audit-logs',
   ],
   pastor: [
     'dashboard','members','members/:id',
@@ -130,10 +132,11 @@ export const CHURCH_ADMIN_NAV = [
   {
     label: 'MANAGEMENT',
     items: [
-      { to: '/app/reports',  icon: BarChart3,   label: 'Reports' },
-      { to: '/app/branches', icon: GitBranch,   label: 'Branches' },
-      { to: '/app/settings', icon: Settings,    label: 'Settings' },
-      { to: '/app/users',    icon: ShieldCheck, label: 'User Management' },
+      { to: '/app/reports',     icon: BarChart3,   label: 'Reports' },
+      { to: '/app/branches',    icon: GitBranch,   label: 'Branches' },
+      { to: '/app/settings',    icon: Settings,    label: 'Settings' },
+      { to: '/app/users',       icon: ShieldCheck, label: 'User Management' },
+      { to: '/app/audit-logs',  icon: FileClock,   label: 'Audit Logs' },
     ],
   },
 ]

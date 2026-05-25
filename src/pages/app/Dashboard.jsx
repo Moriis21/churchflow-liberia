@@ -41,7 +41,7 @@ import {
 
 import { useAuth } from '../../context/AuthContext'
 import { useChurch } from '../../context/ChurchContext'
-import { StatsCard, Card, Badge, Avatar } from '../../components/ui'
+import { StatsCard, Card, Badge, Avatar, ScriptureOfTheDayCard } from '../../components/ui'
 import { formatCurrency, formatDate, getGreeting } from '../../utils/helpers'
 import { insforge } from '../../lib/insforge'
 import AdminInsightsAI from '../../components/ai/AdminInsightsAI'
@@ -130,12 +130,8 @@ function getUpcomingEvents(eventsList) {
     .slice(0, 3)
 }
 
-// ─── Scripture of the Day ─────────────────────────────────────
-const SCRIPTURE = {
-  verse:
-    '"For I know the plans I have for you," declares the LORD, "plans to prosper you and not to harm you, plans to give you hope and a future."',
-  reference: 'Jeremiah 29:11 (NIV)',
-}
+// Scripture of the Day is now role-aware + daily — see
+// components/ui/ScriptureOfTheDayCard.jsx + services/dailyScripture.js
 
 // ─── Custom Tooltip ───────────────────────────────────────────
 function CustomTooltip({ active, payload, label }) {
@@ -688,27 +684,8 @@ export default function Dashboard() {
         {/* ── ROW 5 – Scripture + Quick Actions ────────── */}
         <div className="space-y-5">
 
-          {/* Scripture of the Day */}
-          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-500 p-8 shadow-xl shadow-amber-400/25">
-            {/* Decorative elements */}
-            <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl" />
-            <div className="absolute bottom-0 left-1/4 w-40 h-40 bg-amber-600/20 rounded-full translate-y-1/2 blur-xl" />
-
-            <div className="relative flex flex-col md:flex-row items-start md:items-center gap-6">
-              <div className="flex-shrink-0 w-14 h-14 rounded-2xl bg-amber-950/15 backdrop-blur-sm flex items-center justify-center">
-                <BookOpen className="w-7 h-7 text-amber-950" />
-              </div>
-              <div className="flex-1">
-                <p className="text-xs font-bold uppercase tracking-widest text-amber-800 mb-2">
-                  Scripture of the Day
-                </p>
-                <p className="text-base sm:text-lg font-semibold text-amber-950 leading-relaxed mb-2">
-                  {SCRIPTURE.verse}
-                </p>
-                <p className="text-sm font-bold text-amber-800">— {SCRIPTURE.reference}</p>
-              </div>
-            </div>
-          </div>
+          {/* Scripture of the Day — role-aware, refreshes at midnight */}
+          <ScriptureOfTheDayCard />
 
           {/* Quick Actions */}
           <div className="bg-white rounded-2xl border border-slate-100 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07)] p-6">

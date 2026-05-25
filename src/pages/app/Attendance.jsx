@@ -128,7 +128,12 @@ function ChartTooltip({ active, payload, label }) {
 function MemberCheckRow({ member, status, onStatusChange }) {
   return (
     <div className="flex items-center gap-3 py-2.5 border-b border-slate-50 last:border-0">
-      <Avatar src={member.profilePhoto} name={member.name} size="sm" />
+      <Avatar
+        src={member.profile_photo_path || member.profile_photo_url || member.profilePhoto}
+        name={member.name || member.full_name}
+        size="sm"
+        bucket="member-photos"
+      />
       <div className="flex-1 min-w-0">
         <p className="text-sm font-medium text-slate-800 truncate">{member.name}</p>
         <p className="text-xs text-slate-400">{member.department}</p>

@@ -37,11 +37,13 @@ const SuperAdminSettings   = React.lazy(() => import('./pages/app/SuperAdminSett
 const ProfilePage          = React.lazy(() => import('./pages/app/ProfilePage'))
 const CompleteSetup        = React.lazy(() => import('./pages/app/CompleteSetup'))
 const MemberSettings       = React.lazy(() => import('./pages/app/MemberSettings'))
+const AuditLogs            = React.lazy(() => import('./pages/app/AuditLogs'))
 
 // ─── Route guards ─────────────────────────────────────────────
 import PermissionGuard from './components/auth/PermissionGuard'
 
 const JoinChurchPage  = React.lazy(() => import('./pages/public/JoinChurchPage'))
+const InvitePage      = React.lazy(() => import('./pages/public/InvitePage'))
 
 // ─── Public pages ─────────────────────────────────────────────
 const FeaturesPage    = React.lazy(() => import('./pages/public/FeaturesPage'))
@@ -102,8 +104,10 @@ function AuthSkeleton() {
 
 // ─── Protected route wrapper ──────────────────────────────────
 function ProtectedRoute({ children }) {
-  const { user, loading } = useAuth()
+  const { user, loading, pendingTwoFactor } = useAuth()
   if (loading) return <AuthSkeleton />
+  // If the user's session needs 2FA verification, hold them at /login
+  if (pendingTwoFactor && !user) return <Navigate to="/login" replace />
   if (!user)   return <Navigate to="/login" replace />
   return children
 }
@@ -133,7 +137,9 @@ function AppRoutes() {
         <Route path="/forgot-password"   element={<ForgotPassword />} />
         <Route path="/complete-setup"     element={<CompleteSetup />} />
         <Route path="/auth/callback"      element={<AuthCallback />} />
-        <Route path="/join/:churchId" element={<JoinChurchPage />} />
+        {/* Legacy /join/:churchId removed — members must use invite links now */}
+        <Route path="/join/:churchId" element={<Navigate to="/login" replace />} />
+        <Route path="/invite/:token"  element={<InvitePage />} />
         <Route path="/features"   element={<FeaturesPage />} />
         <Route path="/pricing"    element={<PricingPage />} />
         <Route path="/about"      element={<AboutPage />} />
@@ -211,6 +217,9 @@ function AppRoutes() {
           <Route path="users" element={
             <PermissionGuard routeKey="users"><UserManagement /></PermissionGuard>
           } />
+
+          {/* Audit logs — church_admin (own church) and super_admin (all) */}
+          <Route path="audit-logs" element={<AuditLogs />} />
 
           {/* Church Admin only */}
           <Route path="settings" element={

@@ -14,6 +14,7 @@ import { useAuth } from '../../context/AuthContext'
 import { useChurch } from '../../context/ChurchContext'
 import { insforge } from '../../lib/insforge'
 import { formatDate } from '../../utils/helpers'
+import { ScriptureOfTheDayCard } from '../../components/ui'
 import BibleStudyAI from '../../components/ai/BibleStudyAI'
 import { useAIFeature } from '../../hooks/useAIFeature'
 
@@ -160,6 +161,9 @@ export default function MemberDashboard() {
             </span>
           </div>
         </div>
+
+        {/* ── Scripture of the Day (member-focused, daily) ── */}
+        <ScriptureOfTheDayCard />
 
         {/* ── Quick Links ── */}
         <div>

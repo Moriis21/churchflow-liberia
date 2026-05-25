@@ -39,6 +39,11 @@ import {
   formatPhone,
   calculateAge,
 } from '../../utils/helpers'
+import { uploadMemberPhoto, validateImageUpload } from '../../services/imageStorage'
+import { useChurch } from '../../context/ChurchContext'
+import { useAuth } from '../../context/AuthContext'
+import { sendPasswordResetEmail, canResetPassword } from '../../services/passwordReset'
+import { KeyRound } from 'lucide-react'
 
 // ─── Constants ───────────────────────────────────────────────
 const TABS = [
@@ -125,10 +130,22 @@ function MemberForm({ form, onChange, errors, departments }) {
           className="hidden"
           onChange={(e) => {
             const file = e.target.files?.[0]
-            if (file) onChange({ ...form, profile_photo_url: URL.createObjectURL(file) })
+            if (!file) return
+            const err = validateImageUpload(file)
+            if (err) { alert(err); return }
+            onChange({
+              ...form,
+              photoFile: file,
+              profile_photo_url: URL.createObjectURL(file),
+            })
           }}
         />
         <p className="text-xs text-slate-400">Click camera icon to upload photo</p>
+        {form.photoFile && (
+          <p className="text-[11px] text-emerald-600 font-medium">
+            New photo ready — will upload when you save.
+          </p>
+        )}
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -694,6 +711,10 @@ export default function MemberProfile() {
   const { id } = useParams()
   const navigate = useNavigate()
 
+  const { church } = useChurch()
+  const { user: actor } = useAuth()
+  const [resetSending, setResetSending] = useState(false)
+
   const [member, setMember] = useState(null)
   const [loading, setLoading] = useState(true)
   const [notFound, setNotFound] = useState(false)
@@ -792,9 +813,21 @@ export default function MemberProfile() {
       emergency_contact: member.emergency_contact || '',
       notes: member.notes || '',
       profile_photo_url: member.profile_photo_url || '',
+      photoFile: null,
     })
     setFormErrors({})
     setShowEdit(true)
+  }
+
+  // Refetch single member from DB — single source of truth
+  async function refetchMember() {
+    const { data, error } = await insforge.database
+      .from('members')
+      .select('*, departments(name, color)')
+      .eq('id', id)
+      .maybeSingle()
+    if (!error && data) setMember(data)
+    return { data, error }
   }
 
   const handleSaveEdit = async () => {
@@ -804,34 +837,58 @@ export default function MemberProfile() {
     if (Object.keys(errs).length) { setFormErrors(errs); return }
 
     setSaving(true)
-    const { data, error } = await insforge.database
-      .from('members')
-      .update({
-        full_name: form.full_name,
-        gender: form.gender,
-        phone: form.phone,
-        email: form.email,
-        address: form.address,
-        date_of_birth: form.date_of_birth || null,
-        department_id: form.department_id || null,
-        membership_status: form.membership_status,
-        baptism_status: form.baptism_status,
-        marital_status: form.marital_status,
-        emergency_contact: form.emergency_contact,
-        notes: form.notes,
-      })
-      .eq('id', id)
-      .select('*, departments(name, color)')
-      .single()
-    setSaving(false)
+    try {
+      // ── Step 1: upload photo (if new file picked) ──────────
+      if (form.photoFile) {
+        const { path, url } = await uploadMemberPhoto({
+          file:     form.photoFile,
+          memberId: id,
+          churchId: member?.church_id || church?.id,
+        })
+        if (!url) throw new Error('Photo uploaded but no readable URL was returned.')
 
-    if (error) {
-      showToast(error.message, 'error')
-      return
+        // ── Step 2/3: persist photo_url, photo_path, updated_at
+        // (and mirror to profiles.avatar_* if user_id linked)
+        const { error: rpcErr } = await insforge.database.rpc('update_member_photo', {
+          p_member_id:  id,
+          p_photo_url:  url,
+          p_photo_path: path,
+        })
+        if (rpcErr) throw new Error(`Failed to save photo to member record: ${rpcErr.message}`)
+      }
+
+      // ── Save the rest of the profile fields ────────────────
+      const { error } = await insforge.database
+        .from('members')
+        .update({
+          full_name: form.full_name,
+          gender: form.gender,
+          phone: form.phone,
+          email: form.email,
+          address: form.address,
+          date_of_birth: form.date_of_birth || null,
+          department_id: form.department_id || null,
+          membership_status: form.membership_status,
+          baptism_status: form.baptism_status,
+          marital_status: form.marital_status,
+          emergency_contact: form.emergency_contact,
+          notes: form.notes,
+        })
+        .eq('id', id)
+      if (error) throw error
+
+      // ── Step 4: refetch — only trust DB state ──────────────
+      const { error: refErr } = await refetchMember()
+      if (refErr) throw refErr
+
+      // ── Step 5: success only after all of the above ────────
+      setShowEdit(false)
+      showToast('Profile updated successfully.')
+    } catch (err) {
+      showToast(err?.message || 'Failed to update profile.', 'error')
+    } finally {
+      setSaving(false)
     }
-    setMember(data)
-    setShowEdit(false)
-    showToast('Profile updated successfully.')
   }
 
   // ── Loading state ──────────────────────────────────────────
@@ -950,9 +1007,46 @@ export default function MemberProfile() {
                   <Button variant="primary" size="sm" icon={Pencil} onClick={handleOpenEdit} className="flex-1">
                     Edit Profile
                   </Button>
-                  <Button variant="secondary" size="sm" icon={MessageSquare} className="flex-1">
-                    Message
-                  </Button>
+                  {(() => {
+                    const canReset = !!member?.email && canResetPassword(
+                      actor?.role || actor?.profile?.role,
+                      'member',
+                      actor?.churchId || actor?.profile?.church_id,
+                      member?.church_id,
+                    )
+                    if (!canReset) {
+                      return (
+                        <Button variant="secondary" size="sm" icon={MessageSquare} className="flex-1" disabled>
+                          Message
+                        </Button>
+                      )
+                    }
+                    return (
+                      <Button
+                        variant="secondary" size="sm" icon={KeyRound} className="flex-1"
+                        loading={resetSending}
+                        onClick={async () => {
+                          if (!member?.email) return
+                          if (!window.confirm(`Send a password reset email to ${member.email}?`)) return
+                          setResetSending(true)
+                          try {
+                            await sendPasswordResetEmail({
+                              targetEmail: member.email,
+                              actor,
+                              church,
+                            })
+                            showToast(`Reset email sent to ${member.email}.`)
+                          } catch (err) {
+                            showToast(err.message || 'Failed to send reset email.', 'error')
+                          } finally {
+                            setResetSending(false)
+                          }
+                        }}
+                      >
+                        Reset Password
+                      </Button>
+                    )
+                  })()}
                 </div>
               </div>
             </div>
