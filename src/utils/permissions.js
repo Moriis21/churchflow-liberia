@@ -26,6 +26,7 @@ import {
   Building2,
   SlidersHorizontal,
   FileClock,
+  BookOpen,
 } from 'lucide-react'
 
 // ─── Route keys each role may access ─────────────────────────
@@ -36,7 +37,7 @@ export const ROLE_ROUTES = {
     'dashboard','members','members/:id',
     'attendance','finance','departments',
     'events','visitors','prayer-requests',
-    'sermons','live-streams','reports',
+    'sermons','live-streams','bible-learning','reports',
     'branches','settings','users','profile',
     'audit-logs',
   ],
@@ -44,29 +45,30 @@ export const ROLE_ROUTES = {
     'dashboard','members','members/:id',
     'attendance','departments',
     'events','visitors','prayer-requests',
-    'sermons','live-streams','reports',
+    'sermons','live-streams','bible-learning','reports',
     'users','profile',
   ],
   treasurer: [
     'dashboard','finance','members','members/:id',
     'attendance','events','reports','profile',
+    'bible-learning',
   ],
   secretary: [
     'dashboard','members','members/:id',
     'attendance','events','visitors',
-    'prayer-requests','sermons','live-streams',
+    'prayer-requests','sermons','live-streams','bible-learning',
     'reports','profile',
   ],
   dept_leader: [
     'dashboard','members','members/:id',
     'attendance','departments',
     'events','prayer-requests',
-    'sermons','live-streams','profile',
+    'sermons','live-streams','bible-learning','profile',
   ],
   member: [
     'dashboard','profile',
     'events','prayer-requests',
-    'sermons','live-streams',
+    'sermons','live-streams','bible-learning',
     'member-settings',  // personal settings page (not church Settings)
     'member-attendance', // personal attendance view
   ],
@@ -127,6 +129,7 @@ export const CHURCH_ADMIN_NAV = [
     items: [
       { to: '/app/sermons',      icon: PlaySquare, label: 'Sermons' },
       { to: '/app/live-streams', icon: Radio,      label: 'Live Streams' },
+      { to: '/app/bible-learning', icon: BookOpen, label: 'Bible Learning' },
     ],
   },
   {
@@ -170,6 +173,7 @@ export const PASTOR_NAV = [
     items: [
       { to: '/app/sermons',      icon: PlaySquare, label: 'Sermons' },
       { to: '/app/live-streams', icon: Radio,      label: 'Live Streams' },
+      { to: '/app/bible-learning', icon: BookOpen, label: 'Bible Learning' },
     ],
   },
   {
@@ -209,6 +213,12 @@ export const TREASURER_NAV = [
     ],
   },
   {
+    label: 'MEDIA',
+    items: [
+      { to: '/app/bible-learning', icon: BookOpen, label: 'Bible Learning' },
+    ],
+  },
+  {
     label: 'MANAGEMENT',
     items: [
       { to: '/app/reports', icon: BarChart3, label: 'Reports' },
@@ -244,6 +254,7 @@ export const SECRETARY_NAV = [
     items: [
       { to: '/app/sermons',      icon: PlaySquare, label: 'Sermons' },
       { to: '/app/live-streams', icon: Radio,      label: 'Live Streams' },
+      { to: '/app/bible-learning', icon: BookOpen, label: 'Bible Learning' },
     ],
   },
   {
@@ -282,6 +293,7 @@ export const DEPT_LEADER_NAV = [
     items: [
       { to: '/app/sermons',      icon: PlaySquare, label: 'Sermons' },
       { to: '/app/live-streams', icon: Radio,      label: 'Live Streams' },
+      { to: '/app/bible-learning', icon: BookOpen, label: 'Bible Learning' },
     ],
   },
 ]
@@ -304,6 +316,7 @@ export const MEMBER_NAV = [
     items: [
       { to: '/app/sermons',      icon: PlaySquare, label: 'Sermons' },
       { to: '/app/live-streams', icon: Radio,      label: 'Live Streams' },
+      { to: '/app/bible-learning', icon: BookOpen, label: 'Bible Learning' },
     ],
   },
   {

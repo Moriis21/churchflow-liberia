@@ -17,6 +17,7 @@ import {
   BarChart3,
   Settings,
   FileClock,
+  BookOpen,
 } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { useChurch } from '../../context/ChurchContext'
@@ -45,8 +46,9 @@ const SUPER_ADMIN_NAV_SECTIONS = [
   {
     label: 'CONTENT',
     items: [
-      { to: '/app/sermons', icon: PlaySquare, label: 'Sermons' },
-      { to: '/app/reports', icon: BarChart3, label: 'Reports' },
+      { to: '/app/sermons',        icon: PlaySquare, label: 'Sermons' },
+      { to: '/app/bible-learning', icon: BookOpen,   label: 'Bible Learning' },
+      { to: '/app/reports',        icon: BarChart3,  label: 'Reports' },
     ],
   },
   {

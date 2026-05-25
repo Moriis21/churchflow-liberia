@@ -32,6 +32,7 @@ import { formatDate } from '../../utils/helpers'
 import { insforge } from '../../lib/insforge'
 import { useAuth } from '../../context/AuthContext'
 import SermonBuilderAI from '../../components/ai/SermonBuilderAI'
+import BibleLearning from './BibleLearning'
 import { useAIFeature } from '../../hooks/useAIFeature'
 import toast from 'react-hot-toast'
 
@@ -63,6 +64,7 @@ const TYPE_TABS = [
   { key: 'audio', label: 'Audio', icon: Headphones },
   { key: 'devotional', label: 'Devotionals', icon: Mic2 },
   { key: 'transcription', label: 'Transcription', icon: FileText },
+  { key: 'bible_learning', label: 'Bible Learning', icon: BookMarked },
 ]
 
 // Empty add-content form
@@ -809,7 +811,8 @@ export default function Sermons() {
     return true
   })
 
-  const isTranscriptionTab = activeTab === 'transcription'
+  const isTranscriptionTab   = activeTab === 'transcription'
+  const isBibleLearningTab   = activeTab === 'bible_learning'
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -893,7 +896,14 @@ export default function Sermons() {
           />
         )}
 
-        {!loading && !isTranscriptionTab && (
+        {/* Bible Learning Tab — embeds the standalone page */}
+        {!loading && isBibleLearningTab && (
+          <div className="-mx-4 sm:-mx-6 lg:-mx-8">
+            <BibleLearning />
+          </div>
+        )}
+
+        {!loading && !isTranscriptionTab && !isBibleLearningTab && (
           <>
             {/* Filters Row */}
             <div className="flex flex-wrap items-center gap-3">

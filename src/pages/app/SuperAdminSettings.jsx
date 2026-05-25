@@ -1893,6 +1893,81 @@ function FeaturesSection() {
           </div>
         </div>
       </div>
+
+      {/* Bible Learning — backed by platform_feature_flags table */}
+      <BibleLearningFlagsBlock />
+    </div>
+  )
+}
+
+// ─── Bible Learning toggles (sub-block of FeaturesSection) ─────
+function BibleLearningFlagsBlock() {
+  const FLAGS = [
+    { key: 'bible_learning',                label: 'Free Bible Learning Resources', desc: 'Master switch for the entire section across all church panels.' },
+    { key: 'bible_learning_bibleproject',   label: 'BibleProject Integration',      desc: 'Show the BibleProject tab + resources.' },
+    { key: 'bible_learning_wvbs',           label: 'WVBS Integration',              desc: 'Show the WVBS Bible Videos tab + resources.' },
+    { key: 'bible_learning_embedded_player',label: 'Embedded Video Player',         desc: 'Play videos inside ChurchFlow (uncheck to force external links).' },
+  ]
+
+  const [rows, setRows] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [busyKey, setBusyKey] = useState(null)
+
+  async function load() {
+    setLoading(true)
+    const { data } = await insforge.database
+      .from('platform_feature_flags').select('*')
+    setRows(data || [])
+    setLoading(false)
+  }
+  useEffect(() => { load() }, [])
+
+  async function toggle(key, current) {
+    setBusyKey(key)
+    const next = !current
+    setRows((p) => p.map((r) => r.key === key ? { ...r, enabled: next } : r))
+    const { error } = await insforge.database.rpc('set_feature_flag', {
+      p_key: key, p_enabled: next,
+    })
+    if (error) {
+      toast.error('Failed: ' + error.message)
+      setRows((p) => p.map((r) => r.key === key ? { ...r, enabled: current } : r))
+    } else {
+      toast.success(`${key} ${next ? 'enabled' : 'disabled'}.`)
+    }
+    setBusyKey(null)
+  }
+
+  return (
+    <div>
+      <h3 className="text-sm font-bold text-slate-700 mb-3 flex items-center gap-2">
+        <span className="w-2 h-2 rounded-full bg-amber-500" />
+        Bible Learning Resources
+        <span className="text-xs font-normal text-slate-400">(stored in InsForge — instant effect)</span>
+      </h3>
+      {loading ? (
+        <div className="flex items-center justify-center py-8">
+          <div className="w-6 h-6 border-2 border-purple-500 border-t-transparent rounded-full animate-spin" />
+        </div>
+      ) : (
+        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+          <div className="divide-y divide-slate-50">
+            {FLAGS.map((f) => {
+              const row = rows.find((r) => r.key === f.key)
+              const enabled = row ? row.enabled : true
+              return (
+                <div key={f.key} className="flex items-center justify-between px-5 py-4 hover:bg-slate-50/50 transition-colors">
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold text-slate-800">{f.label}</p>
+                    <p className="text-xs text-slate-500 mt-0.5">{f.desc}</p>
+                  </div>
+                  <Toggle enabled={enabled} onChange={() => toggle(f.key, enabled)} size="sm" />
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      )}
     </div>
   )
 }

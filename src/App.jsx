@@ -38,6 +38,7 @@ const ProfilePage          = React.lazy(() => import('./pages/app/ProfilePage'))
 const CompleteSetup        = React.lazy(() => import('./pages/app/CompleteSetup'))
 const MemberSettings       = React.lazy(() => import('./pages/app/MemberSettings'))
 const AuditLogs            = React.lazy(() => import('./pages/app/AuditLogs'))
+const BibleLearning        = React.lazy(() => import('./pages/app/BibleLearning'))
 
 // ─── Route guards ─────────────────────────────────────────────
 import PermissionGuard from './components/auth/PermissionGuard'
@@ -185,6 +186,7 @@ function AppRoutes() {
           <Route path="prayer-requests" element={<PrayerRequests />} />
           <Route path="sermons"         element={<Sermons />} />
           <Route path="live-streams"    element={<LiveStreams />} />
+          <Route path="bible-learning"  element={<BibleLearning />} />
 
           {/* Church staff only (NOT members) */}
           <Route path="members" element={
