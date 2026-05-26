@@ -69,9 +69,12 @@ const POPULAR_ARTICLES = [
   { title: 'Creating events and accepting RSVPs',                  category: 'Events',          href: '/docs#g-events'     },
   { title: 'Uploading sermons and live streaming',                 category: 'Sermons',         href: '/docs#g-sermons'    },
   { title: 'The member portal — what members can do',              category: 'Members',         href: '/docs#g-portal'     },
-  { title: 'Exporting your church data to CSV',                    category: 'Settings',        href: '/docs#g-export'     },
-  { title: 'Billing, plans, and how to pay',                       category: 'Billing',         href: '/docs#g-billing'    },
-  { title: 'Getting started — your first 15 minutes',              category: 'Getting Started', href: '/docs#intro'        },
+  { title: 'Exporting your church data to CSV',                    category: 'Settings',        href: '/docs#g-export'          },
+  { title: 'How to export your personal data (GDPR Article 15)',  category: 'Privacy & Data',  href: '/docs#g-export-personal' },
+  { title: 'How to delete your account permanently',              category: 'Privacy & Data',  href: '/docs#g-delete-account'  },
+  { title: 'Your data rights — what ChurchFlow stores about you', category: 'Privacy & Data',  href: '/gdpr'                   },
+  { title: 'Billing, plans, and how to pay',                       category: 'Billing',         href: '/docs#g-billing'         },
+  { title: 'Getting started — your first 15 minutes',              category: 'Getting Started', href: '/docs#intro'              },
 ]
 
 const CATEGORY_COLORS = {
@@ -84,6 +87,7 @@ const CATEGORY_COLORS = {
   'Communications':  'bg-indigo-50 text-indigo-600',
   'Sermons':         'bg-rose-50 text-rose-600',
   'Billing':         'bg-emerald-50 text-emerald-600',
+  'Privacy & Data':  'bg-red-50 text-red-600',
 }
 
 export default function HelpCentrePage() {

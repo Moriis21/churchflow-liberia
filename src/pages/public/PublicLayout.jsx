@@ -193,6 +193,7 @@ function PublicFooter() {
                 { label: 'Contact',      to: '/contact'   },
                 { label: 'Privacy',      to: '/privacy'   },
                 { label: 'Terms',        to: '/terms'     },
+                { label: 'Your Data',    to: '/gdpr'      },
               ].map(l => (
                 <li key={l.to}>
                   <Link to={l.to} className="text-sm text-slate-400 hover:text-white transition-colors">
@@ -205,7 +206,7 @@ function PublicFooter() {
         </div>
 
         <div className="flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-400 border-t border-slate-100 pt-4 mt-4">
-          <p>© 2026 ChurchFlow Liberia. All rights reserved.</p>
+          <p>© 2026 ChurchFlow Liberia. All rights reserved. &nbsp;·&nbsp; Your data is yours — <Link to="/gdpr" className="underline hover:text-white transition-colors">export or delete it anytime</Link>.</p>
           <p className="flex items-center gap-1.5">
             Built by{' '}
             <a

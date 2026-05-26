@@ -143,7 +143,9 @@ export function PrivacyPolicy() {
           <li>Export a copy of your church's data in machine-readable format at any time.</li>
           <li>Withdraw consent for communications at any time.</li>
         </ul>
-        <p>To exercise any of these rights, contact us at privacy@churchflow.lr.</p>
+        <p>
+          You can exercise your <strong>right to export</strong> and <strong>right to erasure</strong> directly inside ChurchFlow at any time — no need to email us first. Once logged in, go to <strong>Settings → Privacy &amp; Data</strong> (or <strong>Profile → Privacy &amp; Your Data</strong>) and click <em>Download my data</em> or <em>Delete my account</em>. For all other requests, contact us at <a href="mailto:privacy@churchflow.lr" className="text-purple-600 underline">privacy@churchflow.lr</a>.
+        </p>
       </Section>
 
       <Section title="8. Changes to This Policy">
