@@ -13,12 +13,12 @@ async function anonFetch(table, params = {}) {
   const qs   = Object.entries(params).map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`).join('&')
   const url  = qs ? `${base}?${qs}` : base
   const res  = await fetch(url, {
-    method:  'GET',
+    method:      'GET',
+    credentials: 'omit',   // never send session cookies — anon key only
     headers: {
       'apikey':        ANON_KEY,
       'Authorization': `Bearer ${ANON_KEY}`,
       'Accept':        'application/json',
-      'Content-Type':  'application/json',
     },
   })
   if (!res.ok) throw new Error(`InsForge ${res.status}`)
