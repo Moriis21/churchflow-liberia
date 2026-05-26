@@ -1,51 +1,70 @@
 // ============================================================
 // ChurchFlow Liberia — Blog Service
-//
-// Public read functions (listPublishedPosts, getPostBySlug) use a
-// direct REST fetch with the explicit anon key so they work on
-// unauthenticated public pages where the InsForge SDK has no session.
 // ============================================================
 import { insforge } from '../lib/insforge'
 
-const BASE_URL  = import.meta.env.VITE_INSFORGE_URL  || ''
-const ANON_KEY  = import.meta.env.VITE_INSFORGE_ANON_KEY || ''
-// InsForge uses /api/database/records/{table} (not /rest/v1)
-const REST_BASE = BASE_URL.replace(/\/$/, '') + '/api/database/records'
+const BASE_URL = import.meta.env.VITE_INSFORGE_URL  || ''
+const ANON_KEY = import.meta.env.VITE_INSFORGE_ANON_KEY || ''
 
-async function pgRest(path, params = {}) {
-  const url = new URL(REST_BASE + path)
-  Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v))
-  const res = await fetch(url.toString(), {
+// Direct fetch using InsForge's /api/database/records path + anon key.
+// Works for both logged-in and anonymous users.
+async function anonFetch(table, params = {}) {
+  const base = BASE_URL.replace(/\/$/, '') + '/api/database/records/' + table
+  const qs   = Object.entries(params).map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`).join('&')
+  const url  = qs ? `${base}?${qs}` : base
+  const res  = await fetch(url, {
+    method:  'GET',
     headers: {
       'apikey':        ANON_KEY,
       'Authorization': `Bearer ${ANON_KEY}`,
       'Accept':        'application/json',
+      'Content-Type':  'application/json',
     },
   })
-  if (!res.ok) {
-    const msg = await res.text().catch(() => res.statusText)
-    throw new Error(`[blogService] ${res.status}: ${msg}`)
-  }
+  if (!res.ok) throw new Error(`InsForge ${res.status}`)
   return res.json()
 }
 
 export async function listPublishedPosts() {
+  // Try SDK first (works when user is logged in), fall back to direct fetch
   try {
-    const rows = await pgRest('/blog_posts', {
-      select:      'id,slug,title,excerpt,author_name,author_role,category,cover_url,read_time,published_at',
-      published:   'eq.true',
-      order:       'published_at.desc',
+    const { data, error } = await insforge.database
+      .from('blog_posts')
+      .select('id,slug,title,excerpt,author_name,author_role,category,cover_url,read_time,published_at')
+      .eq('published', true)
+      .order('published_at', { ascending: false })
+    if (!error && Array.isArray(data) && data.length > 0) return data
+  } catch { /* fall through */ }
+
+  // Fallback: direct REST with anon key (works for unauthenticated visitors)
+  try {
+    const rows = await anonFetch('blog_posts', {
+      select:    'id,slug,title,excerpt,author_name,author_role,category,cover_url,read_time,published_at',
+      published: 'eq.true',
+      order:     'published_at.desc',
     })
     return Array.isArray(rows) ? rows : []
   } catch (e) {
-    console.error(e.message)
+    console.error('[blog]', e.message)
     return []
   }
 }
 
 export async function getPostBySlug(slug) {
+  // Try SDK first
   try {
-    const rows = await pgRest('/blog_posts', {
+    const { data, error } = await insforge.database
+      .from('blog_posts')
+      .select('*')
+      .eq('slug', slug)
+      .eq('published', true)
+      .maybeSingle()
+    if (!error && data) return data
+  } catch { /* fall through */ }
+
+  // Fallback: direct REST
+  try {
+    const rows = await anonFetch('blog_posts', {
       select:    '*',
       slug:      `eq.${slug}`,
       published: 'eq.true',
@@ -53,7 +72,7 @@ export async function getPostBySlug(slug) {
     })
     return Array.isArray(rows) && rows.length > 0 ? rows[0] : null
   } catch (e) {
-    console.error(e.message)
+    console.error('[blog]', e.message)
     return null
   }
 }
