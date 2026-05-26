@@ -9,7 +9,8 @@ import { insforge } from '../lib/insforge'
 
 const BASE_URL  = import.meta.env.VITE_INSFORGE_URL  || ''
 const ANON_KEY  = import.meta.env.VITE_INSFORGE_ANON_KEY || ''
-const REST_BASE = BASE_URL.replace(/\/$/, '') + '/rest/v1'
+// InsForge uses /api/database/records/{table} (not /rest/v1)
+const REST_BASE = BASE_URL.replace(/\/$/, '') + '/api/database/records'
 
 async function pgRest(path, params = {}) {
   const url = new URL(REST_BASE + path)
