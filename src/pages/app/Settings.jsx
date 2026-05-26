@@ -7,7 +7,7 @@ import React, { useState, useEffect, useRef } from 'react'
 import {
   Church, Users, Bell, MessageSquare, Palette, HardDrive,
   Save, Upload, Eye, EyeOff, Send, Download, Shield,
-  Check, Link2, Copy, Loader2, AlertCircle, RefreshCw, Mail,
+  Check, Link2, Copy, Loader2, AlertCircle, RefreshCw, Mail, Lock,
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { Button, Input, Badge } from '../../components/ui'
@@ -20,6 +20,7 @@ import {
   createInvite, listInvites, setInviteStatus, inviteLinkFor,
 } from '../../services/inviteService'
 import TwoFactorSection from '../../components/security/TwoFactorSection'
+import { downloadMyData, deleteMyAccount, DELETE_CONFIRM_PHRASE } from '../../services/gdprService'
 
 // ─── Sidebar nav items ────────────────────────────────────────
 const NAV_ITEMS = [
@@ -31,6 +32,7 @@ const NAV_ITEMS = [
   { key: 'sms',           label: 'SMS Settings',      icon: MessageSquare },
   { key: 'appearance',    label: 'Appearance',        icon: Palette },
   { key: 'backup',        label: 'Backup & Export',   icon: HardDrive },
+  { key: 'privacy',       label: 'Privacy & Data',    icon: Lock },
 ]
 
 // Church-level roles only — Super Admin is a PLATFORM role
@@ -907,6 +909,114 @@ function InviteLinksSection() {
   )
 }
 
+// ─── Privacy & Data Section ───────────────────────────────────
+function PrivacySection() {
+  const [downloading,   setDownloading]   = useState(false)
+  const [showDelete,    setShowDelete]    = useState(false)
+  const [confirmText,   setConfirmText]   = useState('')
+  const [deleting,      setDeleting]      = useState(false)
+
+  async function handleDownload() {
+    setDownloading(true)
+    try {
+      await downloadMyData()
+      toast.success('Your data has been downloaded.')
+    } catch (err) {
+      toast.error(err.message || 'Could not export data.')
+    } finally {
+      setDownloading(false)
+    }
+  }
+
+  async function handleDelete() {
+    setDeleting(true)
+    try {
+      await deleteMyAccount(confirmText)
+      toast.success('Your account has been deleted.')
+      window.location.href = '/'
+    } catch (err) {
+      toast.error(err.message || 'Could not delete account.')
+    } finally {
+      setDeleting(false)
+    }
+  }
+
+  return (
+    <div className="space-y-8">
+      <div>
+        <h2 className="text-lg font-bold text-slate-800 mb-1">Privacy &amp; Your Data</h2>
+        <p className="text-sm text-slate-500">Your rights under GDPR Articles 15 &amp; 17 — export or permanently delete your account.</p>
+      </div>
+
+      {/* Export */}
+      <div className="rounded-2xl border border-slate-100 p-6 space-y-3">
+        <div className="flex items-center gap-3 mb-1">
+          <Download className="w-5 h-5 text-purple-600" />
+          <h3 className="text-base font-bold text-slate-800">Export my data</h3>
+        </div>
+        <p className="text-sm text-slate-500">
+          Download a copy of everything ChurchFlow holds about you — your profile, messages, prayer requests, and activity — as a JSON file.
+        </p>
+        <button
+          onClick={handleDownload}
+          disabled={downloading}
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold bg-purple-50 text-purple-700 hover:bg-purple-100 disabled:opacity-50 transition-colors"
+        >
+          {downloading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
+          {downloading ? 'Preparing download…' : 'Download my data'}
+        </button>
+      </div>
+
+      {/* Delete */}
+      <div className="rounded-2xl border border-red-100 bg-red-50/40 p-6 space-y-3">
+        <div className="flex items-center gap-3 mb-1">
+          <AlertCircle className="w-5 h-5 text-red-500" />
+          <h3 className="text-base font-bold text-red-700">Delete my account</h3>
+        </div>
+        <p className="text-sm text-slate-600">
+          Permanently deletes your ChurchFlow account and all personal data associated with it. <strong>This cannot be undone.</strong> Church records (attendance, giving) will be anonymised, not erased.
+        </p>
+        {!showDelete ? (
+          <button
+            onClick={() => { setConfirmText(''); setShowDelete(true) }}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold bg-red-100 text-red-700 hover:bg-red-200 transition-colors"
+          >
+            <AlertCircle className="w-4 h-4" /> Delete account…
+          </button>
+        ) : (
+          <div className="space-y-3 pt-2">
+            <p className="text-xs font-semibold text-slate-700">
+              Type <span className="font-bold text-red-600 select-all">{DELETE_CONFIRM_PHRASE}</span> to confirm:
+            </p>
+            <input
+              value={confirmText}
+              onChange={(e) => setConfirmText(e.target.value)}
+              placeholder={DELETE_CONFIRM_PHRASE}
+              className="w-full px-4 py-2.5 rounded-xl border border-red-200 text-sm focus:outline-none focus:ring-2 focus:ring-red-300 bg-white"
+            />
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowDelete(false)}
+                className="px-4 py-2 rounded-xl text-sm font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDelete}
+                disabled={deleting || confirmText !== DELETE_CONFIRM_PHRASE}
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold bg-red-600 text-white hover:bg-red-700 disabled:opacity-40 transition-colors"
+              >
+                {deleting ? <Loader2 className="w-4 h-4 animate-spin" /> : <AlertCircle className="w-4 h-4" />}
+                {deleting ? 'Deleting…' : 'Permanently delete'}
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
 // ─── Main Page ────────────────────────────────────────────────
 export default function Settings() {
   const [activeSection, setActiveSection] = useState('profile')
@@ -926,6 +1036,7 @@ export default function Settings() {
       case 'sms':           return <SMSSettingsSection />
       case 'appearance':    return <AppearanceSection />
       case 'backup':        return <BackupSection />
+      case 'privacy':       return <PrivacySection />
       default:              return <ChurchProfileSection church={church} onChurchUpdated={handleChurchUpdated} />
     }
   }
