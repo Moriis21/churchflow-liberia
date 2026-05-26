@@ -59,6 +59,7 @@ const ChangelogPage   = React.lazy(() => import('./pages/public/ChangelogPage'))
 const RoadmapPage     = React.lazy(() => import('./pages/public/RoadmapPage'))
 const StatusPage      = React.lazy(() => import('./pages/public/StatusPage'))
 const BlogPage        = React.lazy(() => import('./pages/public/BlogPage'))
+const BlogPostPage    = React.lazy(() => import('./pages/public/BlogPostPage'))
 const CareersPage     = React.lazy(() => import('./pages/public/CareersPage'))
 const PressPage       = React.lazy(() => import('./pages/public/PressPage'))
 const CommunityPage   = React.lazy(() => import('./pages/public/CommunityPage'))
@@ -153,6 +154,7 @@ function AppRoutes() {
         <Route path="/roadmap"    element={<RoadmapPage />} />
         <Route path="/status"     element={<StatusPage />} />
         <Route path="/blog"       element={<BlogPage />} />
+        <Route path="/blog/:slug" element={<BlogPostPage />} />
         <Route path="/careers"    element={<CareersPage />} />
         <Route path="/press"      element={<PressPage />} />
         <Route path="/community"  element={<CommunityPage />} />
