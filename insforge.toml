@@ -17,6 +17,13 @@ allowed_redirect_urls = [
   "https://churchflowliberia.insforge.site/login",
   "https://churchflowliberia.insforge.site/auth/callback",
 
+  # Custom domain (primary production URL)
+  "https://churchflow.innova-lib.com",
+  "https://churchflow.innova-lib.com/app/dashboard",
+  "https://churchflow.innova-lib.com/app/super-admin",
+  "https://churchflow.innova-lib.com/login",
+  "https://churchflow.innova-lib.com/auth/callback",
+
   # Vercel deployments
   "https://churchflow-liberia.vercel.app",
   "https://churchflow-liberia.vercel.app/app/dashboard",
