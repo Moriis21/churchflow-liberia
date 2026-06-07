@@ -1,10 +1,26 @@
 // ============================================================
 // ChurchFlow Liberia — Groq AI Client
-// Fixed: streaming [DONE] handler, dev/prod error detail,
-//        key validation, model name check.
+//
+// Calls go through the InsForge `groq-proxy` edge function so the
+// Groq API key lives ONLY on the server and is never shipped to the
+// browser. The frontend authenticates to the function with the public
+// anon key (same as every other InsForge call).
 // ============================================================
 
-const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions'
+// Server-side proxy endpoint (Groq key held by the edge function).
+// Functions are served from https://{appkey}.functions.insforge.app/{slug}
+const INSFORGE_URL = (import.meta.env.VITE_INSFORGE_URL || '').replace(/\/+$/, '')
+const ANON_KEY     = import.meta.env.VITE_INSFORGE_ANON_KEY || ''
+
+function functionsBase() {
+  try {
+    const appkey = new URL(INSFORGE_URL).hostname.split('.')[0]  // e.g. "nihu7zi9"
+    return `https://${appkey}.functions.insforge.app`
+  } catch {
+    return ''
+  }
+}
+const GROQ_API_URL = `${functionsBase()}/groq-proxy`
 
 export const GROQ_MODELS = {
   FAST:     'llama-3.1-8b-instant',    // Simple queries, landing page (replaces decommissioned llama3-8b-8192)
@@ -14,18 +30,12 @@ export const GROQ_MODELS = {
 
 const IS_DEV = import.meta.env.DEV
 
-// ─── API key validation ───────────────────────────────────────
-function getKey() {
-  const key = import.meta.env.VITE_GROQ_API_KEY
-  if (!key || key === 'your_groq_api_key_here' || key.trim() === '') {
-    const msg = '[Groq] VITE_GROQ_API_KEY is not set. Add it to .env and redeploy.'
-    console.error(msg)
-    throw Object.assign(new Error('AI_KEY_MISSING'), { userMessage: msg })
+// Auth header for the proxy — anon key, NOT the Groq key.
+function proxyHeaders() {
+  return {
+    'Content-Type':  'application/json',
+    ...(ANON_KEY ? { 'apikey': ANON_KEY, 'Authorization': `Bearer ${ANON_KEY}` } : {}),
   }
-  if (!key.startsWith('gsk_')) {
-    console.warn('[Groq] API key does not start with "gsk_" — may be invalid.')
-  }
-  return key
 }
 
 // ─── Unified error builder ────────────────────────────────────
@@ -68,10 +78,7 @@ export async function groqComplete({
   try {
     res = await fetch(GROQ_API_URL, {
       method:  'POST',
-      headers: {
-        'Content-Type':  'application/json',
-        'Authorization': `Bearer ${getKey()}`,
-      },
+      headers: proxyHeaders(),
       body: JSON.stringify(requestBody),
     })
   } catch (netErr) {
@@ -117,10 +124,7 @@ export async function groqStream({
   try {
     res = await fetch(GROQ_API_URL, {
       method:  'POST',
-      headers: {
-        'Content-Type':  'application/json',
-        'Authorization': `Bearer ${getKey()}`,
-      },
+      headers: proxyHeaders(),
       body:   JSON.stringify(requestBody),
       signal,
     })
