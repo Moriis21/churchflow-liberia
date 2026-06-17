@@ -5,7 +5,7 @@
 //   • Network-first for API calls.
 //   • Cache-first for hashed static assets in /assets/ (immutable).
 //   • Skip cache entirely for everything else (safest default).
-const CACHE_NAME = 'churchflow-v4'
+const CACHE_NAME = 'churchflow-v5'
 
 self.addEventListener('install', (event) => {
   // Take over immediately on update

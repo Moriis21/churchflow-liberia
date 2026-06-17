@@ -7,6 +7,7 @@ import { Link } from 'react-router-dom'
 import { ArrowRight, BookOpen, Clock, Loader2 } from 'lucide-react'
 import PublicLayout from './PublicLayout'
 import { listPublishedPosts } from '../../services/blogService'
+import { stripEmoji } from './BlogPostPage'
 
 const CATEGORY_STYLES = {
   'Church Management': 'bg-purple-50 text-[#8A19FF]',
@@ -46,8 +47,8 @@ function PostCard({ post, featured = false }) {
             <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${categoryStyle}`}>{post.category}</span>
             <span className="text-[10px] font-semibold text-amber-600 bg-amber-50 px-2.5 py-1 rounded-full uppercase tracking-wider">Featured</span>
           </div>
-          <h2 className="text-xl sm:text-2xl font-extrabold text-slate-900 mb-3 leading-tight">{post.title}</h2>
-          <p className="text-sm text-slate-500 leading-relaxed mb-5 line-clamp-3">{post.excerpt}</p>
+          <h2 className="text-xl sm:text-2xl font-extrabold text-slate-900 mb-3 leading-tight">{stripEmoji(post.title)}</h2>
+          <p className="text-sm text-slate-500 leading-relaxed mb-5 line-clamp-3">{stripEmoji(post.excerpt)}</p>
           <div className="flex items-center justify-between flex-wrap gap-3">
             <div className="flex items-center gap-2 text-xs text-slate-500">
               <AuthorAvatar name={post.author_name} />
@@ -73,8 +74,8 @@ function PostCard({ post, featured = false }) {
       </div>
       <div className="p-5 flex flex-col flex-1">
         <span className={`self-start px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider mb-2 ${categoryStyle}`}>{post.category}</span>
-        <h3 className="text-sm font-extrabold text-slate-800 mb-2 line-clamp-2 leading-snug">{post.title}</h3>
-        <p className="text-xs text-slate-500 leading-relaxed line-clamp-3 mb-4 flex-1">{post.excerpt}</p>
+        <h3 className="text-sm font-extrabold text-slate-800 mb-2 line-clamp-2 leading-snug">{stripEmoji(post.title)}</h3>
+        <p className="text-xs text-slate-500 leading-relaxed line-clamp-3 mb-4 flex-1">{stripEmoji(post.excerpt)}</p>
         <div className="flex items-center justify-between mt-auto pt-3 border-t border-slate-50">
           <div className="flex items-center gap-1.5 text-[11px] text-slate-400">
             <AuthorAvatar name={post.author_name} />

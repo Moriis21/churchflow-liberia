@@ -20,35 +20,74 @@ function formatDate(iso) {
   return new Date(iso).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
 }
 
-// Minimal markdown renderer: ##, **bold**, *italic*, --- hr, paragraphs
+// Markdown renderer: #/##/###/####, **bold**, *italic*, [links], --- hr,
+// - bullet lists. Any heading level renders cleanly — no raw '#' ever shows.
+// Strip emoji / pictographs for a clean, professional look
+const EMOJI_RE = /[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\u{2190}-\u{21FF}\u{2B00}-\u{2BFF}\u{2700}-\u{27BF}\u{FE0F}\u{1F1E6}-\u{1F1FF}]/gu
+
+export function stripEmoji(text = '') {
+  return text.replace(EMOJI_RE, '').replace(/\s{2,}/g, ' ').trim()
+}
+
+function inline(text) {
+  return stripEmoji(text)
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.+?)\*/g, '<em>$1</em>')
+    .replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2" class="text-purple-600 underline hover:text-purple-800" target="_blank" rel="noopener noreferrer">$1</a>')
+}
+
 function renderBody(body) {
   if (!body) return null
   const lines = body.split('\n')
   const elements = []
   let i = 0
+  let listBuf = []
+
+  const flushList = (key) => {
+    if (!listBuf.length) return
+    elements.push(
+      <ul key={`ul-${key}`} className="list-disc pl-6 space-y-1.5 mb-4 text-slate-700 leading-relaxed">
+        {listBuf.map((item, n) => (
+          <li key={n} dangerouslySetInnerHTML={{ __html: inline(item) }} />
+        ))}
+      </ul>
+    )
+    listBuf = []
+  }
+
   while (i < lines.length) {
     const line = lines[i]
-    if (line.startsWith('## ')) {
-      elements.push(<h2 key={i} className="text-xl font-extrabold text-slate-900 mt-8 mb-3">{line.slice(3)}</h2>)
-    } else if (line.startsWith('# ')) {
-      elements.push(<h1 key={i} className="text-2xl font-extrabold text-slate-900 mt-8 mb-3">{line.slice(2)}</h1>)
+    const m = line.match(/^(#{1,6})\s+(.*)$/)
+    const isBullet = /^\s*[-*]\s+/.test(line)
+
+    if (isBullet) {
+      listBuf.push(line.replace(/^\s*[-*]\s+/, ''))
+    } else if (m) {
+      flushList(i)
+      const level = m[1].length
+      const text  = m[2]
+      const cls = level <= 1
+        ? 'text-2xl font-extrabold text-slate-900 mt-8 mb-3'
+        : level === 2
+        ? 'text-xl font-extrabold text-slate-900 mt-8 mb-3'
+        : 'text-lg font-bold text-slate-800 mt-6 mb-2'
+      const Tag = level <= 2 ? (level === 1 ? 'h1' : 'h2') : 'h3'
+      elements.push(<Tag key={i} className={cls} dangerouslySetInnerHTML={{ __html: inline(text) }} />)
     } else if (line.trim() === '---') {
+      flushList(i)
       elements.push(<hr key={i} className="my-8 border-slate-200" />)
     } else if (line.trim() === '') {
-      // skip blank lines
+      flushList(i)
     } else {
-      // inline bold/italic
-      const parsed = line
-        .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-        .replace(/\*(.+?)\*/g, '<em>$1</em>')
-        .replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2" class="text-purple-600 underline hover:text-purple-800" target="_blank" rel="noopener noreferrer">$1</a>')
+      flushList(i)
       elements.push(
         <p key={i} className="text-slate-700 leading-relaxed mb-4"
-          dangerouslySetInnerHTML={{ __html: parsed }} />
+          dangerouslySetInnerHTML={{ __html: inline(line) }} />
       )
     }
     i++
   }
+  flushList('end')
   return elements
 }
 
@@ -101,7 +140,7 @@ export default function BlogPostPage() {
 
             {/* Title */}
             <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 leading-tight mb-4">
-              {post.title}
+              {stripEmoji(post.title)}
             </h1>
 
             {/* Meta */}
