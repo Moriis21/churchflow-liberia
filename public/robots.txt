@@ -1,0 +1,15 @@
+# ChurchFlow Liberia — robots.txt
+User-agent: *
+Allow: /
+
+# Private app + auth areas — not for indexing
+Disallow: /app/
+Disallow: /auth/
+Disallow: /login
+Disallow: /register
+Disallow: /invite/
+Disallow: /forgot-password
+Disallow: /reset-password
+Disallow: /complete-setup
+
+Sitemap: https://churchflow.innova-lib.com/sitemap.xml
