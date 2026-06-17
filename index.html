@@ -56,26 +56,59 @@
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
-    "@type": "SoftwareApplication",
-    "name": "ChurchFlow Liberia",
-    "description": "Complete church management system for Liberian churches",
-    "url": "https://churchflow.innova-lib.com",
-    "applicationCategory": "BusinessApplication",
-    "operatingSystem": "Web, Android, iOS",
-    "author": {
-      "@type": "Person",
-      "name": "Morris L. Dorley Jr"
-    },
-    "offers": {
-      "@type": "AggregateOffer",
-      "priceCurrency": "LRD",
-      "lowPrice": "500",
-      "highPrice": "4000"
-    },
-    "areaServed": {
-      "@type": "Country",
-      "name": "Liberia"
-    }
+    "@graph": [
+      {
+        "@type": "WebSite",
+        "@id": "https://churchflow.innova-lib.com/#website",
+        "url": "https://churchflow.innova-lib.com",
+        "name": "ChurchFlow Liberia",
+        "description": "Church management system for Liberian churches",
+        "publisher": { "@id": "https://churchflow.innova-lib.com/#developer" },
+        "inLanguage": "en-LR"
+      },
+      {
+        "@type": "Organization",
+        "@id": "https://churchflow.innova-lib.com/#developer",
+        "name": "Innova",
+        "url": "https://innova-lib.com",
+        "description": "Software developer of ChurchFlow Liberia.",
+        "founder": {
+          "@type": "Person",
+          "name": "Morris L. Dorley Jr",
+          "jobTitle": "Founder & Lead Developer"
+        },
+        "contactPoint": {
+          "@type": "ContactPoint",
+          "telephone": "+231-77-078-7020",
+          "contactType": "customer support",
+          "areaServed": "LR"
+        }
+      },
+      {
+        "@type": "SoftwareApplication",
+        "@id": "https://churchflow.innova-lib.com/#app",
+        "name": "ChurchFlow Liberia",
+        "description": "Complete church management system for Liberian churches — manage members, attendance, offerings, SMS, sermons, and live streaming.",
+        "url": "https://churchflow.innova-lib.com",
+        "applicationCategory": "BusinessApplication",
+        "operatingSystem": "Web, Android, iOS",
+        "author": {
+          "@type": "Person",
+          "name": "Morris L. Dorley Jr"
+        },
+        "publisher": { "@id": "https://churchflow.innova-lib.com/#developer" },
+        "offers": {
+          "@type": "AggregateOffer",
+          "priceCurrency": "LRD",
+          "lowPrice": "500",
+          "highPrice": "4000"
+        },
+        "areaServed": {
+          "@type": "Country",
+          "name": "Liberia"
+        }
+      }
+    ]
   }
   </script>
 </head>
