@@ -25,18 +25,12 @@ async function anonFetch(table, params = {}) {
   return res.json()
 }
 
+// IMPORTANT: public reads use anonFetch ONLY — never the SDK.
+// The SDK attaches a stored (possibly expired) session token as the
+// Authorization header and retries it, causing 401s for visitors who
+// once logged in. A pure anon fetch with credentials:'omit' is the
+// reliable path for public pages.
 export async function listPublishedPosts() {
-  // Try SDK first (works when user is logged in), fall back to direct fetch
-  try {
-    const { data, error } = await insforge.database
-      .from('blog_posts')
-      .select('id,slug,title,excerpt,author_name,author_role,category,cover_url,read_time,published_at')
-      .eq('published', true)
-      .order('published_at', { ascending: false })
-    if (!error && Array.isArray(data) && data.length > 0) return data
-  } catch { /* fall through */ }
-
-  // Fallback: direct REST with anon key (works for unauthenticated visitors)
   try {
     const rows = await anonFetch('blog_posts', {
       select:    'id,slug,title,excerpt,author_name,author_role,category,cover_url,read_time,published_at',
@@ -51,18 +45,6 @@ export async function listPublishedPosts() {
 }
 
 export async function getPostBySlug(slug) {
-  // Try SDK first
-  try {
-    const { data, error } = await insforge.database
-      .from('blog_posts')
-      .select('*')
-      .eq('slug', slug)
-      .eq('published', true)
-      .maybeSingle()
-    if (!error && data) return data
-  } catch { /* fall through */ }
-
-  // Fallback: direct REST
   try {
     const rows = await anonFetch('blog_posts', {
       select:    '*',
