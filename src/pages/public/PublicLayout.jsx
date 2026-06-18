@@ -18,7 +18,7 @@ function PublicNav() {
   const { pathname } = useLocation()
 
   return (
-    <header className="sticky top-0 z-50 bg-white border-b border-slate-100 shadow-sm">
+    <header className="sticky top-0 z-50 glass-nav shadow-[0_4px_20px_-8px_rgba(91,0,184,0.15)]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
 
@@ -236,7 +236,7 @@ function PublicFooter() {
 // ─── PublicLayout wrapper ────────────────────────────────────
 export default function PublicLayout({ children }) {
   return (
-    <div className="min-h-screen flex flex-col bg-white">
+    <div className="min-h-screen flex flex-col pastel-canvas">
       <PublicNav />
       <main className="flex-1">{children}</main>
       <PublicFooter />

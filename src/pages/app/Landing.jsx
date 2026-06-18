@@ -23,6 +23,9 @@ import {
   X,
   TrendingUp,
   Shield,
+  ShieldCheck,
+  Clock,
+  Heart,
   Zap,
   Globe2,
   MessageCircle,
@@ -394,7 +397,7 @@ function Hero() {
       </div>
 
       {/* Smooth fade into the light Features section below */}
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-32 bg-gradient-to-b from-transparent to-slate-50 z-[5]" />
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-32 bg-gradient-to-b from-transparent to-[#fbfbfe] z-[5]" />
 
       <DemoModal isOpen={demoOpen} onClose={() => setDemoOpen(false)} />
     </section>
@@ -406,31 +409,37 @@ const FEATURES = [
   {
     icon: Users,
     title: 'Member Management',
+    tint: 'tint-lavender',
     desc: 'Maintain complete profiles for every member — contact details, departments, and spiritual records in one place.',
   },
   {
     icon: CheckSquare,
     title: 'Attendance Tracking',
+    tint: 'tint-mint',
     desc: 'Record and analyse Sunday and midweek attendance across all services and branches with ease.',
   },
   {
     icon: DollarSign,
     title: 'Finance & Offerings',
+    tint: 'tint-cream',
     desc: 'Log tithes, offerings, and special donations. Generate transparent financial reports in LRD and USD.',
   },
   {
     icon: Calendar,
     title: 'Events Management',
+    tint: 'tint-blue',
     desc: 'Plan, promote, and track church programmes from conventions to outreach campaigns.',
   },
   {
     icon: MessageSquare,
     title: 'SMS & Notifications',
+    tint: 'tint-aqua',
     desc: 'Send bulk SMS announcements and birthday greetings to your congregation instantly.',
   },
   {
     icon: Video,
     title: 'Live Streaming',
+    tint: 'tint-rose',
     desc: 'Stream services to YouTube, Facebook, or Zoom and embed sermon archives directly in ChurchFlow.',
   },
 ]
@@ -455,7 +464,7 @@ function Features() {
   const [sectionRef, sectionVisible] = useInView(0.1)
 
   return (
-    <section id="features" className="py-24 bg-slate-50" ref={sectionRef}>
+    <section id="features" className="py-24 pastel-canvas" ref={sectionRef}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div
@@ -476,12 +485,12 @@ function Features() {
           </p>
         </div>
 
-        {/* Grid */}
+        {/* Grid — 3×2 frosted-glass cards with pastel tints */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {FEATURES.map(({ icon: Icon, title, desc }, i) => (
+          {FEATURES.map(({ icon: Icon, title, desc, tint }, i) => (
             <div
               key={title}
-              className="bg-white border border-slate-100 rounded-2xl p-6 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07)] hover:shadow-[0_8px_30px_-4px_rgba(124,58,237,0.15)] hover:-translate-y-1 transition-all duration-300 group"
+              className={`group relative ${tint} glass-card rounded-3xl p-6 overflow-hidden hover:-translate-y-1.5 transition-all duration-300`}
               style={{
                 opacity: sectionVisible ? 1 : 0,
                 transform: sectionVisible ? 'translateY(0)' : 'translateY(32px)',
@@ -489,11 +498,13 @@ function Features() {
                 transitionDelay: `${i * 80}ms`,
               }}
             >
-              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-violet-100 to-purple-100 border border-purple-100 flex items-center justify-center mb-5 group-hover:from-violet-600 group-hover:to-purple-700 group-hover:border-transparent transition-all duration-300 shadow-sm">
-                <Icon className="w-6 h-6 text-purple-600 group-hover:text-white transition-colors duration-300" />
+              {/* Soft glow behind the card */}
+              <div className="pointer-events-none absolute -top-10 -right-10 w-32 h-32 rounded-full bg-white/40 blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              <div className="relative w-12 h-12 rounded-2xl bg-white/70 backdrop-blur-sm border border-white/80 flex items-center justify-center mb-5 shadow-sm group-hover:bg-gradient-to-br group-hover:from-violet-600 group-hover:to-purple-700 group-hover:border-transparent transition-all duration-300">
+                <Icon className="w-6 h-6 text-purple-700 group-hover:text-white transition-colors duration-300" />
               </div>
-              <h3 className="text-base font-bold text-slate-900 mb-2">{title}</h3>
-              <p className="text-sm text-slate-600 leading-relaxed">{desc}</p>
+              <h3 className="relative text-base font-bold text-slate-900 mb-2">{title}</h3>
+              <p className="relative text-sm text-slate-600 leading-relaxed">{desc}</p>
             </div>
           ))}
         </div>
@@ -738,34 +749,25 @@ function HowItWorks() {
   )
 }
 
-// ─── Testimonials ─────────────────────────────────────────────
-const TESTIMONIALS = [
+// ─── Why ChurchFlow — honest value pillars (no fabricated quotes) ──
+const PILLARS = [
   {
-    name: 'Pastor David Kollie',
-    role: 'Senior Pastor',
-    church: 'Grace Assembly, Monrovia',
-    quote:
-      "ChurchFlow transformed how we operate Grace Assembly. Tracking 300+ members used to be a nightmare — now it takes minutes. Our offerings have also become more transparent and our deacons love it.",
-    stars: 5,
-    img: 'https://i.pravatar.cc/150?img=14',
+    icon: ShieldCheck,
+    tint: 'tint-lavender',
+    title: 'Built for accountability',
+    desc: 'Every tithe, offering, and expense is logged with a full audit trail in LRD and USD — so leadership and congregation can trust the numbers.',
   },
   {
-    name: 'Sec. Mary Dahn',
-    role: 'Church Secretary',
-    church: 'Faith Tabernacle, Paynesville',
-    quote:
-      "Before ChurchFlow, we had attendance sheets scattered everywhere. Now I generate a full attendance report right from my phone every Sunday. This is a blessing for our ministry.",
-    stars: 5,
-    img: 'https://i.pravatar.cc/150?img=16',
+    icon: Clock,
+    tint: 'tint-mint',
+    title: 'Hours back every week',
+    desc: 'Attendance, member records, and reports that used to take hours of paperwork now take minutes — from any phone or computer.',
   },
   {
-    name: 'Elder James Toe',
-    role: 'Head of Finance',
-    church: 'New Life Church, Buchanan',
-    quote:
-      "The finance module is outstanding. We record every tithe and offering in LRD and USD, and the monthly reports keep our congregation informed and our leaders accountable.",
-    stars: 5,
-    img: 'https://i.pravatar.cc/150?img=18',
+    icon: Heart,
+    tint: 'tint-blue',
+    title: 'Made for Liberian churches',
+    desc: 'Dual-currency giving, SMS that reaches every member, and a workflow designed around how Liberian congregations actually run.',
   },
 ]
 
@@ -773,7 +775,7 @@ function Testimonials() {
   const [ref, visible] = useInView(0.1)
 
   return (
-    <section className="py-24 bg-gradient-to-br from-slate-50 to-purple-50" ref={ref}>
+    <section className="py-24 pastel-canvas" ref={ref}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div
           className="text-center max-w-2xl mx-auto mb-16 transition-all duration-700"
@@ -782,53 +784,40 @@ function Testimonials() {
             transform: visible ? 'translateY(0)' : 'translateY(24px)',
           }}
         >
-          <span className="inline-block text-sm font-semibold text-purple-600 bg-purple-50 px-4 py-1.5 rounded-full mb-4 border border-purple-100">
-            Testimonials
+          <span className="inline-block text-sm font-semibold text-purple-700 bg-white/60 backdrop-blur-sm px-4 py-1.5 rounded-full mb-4 border border-white/70">
+            Why ChurchFlow
           </span>
           <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 mb-4 leading-tight">
-            Trusted by church leaders across Liberia
+            A modern foundation for your ministry
           </h2>
+          <p className="text-lg text-slate-600">
+            Replace scattered paper records with one secure, transparent system built for the way Liberian churches serve.
+          </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {TESTIMONIALS.map((t, i) => (
-            <div
-              key={t.name}
-              className="bg-white border border-slate-100 rounded-2xl p-7 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07)] hover:shadow-[0_8px_30px_-4px_rgba(124,58,237,0.12)] hover:-translate-y-1 transition-all duration-300 flex flex-col"
-              style={{
-                opacity: visible ? 1 : 0,
-                transform: visible ? 'translateY(0)' : 'translateY(32px)',
-                transition: `opacity 0.5s ease, transform 0.5s ease, box-shadow 0.3s ease`,
-                transitionDelay: `${i * 120}ms`,
-              }}
-            >
-              {/* Stars */}
-              <div className="flex items-center gap-1 mb-5">
-                {Array.from({ length: t.stars }).map((_, idx) => (
-                  <Star key={idx} className="w-4 h-4 text-amber-400 fill-amber-400" />
-                ))}
-              </div>
-
-              {/* Quote */}
-              <p className="text-sm text-slate-600 leading-relaxed mb-6 flex-1">
-                "{t.quote}"
-              </p>
-
-              {/* Author — initial avatar (no stock photos) */}
-              <div className="flex items-center gap-3">
-                <span
-                  aria-hidden="true"
-                  className="flex items-center justify-center w-11 h-11 rounded-full bg-gradient-to-br from-[#151022] to-[#5B00B8] text-white text-sm font-bold ring-2 ring-purple-100 flex-shrink-0"
-                >
-                  {t.name.replace(/^(Pastor|Sec\.|Elder|Rev\.|Dr\.)\s+/i, '').split(' ').map((w) => w[0]).join('').slice(0, 2).toUpperCase()}
-                </span>
-                <div>
-                  <p className="text-sm font-bold text-slate-800">{t.name}</p>
-                  <p className="text-xs text-slate-500">{t.role} · {t.church}</p>
+          {PILLARS.map((p, i) => {
+            const Icon = p.icon
+            return (
+              <div
+                key={p.title}
+                className={`group relative ${p.tint} glass-card rounded-3xl p-7 overflow-hidden flex flex-col hover:-translate-y-1.5 transition-all duration-300`}
+                style={{
+                  opacity: visible ? 1 : 0,
+                  transform: visible ? 'translateY(0)' : 'translateY(32px)',
+                  transition: `opacity 0.5s ease, transform 0.5s ease, box-shadow 0.3s ease`,
+                  transitionDelay: `${i * 120}ms`,
+                }}
+              >
+                <div className="pointer-events-none absolute -top-10 -right-10 w-32 h-32 rounded-full bg-white/40 blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                <div className="relative w-12 h-12 rounded-2xl bg-white/70 backdrop-blur-sm border border-white/80 flex items-center justify-center mb-5 shadow-sm group-hover:bg-gradient-to-br group-hover:from-violet-600 group-hover:to-purple-700 group-hover:border-transparent transition-all duration-300">
+                  <Icon className="w-6 h-6 text-purple-700 group-hover:text-white transition-colors duration-300" />
                 </div>
+                <h3 className="relative text-lg font-bold text-slate-900 mb-2">{p.title}</h3>
+                <p className="relative text-sm text-slate-600 leading-relaxed">{p.desc}</p>
               </div>
-            </div>
-          ))}
+            )
+          })}
         </div>
       </div>
     </section>
