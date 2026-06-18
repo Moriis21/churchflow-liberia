@@ -252,35 +252,37 @@ function Hero() {
   ]
 
   return (
-    <section className="relative overflow-hidden pt-14 pb-12 sm:pt-24 sm:pb-20">
+    <section className="relative overflow-hidden pastel-canvas pt-14 pb-12 sm:pt-24 sm:pb-20">
 
-      {/* ── Soft, spiritual, animated mesh-gradient background ── */}
-      <ChurchFlowBackground />
+      {/* Soft pastel glow accents */}
+      <div className="pointer-events-none absolute -top-24 -left-24 w-96 h-96 rounded-full glow-purple opacity-60 blur-3xl" />
+      <div className="pointer-events-none absolute top-1/3 -right-24 w-96 h-96 rounded-full glow-mint opacity-60 blur-3xl" />
+      <div className="pointer-events-none absolute bottom-0 left-1/4 w-80 h-80 rounded-full glow-blue opacity-50 blur-3xl" />
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center max-w-4xl mx-auto">
 
-          {/* Top badge — smaller on mobile */}
+          {/* Top badge — frosted glass on light */}
           <motion.div {...fadeUp(0)}
-            className="inline-flex items-center gap-1.5 bg-white/10 backdrop-blur-sm border border-white/20 text-white/90 text-xs sm:text-sm font-medium px-3 sm:px-4 py-1 sm:py-1.5 rounded-full mb-5 sm:mb-8"
+            className="inline-flex items-center gap-1.5 glass-card text-slate-700 text-xs sm:text-sm font-medium px-3 sm:px-4 py-1 sm:py-1.5 rounded-full mb-5 sm:mb-8"
           >
-            <Zap className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-yellow-400 flex-shrink-0" />
+            <Zap className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-amber-500 flex-shrink-0" />
             Built specifically for Liberian churches
           </motion.div>
 
-          {/* Headline — tighter sizing on 360-412px */}
+          {/* Headline — dark text on pastel */}
           <motion.h1 {...fadeUp(0.08)}
-            className="text-[1.65rem] xs:text-3xl sm:text-5xl lg:text-6xl font-extrabold text-white leading-[1.18] tracking-tight mb-4 sm:mb-6 px-2 sm:px-0"
+            className="text-[1.65rem] xs:text-3xl sm:text-5xl lg:text-6xl font-extrabold text-[#111827] leading-[1.18] tracking-tight mb-4 sm:mb-6 px-2 sm:px-0"
           >
             Stop Losing Church Records.{' '}
-            <span className="bg-gradient-to-r from-yellow-400 to-amber-500 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent">
               Start Building a Smarter Ministry.
             </span>
           </motion.h1>
 
-          {/* Subtext — 85% wide, softer */}
+          {/* Subtext */}
           <motion.p {...fadeUp(0.16)}
-            className="text-sm sm:text-lg text-white/65 leading-[1.7] max-w-[86%] sm:max-w-2xl mx-auto mb-7 sm:mb-10"
+            className="text-sm sm:text-lg text-slate-600 leading-[1.7] max-w-[86%] sm:max-w-2xl mx-auto mb-7 sm:mb-10"
           >
             ChurchFlow helps Liberian churches manage members, track attendance,
             record offerings, and stay connected — all in one place.
@@ -292,17 +294,17 @@ function Hero() {
           >
             <Link
               to="/register"
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 text-sm sm:text-base font-bold text-amber-950 bg-gradient-to-r from-yellow-400 to-amber-500 px-7 sm:px-8 py-3 sm:py-4 rounded-2xl hover:from-yellow-300 hover:to-amber-400 shadow-lg shadow-yellow-500/20 hover:shadow-yellow-500/35 transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 text-sm sm:text-base font-bold text-white bg-[#111111] px-7 sm:px-8 py-3 sm:py-4 rounded-2xl hover:bg-black shadow-lg shadow-black/20 transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0"
             >
               Get Started Free
               <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
             </Link>
             <button
               onClick={() => setDemoOpen(true)}
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 text-sm sm:text-base font-semibold text-white bg-white/15 border border-white/40 px-7 sm:px-8 py-3 sm:py-4 rounded-2xl hover:bg-white/25 hover:border-white/60 shadow-lg shadow-black/10 transition-all duration-200 backdrop-blur-md hover:-translate-y-0.5 active:translate-y-0"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 text-sm sm:text-base font-semibold text-[#111827] bg-white border border-[#D1D5DB] px-7 sm:px-8 py-3 sm:py-4 rounded-2xl hover:bg-slate-50 hover:border-[#9CA3AF] shadow-sm transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0"
             >
-              <span className="flex items-center justify-center w-6 h-6 rounded-full bg-white/20">
-                <Video className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white" fill="currentColor" />
+              <span className="flex items-center justify-center w-6 h-6 rounded-full bg-purple-100">
+                <Video className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-purple-700" fill="currentColor" />
               </span>
               Watch Demo
             </button>
@@ -322,9 +324,9 @@ function Hero() {
                   ease: 'easeInOut',
                   delay: i * 0.5,
                 }}
-                className="flex items-center gap-1.5 bg-white/10 backdrop-blur-sm border border-white/12 text-white/80 text-[11px] sm:text-sm font-medium px-3 sm:px-5 py-1.5 sm:py-2.5 rounded-full"
+                className="flex items-center gap-1.5 glass-card text-slate-700 text-[11px] sm:text-sm font-medium px-3 sm:px-5 py-1.5 sm:py-2.5 rounded-full"
               >
-                <Icon className="w-3 h-3 sm:w-4 sm:h-4 text-yellow-400 flex-shrink-0" />
+                <Icon className="w-3 h-3 sm:w-4 sm:h-4 text-purple-600 flex-shrink-0" />
                 {label}
               </motion.div>
             ))}
@@ -397,8 +399,6 @@ function Hero() {
         </div>
       </div>
 
-      {/* Smooth fade into the light Features section below */}
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-32 bg-gradient-to-b from-transparent to-[#fbfbfe] z-[5]" />
 
       <DemoModal isOpen={demoOpen} onClose={() => setDemoOpen(false)} />
     </section>
