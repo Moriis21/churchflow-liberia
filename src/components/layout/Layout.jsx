@@ -115,7 +115,7 @@ export default function Layout() {
 
   // ── Authenticated layout ──────────────────────────────
   return (
-    <div className="min-h-screen bg-[#F8F7FF]">
+    <div className="min-h-screen pastel-canvas">
       {/* Sidebar — fixed left column */}
       <Sidebar
         isOpen={sidebarOpen}

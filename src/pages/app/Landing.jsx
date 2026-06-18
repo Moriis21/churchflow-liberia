@@ -334,57 +334,58 @@ function Hero() {
           <motion.div {...fadeUp(0.4)}
             className="relative mx-auto max-w-4xl overflow-hidden sm:overflow-visible"
           >
-            <div className="absolute -inset-1 bg-gradient-to-r from-violet-500/40 to-purple-600/40 rounded-3xl blur-xl" />
-            <div className="relative bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-2xl">
+            {/* Soft pastel glow behind the panel */}
+            <div className="absolute -inset-2 bg-gradient-to-r from-violet-400/30 via-fuchsia-300/25 to-blue-400/30 rounded-[2rem] blur-2xl" />
+            <div className="relative bg-white/80 backdrop-blur-2xl border border-white/80 rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-[0_24px_70px_-20px_rgba(91,0,184,0.45)]">
 
-              {/* Mock header bar */}
+              {/* Browser-style header bar */}
               <div className="flex items-center justify-between mb-4 sm:mb-5">
                 <div className="flex items-center gap-1.5 sm:gap-2">
                   <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-red-400" />
-                  <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-yellow-400" />
-                  <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-green-400" />
+                  <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-amber-400" />
+                  <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-emerald-400" />
                 </div>
-                <div className="bg-white/10 rounded-lg px-3 sm:px-6 py-1 sm:py-1.5 text-white/50 text-[10px] sm:text-xs">
-                  app.churchflow.lr/dashboard
+                <div className="bg-slate-100/80 border border-white rounded-lg px-3 sm:px-6 py-1 sm:py-1.5 text-slate-500 text-[10px] sm:text-xs font-medium">
+                  churchflow.innova-lib.com/app/dashboard
                 </div>
                 <div className="w-12 sm:w-16" />
               </div>
 
-              {/* Mock stats row */}
+              {/* Pastel-tinted stat cards */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 mb-3 sm:mb-5">
                 {[
-                  { label: 'Total Members',     value: '248',          color: 'from-violet-500 to-purple-700'  },
-                  { label: "Today's Attendance", value: '186',          color: 'from-amber-400 to-yellow-500'   },
-                  { label: 'Total Offerings',    value: 'LRD 125,750',  color: 'from-emerald-400 to-teal-600'  },
-                  { label: 'Visitors Today',     value: '4',            color: 'from-blue-500 to-indigo-600'   },
+                  { label: 'Total Members',      value: '248',         tint: 'tint-lavender', bar: 'from-violet-500 to-purple-600' },
+                  { label: "Today's Attendance", value: '186',         tint: 'tint-mint',     bar: 'from-emerald-400 to-teal-500'  },
+                  { label: 'Total Offerings',    value: 'LRD 125,750', tint: 'tint-cream',    bar: 'from-amber-400 to-yellow-500'  },
+                  { label: 'Visitors Today',     value: '4',           tint: 'tint-blue',     bar: 'from-blue-500 to-indigo-500'   },
                 ].map((stat) => (
-                  <div key={stat.label} className="bg-white/10 border border-white/10 rounded-xl p-3 sm:p-4">
-                    <p className="text-white/50 text-[10px] sm:text-xs mb-1 leading-tight">{stat.label}</p>
-                    <p className="text-white font-bold text-sm sm:text-lg leading-none">{stat.value}</p>
-                    <div className={`mt-1.5 sm:mt-2 h-0.5 sm:h-1 rounded-full bg-gradient-to-r ${stat.color} w-3/4 opacity-70`} />
+                  <div key={stat.label} className={`${stat.tint} border border-white/80 rounded-xl p-3 sm:p-4 shadow-sm`}>
+                    <p className="text-slate-500 text-[10px] sm:text-xs mb-1 leading-tight">{stat.label}</p>
+                    <p className="text-slate-900 font-extrabold text-sm sm:text-lg leading-none">{stat.value}</p>
+                    <div className={`mt-1.5 sm:mt-2 h-0.5 sm:h-1 rounded-full bg-gradient-to-r ${stat.bar} w-3/4`} />
                   </div>
                 ))}
               </div>
 
-              {/* Mock charts row */}
+              {/* Charts row */}
               <div className="grid grid-cols-3 gap-2 sm:gap-3">
-                <div className="col-span-2 bg-white/10 border border-white/10 rounded-xl p-3 sm:p-4 h-24 sm:h-32">
-                  <p className="text-white/50 text-[10px] sm:text-xs mb-2 sm:mb-3">Attendance Overview</p>
+                <div className="col-span-2 tint-blue border border-white/80 rounded-xl p-3 sm:p-4 h-24 sm:h-32 shadow-sm">
+                  <p className="text-slate-500 text-[10px] sm:text-xs mb-2 sm:mb-3 font-medium">Attendance Overview</p>
                   <div className="flex items-end gap-1 sm:gap-1.5 h-12 sm:h-16">
                     {[60, 75, 50, 90, 70, 85, 80].map((h, i) => (
-                      <div key={i} className="flex-1 rounded-sm bg-gradient-to-t from-violet-500 to-purple-400 opacity-80"
+                      <div key={i} className="flex-1 rounded-sm bg-gradient-to-t from-violet-600 to-purple-400"
                         style={{ height: `${h}%` }} />
                     ))}
                   </div>
                 </div>
-                <div className="bg-white/10 border border-white/10 rounded-xl p-3 sm:p-4 h-24 sm:h-32">
-                  <p className="text-white/50 text-[10px] sm:text-xs mb-2 sm:mb-3">Offerings</p>
+                <div className="tint-mint border border-white/80 rounded-xl p-3 sm:p-4 h-24 sm:h-32 shadow-sm">
+                  <p className="text-slate-500 text-[10px] sm:text-xs mb-2 sm:mb-3 font-medium">Offerings</p>
                   <div className="flex items-center justify-center h-12 sm:h-16">
                     <div className="relative w-10 h-10 sm:w-14 sm:h-14">
-                      <div className="w-10 h-10 sm:w-14 sm:h-14 rounded-full border-4 border-violet-400/50" />
+                      <div className="w-10 h-10 sm:w-14 sm:h-14 rounded-full border-4 border-violet-300" />
                       <div className="absolute inset-0 rounded-full border-4 border-transparent border-t-amber-400 border-r-amber-400 rotate-45" />
                       <div className="absolute inset-2 flex items-center justify-center">
-                        <span className="text-white/70 text-[8px] sm:text-[9px] font-semibold">62%</span>
+                        <span className="text-slate-700 text-[8px] sm:text-[9px] font-bold">62%</span>
                       </div>
                     </div>
                   </div>

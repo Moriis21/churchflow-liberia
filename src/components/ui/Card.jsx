@@ -23,10 +23,12 @@ const Card = ({
   return (
     <div
       className={[
-        'bg-white rounded-[20px] border border-[#E4E7EC]',
-        'shadow-[0_1px_2px_rgba(21,16,34,0.04),0_1px_3px_rgba(21,16,34,0.06)]',
+        // Frosted-glass surface: high white opacity keeps dense data crisp,
+        // thin white border + soft purple shadow give the premium glass feel.
+        'bg-white/75 backdrop-blur-xl rounded-[20px] border border-white/70',
+        'shadow-[0_8px_28px_-10px_rgba(91,0,184,0.14),inset_0_1px_0_rgba(255,255,255,0.6)]',
         hover
-          ? 'transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-[0_8px_24px_-4px_rgba(21,16,34,0.10)] cursor-pointer'
+          ? 'transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-[0_14px_36px_-8px_rgba(91,0,184,0.22)] cursor-pointer'
           : '',
         className,
       ].join(' ')}
