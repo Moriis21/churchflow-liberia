@@ -507,7 +507,7 @@ export default function PricingPage() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link
                 to="/register"
-                className="inline-flex items-center justify-center gap-2 text-base font-bold text-white bg-gradient-to-r from-[#5B00B8] to-[#3D108A] px-10 py-4 rounded-2xl shadow-xl shadow-purple-900/30 hover:from-violet-800 hover:to-purple-900 transition-all hover:-translate-y-1"
+                className="inline-flex items-center justify-center gap-2 text-base font-bold text-white bg-[#111111] px-10 py-4 rounded-2xl shadow-xl shadow-black/30 hover:bg-black transition-all hover:-translate-y-1"
               >
                 Create Free Account <ArrowRight className="w-5 h-5" />
               </Link>

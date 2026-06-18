@@ -325,7 +325,7 @@ export default function Login() {
             <button
               type="submit"
               disabled={loading || !twoFactorCode.trim()}
-              className="w-full px-4 py-3 rounded-xl text-sm font-semibold bg-gradient-to-r from-[#151022] to-[#5B00B8] text-white hover:opacity-95 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full px-4 py-3 rounded-xl text-sm font-semibold bg-[#111111] text-white hover:bg-black transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? 'Verifying…' : 'Verify & continue'}
             </button>

@@ -1,16 +1,17 @@
 import React from 'react'
 
 const variants = {
+  // Pastel-glassmorphism palette: solid black primary, white secondary.
   primary:
-    'bg-[#8A19FF] text-white shadow-[0_4px_14px_rgba(138,25,255,0.30)] hover:bg-[#5B00B8] hover:shadow-[0_6px_20px_rgba(138,25,255,0.40)] focus:ring-[#8A19FF]',
+    'bg-[#111111] text-white shadow-[0_4px_14px_rgba(17,17,17,0.20)] hover:bg-[#000000] hover:shadow-[0_6px_20px_rgba(17,17,17,0.30)] focus:ring-[#111111]',
   secondary:
-    'bg-white border border-[#8A19FF] text-[#5B00B8] hover:bg-[#F7F4FF] hover:border-[#5B00B8] focus:ring-[#8A19FF]',
+    'bg-white border border-[#D1D5DB] text-[#111827] hover:bg-[#F8FAFC] hover:border-[#9CA3AF] focus:ring-[#111111]',
   ghost:
-    'bg-transparent text-[#5B00B8] hover:bg-[#F7F4FF] hover:text-[#8A19FF] focus:ring-[#8A19FF]',
+    'bg-transparent text-[#111827] hover:bg-black/5 hover:text-[#000000] focus:ring-[#111111]',
   danger:
     'bg-red-50 text-red-700 border border-red-200 hover:bg-red-100 hover:border-red-300 focus:ring-red-500',
   gold:
-    'bg-amber-400 text-[#151022] shadow-[0_4px_14px_rgba(245,158,11,0.30)] hover:bg-amber-500 hover:shadow-[0_6px_20px_rgba(245,158,11,0.40)] focus:ring-amber-400',
+    'bg-amber-400 text-[#111111] shadow-[0_4px_14px_rgba(245,158,11,0.30)] hover:bg-amber-500 hover:shadow-[0_6px_20px_rgba(245,158,11,0.40)] focus:ring-amber-400',
 }
 
 const sizes = {

@@ -115,7 +115,7 @@ function Navbar() {
               Login
             </Link>
             <Link to="/register"
-              className="text-sm font-semibold text-white bg-gradient-to-r from-[#151022] to-[#5B00B8] px-4 py-1.5 rounded-lg hover:from-[#5B00B8] hover:to-[#3D108A] shadow-sm shadow-purple-500/20 transition-all hover:-translate-y-px">
+              className="text-sm font-semibold text-white bg-[#111111] px-4 py-1.5 rounded-lg hover:bg-black shadow-sm shadow-black/20 transition-all hover:-translate-y-px">
               Get Started
             </Link>
           </div>
@@ -153,7 +153,7 @@ function Navbar() {
                   Login
                 </Link>
                 <Link to="/register" onClick={() => setOpen(false)}
-                  className="text-center text-sm font-semibold text-white bg-gradient-to-r from-[#151022] to-[#5B00B8] py-2.5 rounded-xl transition-all">
+                  className="text-center text-sm font-semibold text-white bg-[#111111] py-2.5 rounded-xl hover:bg-black transition-colors">
                   Get Started Free
                 </Link>
               </div>
@@ -739,7 +739,7 @@ function HowItWorks() {
         >
           <Link
             to="/register"
-            className="inline-flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r from-[#151022] to-[#5B00B8] px-6 py-3 rounded-full shadow-md shadow-purple-500/25 hover:from-[#5B00B8] hover:to-[#3D108A] hover:-translate-y-0.5 hover:shadow-purple-500/40 transition-all"
+            className="inline-flex items-center gap-2 text-sm font-semibold text-white bg-[#111111] px-6 py-3 rounded-full shadow-md shadow-black/25 hover:bg-black hover:-translate-y-0.5 transition-all"
           >
             Start your free church account today — no credit card required
             <ArrowRight className="w-4 h-4" />
@@ -974,7 +974,7 @@ function Pricing() {
                   'block text-center font-bold py-3.5 px-6 rounded-2xl transition-all hover:-translate-y-0.5 text-sm',
                   plan.popular
                     ? 'bg-gradient-to-r from-yellow-400 to-amber-500 text-amber-950 shadow-lg shadow-amber-500/30 hover:shadow-amber-500/50'
-                    : 'bg-gradient-to-r from-[#151022] to-[#5B00B8] text-white shadow-md shadow-purple-500/25 hover:shadow-purple-500/40',
+                    : 'bg-[#111111] text-white shadow-md shadow-black/25 hover:bg-black',
                 ].join(' ')}
               >
                 {plan.cta}
