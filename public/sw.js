@@ -1,14 +1,11 @@
 // ChurchFlow Liberia — Service Worker
-// Strategy:
-//   • Network-first for navigation (HTML) so users always get the
-//     freshest index.html → no stale bundle-hash 404s.
-//   • Network-first for API calls.
-//   • Cache-first for hashed static assets in /assets/ (immutable).
-//   • Skip cache entirely for everything else (safest default).
-const CACHE_NAME = 'churchflow-v5'
+// Strategy: NETWORK-FIRST for everything. When online, users always
+// get the freshest deployed build (no stale colours / code). Cache is
+// only an offline fallback. This permanently prevents the stale-bundle
+// problem that cache-first /assets/ could cause on slow networks.
+const CACHE_NAME = 'churchflow-v6'
 
-self.addEventListener('install', (event) => {
-  // Take over immediately on update
+self.addEventListener('install', () => {
   self.skipWaiting()
 })
 
@@ -25,49 +22,28 @@ self.addEventListener('fetch', (event) => {
   if (req.method !== 'GET') return
 
   const url = new URL(req.url)
-
-  // Never touch non-http(s) schemes (chrome-extension://, data:, blob:, etc.)
-  // The Cache API rejects them and they're not ours to handle anyway.
   if (url.protocol !== 'http:' && url.protocol !== 'https:') return
 
-  // ── 1. Navigation requests (HTML pages) → network-first ─────
-  // Critical: prevents stale index.html that references old JS/CSS hashes.
-  if (req.mode === 'navigate' || (req.headers.get('accept') || '').includes('text/html')) {
-    event.respondWith(
-      fetch(req).catch(() => caches.match('/index.html'))
-    )
-    return
-  }
-
-  // ── 2. API / backend → network-only with cache fallback ────
+  // Backend / AI calls → straight to network, cache fallback only offline.
   if (url.pathname.startsWith('/api/') || url.hostname.includes('insforge.app') || url.hostname.includes('groq.com')) {
-    event.respondWith(
-      fetch(req).catch(() => caches.match(req))
-    )
+    event.respondWith(fetch(req).catch(() => caches.match(req)))
     return
   }
 
-  // ── 3. Hashed static assets in /assets/ → cache-first ──────
-  // Vite emits content-hashed filenames so cache-first is safe forever.
-  // Same-origin only — never cache cross-origin or extension responses.
-  if (url.origin === self.location.origin && url.pathname.startsWith('/assets/')) {
-    event.respondWith(
-      caches.match(req).then((cached) => {
-        if (cached) return cached
-        return fetch(req).then((res) => {
-          if (res.ok && res.type === 'basic') {
-            const clone = res.clone()
-            caches.open(CACHE_NAME).then((c) => c.put(req, clone))
-          }
-          return res
-        })
+  // Everything else (HTML, JS, CSS, images) → network-first.
+  // Refresh the cache copy on every successful fetch so the offline
+  // fallback stays current; fall back to cache only when offline.
+  event.respondWith(
+    fetch(req)
+      .then((res) => {
+        if (res.ok && res.type === 'basic' && url.origin === self.location.origin) {
+          const clone = res.clone()
+          caches.open(CACHE_NAME).then((c) => c.put(req, clone))
+        }
+        return res
       })
-    )
-    return
-  }
-
-  // ── 4. Default → network, no cache ─────────────────────────
-  // (Skips icons/images so a missing PNG isn't permanently cached.)
+      .catch(() => caches.match(req).then((c) => c || caches.match('/index.html')))
+  )
 })
 
 // ─── Push notifications ───────────────────────────────────────
