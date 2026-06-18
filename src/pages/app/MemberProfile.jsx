@@ -894,7 +894,7 @@ export default function MemberProfile() {
   // ── Loading state ──────────────────────────────────────────
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center gap-4">
+      <div className="min-h-screen flex flex-col items-center justify-center gap-4">
         <Loader2 className="w-10 h-10 text-purple-500 animate-spin" />
         <p className="text-sm text-slate-400 font-medium">Loading member profile…</p>
       </div>
@@ -904,7 +904,7 @@ export default function MemberProfile() {
   // ── Not found ──────────────────────────────────────────────
   if (notFound) {
     return (
-      <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center gap-6 p-8">
+      <div className="min-h-screen flex flex-col items-center justify-center gap-6 p-8">
         <div className="w-20 h-20 rounded-2xl bg-red-50 flex items-center justify-center">
           <AlertCircle className="w-10 h-10 text-red-400" />
         </div>
@@ -932,7 +932,7 @@ export default function MemberProfile() {
 
   // ─────────────────────────────────────────────────────────────
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen">
       <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
         {/* Back button */}

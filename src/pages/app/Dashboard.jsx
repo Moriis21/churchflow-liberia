@@ -289,7 +289,7 @@ export default function Dashboard() {
   })
 
   return (
-    <div className="min-h-screen bg-slate-50 animate-fade-in">
+    <div className="min-h-screen animate-fade-in">
       <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
 
         {/* ── Page header ──────────────────────────────── */}
@@ -316,7 +316,7 @@ export default function Dashboard() {
               <Bell className="w-5 h-5" />
               <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-rose-500" />
             </button>
-            <button className="inline-flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r from-[#151022] to-[#5B00B8] px-5 py-2.5 rounded-xl shadow-md shadow-purple-500/25 hover:from-[#5B00B8] hover:to-[#3D108A] hover:shadow-purple-500/40 hover:-translate-y-0.5 transition-all">
+            <button className="inline-flex items-center gap-2 text-sm font-semibold text-white bg-[#111111] px-5 py-2.5 rounded-xl shadow-md shadow-black/25 hover:bg-black hover:-translate-y-0.5 transition-all">
               <FileText className="w-4 h-4" />
               Generate Report
             </button>

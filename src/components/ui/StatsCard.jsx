@@ -3,45 +3,27 @@ import React from 'react'
 const colorConfig = {
   purple: {
     iconBg: 'bg-gradient-to-br from-violet-500 to-purple-700',
-    iconText: 'text-white',
-    accent: 'text-purple-600',
-    glow: 'shadow-purple-500/20',
-    border: 'border-purple-100',
+    iconText: 'text-white', accent: 'text-purple-600', tint: 'tint-lavender',
   },
   gold: {
     iconBg: 'bg-gradient-to-br from-amber-400 to-yellow-500',
-    iconText: 'text-amber-950',
-    accent: 'text-amber-600',
-    glow: 'shadow-amber-400/20',
-    border: 'border-amber-100',
+    iconText: 'text-amber-950', accent: 'text-amber-600', tint: 'tint-cream',
   },
   green: {
     iconBg: 'bg-gradient-to-br from-emerald-400 to-teal-600',
-    iconText: 'text-white',
-    accent: 'text-emerald-600',
-    glow: 'shadow-emerald-500/20',
-    border: 'border-emerald-100',
+    iconText: 'text-white', accent: 'text-emerald-600', tint: 'tint-mint',
   },
   blue: {
     iconBg: 'bg-gradient-to-br from-blue-500 to-indigo-600',
-    iconText: 'text-white',
-    accent: 'text-blue-600',
-    glow: 'shadow-blue-500/20',
-    border: 'border-blue-100',
+    iconText: 'text-white', accent: 'text-blue-600', tint: 'tint-blue',
   },
   navy: {
     iconBg: 'bg-gradient-to-br from-indigo-800 to-[#151022]',
-    iconText: 'text-white',
-    accent: 'text-indigo-700',
-    glow: 'shadow-indigo-900/20',
-    border: 'border-indigo-100',
+    iconText: 'text-white', accent: 'text-indigo-700', tint: 'tint-violet',
   },
   rose: {
     iconBg: 'bg-gradient-to-br from-rose-400 to-red-600',
-    iconText: 'text-white',
-    accent: 'text-rose-600',
-    glow: 'shadow-rose-500/20',
-    border: 'border-rose-100',
+    iconText: 'text-white', accent: 'text-rose-600', tint: 'tint-aqua',
   },
 }
 
@@ -73,11 +55,10 @@ const StatsCard = ({
   return (
     <div
       className={[
-        'bg-white rounded-2xl border p-5 flex flex-col gap-4',
-        'shadow-[0_4px_20px_-4px_rgba(0,0,0,0.08)]',
-        `hover:shadow-[0_8px_30px_-4px_rgba(0,0,0,0.12)] hover:shadow-${cfg.glow}`,
+        // Pastel-tinted frosted card (matches the glassmorphism reference)
+        cfg.tint,
+        'rounded-2xl border border-white/70 backdrop-blur-xl p-5 flex flex-col gap-4',
         'transition-all duration-300 ease-out hover:-translate-y-0.5',
-        cfg.border,
         className,
       ].join(' ')}
     >
