@@ -92,7 +92,7 @@ export default function PWAInstallPrompt() {
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: 100, opacity: 0 }}
           transition={{ type: 'spring', stiffness: 320, damping: 28 }}
-          className="fixed bottom-4 left-4 right-4 sm:left-auto sm:right-6 sm:bottom-6 sm:max-w-sm z-[1050]"
+          className="fixed bottom-4 left-4 right-4 sm:right-auto sm:left-6 sm:bottom-6 sm:max-w-sm z-[1050]"
         >
           <div className="bg-white rounded-2xl shadow-2xl shadow-purple-900/20 border border-slate-100 p-4 flex items-start gap-3">
             <div className="flex-shrink-0 w-11 h-11 rounded-xl bg-gradient-to-br from-[#151022] to-[#5B00B8] flex items-center justify-center shadow-md shadow-purple-500/30">

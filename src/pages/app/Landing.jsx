@@ -296,9 +296,11 @@ function Hero() {
             </Link>
             <button
               onClick={() => setDemoOpen(true)}
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 text-sm sm:text-base font-semibold text-white border border-white/25 px-7 sm:px-8 py-3 sm:py-4 rounded-2xl hover:bg-white/8 hover:border-white/40 transition-all duration-200 backdrop-blur-sm"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 text-sm sm:text-base font-semibold text-white bg-white/15 border border-white/40 px-7 sm:px-8 py-3 sm:py-4 rounded-2xl hover:bg-white/25 hover:border-white/60 shadow-lg shadow-black/10 transition-all duration-200 backdrop-blur-md hover:-translate-y-0.5 active:translate-y-0"
             >
-              <Video className="w-4 h-4 sm:w-5 sm:h-5 text-white/75" />
+              <span className="flex items-center justify-center w-6 h-6 rounded-full bg-white/20">
+                <Video className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white" fill="currentColor" />
+              </span>
               Watch Demo
             </button>
           </motion.div>
@@ -391,6 +393,9 @@ function Hero() {
         </div>
       </div>
 
+      {/* Smooth fade into the light Features section below */}
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-32 bg-gradient-to-b from-transparent to-slate-50 z-[5]" />
+
       <DemoModal isOpen={demoOpen} onClose={() => setDemoOpen(false)} />
     </section>
   )
@@ -466,7 +471,7 @@ function Features() {
           <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 mb-4 leading-tight">
             Everything your church needs in one place
           </h2>
-          <p className="text-lg text-slate-500">
+          <p className="text-lg text-slate-600">
             Purpose-built tools to help Liberian churches grow, stay organised, and minister effectively.
           </p>
         </div>
@@ -487,8 +492,8 @@ function Features() {
               <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-violet-100 to-purple-100 border border-purple-100 flex items-center justify-center mb-5 group-hover:from-violet-600 group-hover:to-purple-700 group-hover:border-transparent transition-all duration-300 shadow-sm">
                 <Icon className="w-6 h-6 text-purple-600 group-hover:text-white transition-colors duration-300" />
               </div>
-              <h3 className="text-base font-bold text-slate-800 mb-2">{title}</h3>
-              <p className="text-sm text-slate-500 leading-relaxed">{desc}</p>
+              <h3 className="text-base font-bold text-slate-900 mb-2">{title}</h3>
+              <p className="text-sm text-slate-600 leading-relaxed">{desc}</p>
             </div>
           ))}
         </div>
@@ -497,40 +502,18 @@ function Features() {
   )
 }
 
-// ─── Stats Bar (real data from InsForge) ──────────────────────
+// ─── Stats Bar — value-based proof points ─────────────────────
+// We deliberately show capability/trust signals rather than live
+// church/member counts: a new platform showing "0 churches" destroys
+// credibility. These are always true and speak to the value prop.
 function StatsBar() {
   const [ref, visible] = useInView(0.2)
-  const [counts, setCounts] = useState({ churches: null, members: null })
-
-  useEffect(() => {
-    async function fetchCounts() {
-      try {
-        const [churchRes, memberRes] = await Promise.all([
-          insforge.database.from('churches').select('id', { count: 'exact' }),
-          insforge.database.from('members').select('id', { count: 'exact' }),
-        ])
-        setCounts({
-          churches: churchRes.count ?? churchRes.data?.length ?? 0,
-          members: memberRes.count ?? memberRes.data?.length ?? 0,
-        })
-      } catch {
-        // silently fail — keep showing null (handled below)
-      }
-    }
-    fetchCounts()
-  }, [])
-
-  // Format number nicely: 0 → "0", 1234 → "1,234"
-  function fmt(n) {
-    if (n === null) return '—'
-    return n.toLocaleString()
-  }
 
   const stats = [
-    { value: fmt(counts.churches), label: 'Churches on Platform' },
-    { value: fmt(counts.members),  label: 'Members Managed' },
-    { value: '99.9%',              label: 'Uptime Guaranteed' },
-    { value: '24/7',               label: 'Support Available' },
+    { value: 'LRD + USD', label: 'Dual-Currency Giving' },
+    { value: 'Bank-Level', label: 'Security & Encryption' },
+    { value: '99.9%',      label: 'Uptime Guaranteed' },
+    { value: '24/7',       label: 'Support Available' },
   ]
 
   return (
@@ -831,13 +814,14 @@ function Testimonials() {
                 "{t.quote}"
               </p>
 
-              {/* Author */}
+              {/* Author — initial avatar (no stock photos) */}
               <div className="flex items-center gap-3">
-                <img
-                  src={t.img}
-                  alt={t.name}
-                  className="w-11 h-11 rounded-full object-cover ring-2 ring-purple-100"
-                />
+                <span
+                  aria-hidden="true"
+                  className="flex items-center justify-center w-11 h-11 rounded-full bg-gradient-to-br from-[#151022] to-[#5B00B8] text-white text-sm font-bold ring-2 ring-purple-100 flex-shrink-0"
+                >
+                  {t.name.replace(/^(Pastor|Sec\.|Elder|Rev\.|Dr\.)\s+/i, '').split(' ').map((w) => w[0]).join('').slice(0, 2).toUpperCase()}
+                </span>
                 <div>
                   <p className="text-sm font-bold text-slate-800">{t.name}</p>
                   <p className="text-xs text-slate-500">{t.role} · {t.church}</p>
@@ -937,7 +921,7 @@ function Pricing() {
                 'relative rounded-3xl p-8 flex flex-col',
                 plan.popular
                   ? 'bg-gradient-to-br from-[#151022] via-purple-800 to-violet-700 text-white shadow-2xl shadow-purple-900/40 scale-105 ring-4 ring-purple-400/30'
-                  : 'bg-white border border-slate-100 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07)]',
+                  : 'bg-gradient-to-br from-white to-purple-50/40 border border-purple-100/70 shadow-[0_4px_20px_-4px_rgba(124,58,237,0.12)] hover:shadow-[0_8px_30px_-4px_rgba(124,58,237,0.2)] hover:-translate-y-1 transition-all duration-300',
               ].join(' ')}
               style={
                 plan.popular
@@ -969,14 +953,14 @@ function Pricing() {
               <div className="mb-8">
                 <div className="flex items-end gap-2">
                   <span className={`text-4xl font-extrabold ${plan.popular ? 'text-white' : 'text-slate-900'}`}>
-                    {plan.usd}
+                    {plan.lrd}
                   </span>
                   <span className={`text-sm font-semibold mb-1 ${plan.popular ? 'text-white/60' : 'text-slate-400'}`}>
                     {plan.period}
                   </span>
                 </div>
                 <p className={`text-sm mt-1 ${plan.popular ? 'text-yellow-300/80' : 'text-slate-400'}`}>
-                  approx. {plan.lrd}/mo
+                  approx. {plan.usd} USD/mo
                 </p>
               </div>
 

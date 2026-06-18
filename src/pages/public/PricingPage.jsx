@@ -125,10 +125,10 @@ const PLANS = [
 ]
 
 const TRUST_STATS = [
-  { value: '500+',   label: 'Churches Served'  },
-  { value: 'LRD',    label: 'Local Currency'   },
-  { value: '99.9%',  label: 'Platform Uptime'  },
-  { value: '14-day', label: 'Free Trial'       },
+  { value: 'LRD + USD', label: 'Dual Currency'   },
+  { value: 'Bank-Level',label: 'Data Security'   },
+  { value: '99.9%',     label: 'Platform Uptime' },
+  { value: '14-day',    label: 'Free Trial'      },
 ]
 
 const WHY_FEATURES = [
@@ -354,12 +354,12 @@ export default function PricingPage() {
                       </p>
                     </div>
 
-                    {/* Price — NumberFlow for animated counter on toggle */}
+                    {/* Price — LRD-first for the Liberian market */}
                     <div className="mb-8">
                       <div className="flex items-end gap-1">
                         <span className={`text-4xl font-extrabold ${plan.popular ? 'text-white' : 'text-slate-900'}`}>
-                          $<NumberFlow
-                            value={usdPrice}
+                          LRD&nbsp;<NumberFlow
+                            value={lrdPrice}
                             format={{ notation: 'standard' }}
                             className="text-4xl font-extrabold"
                           />
@@ -369,10 +369,10 @@ export default function PricingPage() {
                         </span>
                       </div>
                       <p className={`text-sm mt-1 ${plan.popular ? 'text-yellow-300/80' : 'text-slate-400'}`}>
-                        approx. LRD <NumberFlow
-                          value={lrdPrice}
+                        approx. $<NumberFlow
+                          value={usdPrice}
                           format={{ notation: 'standard' }}
-                        />{period}
+                        /> USD{period}
                       </p>
                     </div>
 
