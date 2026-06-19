@@ -272,7 +272,7 @@ function Hero() {
 
           {/* Headline — dark text on pastel */}
           <motion.h1 {...fadeUp(0.08)}
-            className="text-[1.65rem] xs:text-3xl sm:text-5xl lg:text-6xl font-extrabold text-[#111827] leading-[1.18] tracking-tight mb-4 sm:mb-6 px-2 sm:px-0"
+            className="text-[1.65rem] xs:text-3xl sm:text-5xl lg:text-6xl font-extrabold text-[#111827] leading-[1.18] tracking-tight mb-4 sm:mb-6 px-2 sm:px-0 text-balance"
           >
             Stop Losing Church Records.{' '}
             <span className="bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent">
@@ -282,10 +282,12 @@ function Hero() {
 
           {/* Subtext */}
           <motion.p {...fadeUp(0.16)}
-            className="text-sm sm:text-lg text-slate-600 leading-[1.7] max-w-[86%] sm:max-w-2xl mx-auto mb-7 sm:mb-10"
+            className="text-sm sm:text-lg text-slate-600 leading-[1.7] max-w-[86%] sm:max-w-2xl mx-auto mb-7 sm:mb-10 text-pretty"
           >
-            ChurchFlow helps Liberian churches manage members, track attendance,
-            record offerings, and stay connected — all in one place.
+            From the smallest fellowship in Monrovia to multi-branch ministries across
+            Liberia, ChurchFlow brings your members, attendance, giving, and communication
+            into one secure place — so you can spend less time on paperwork and more time
+            shepherding your congregation.
           </motion.p>
 
           {/* CTA Buttons — shorter on mobile, reduced shadow */}
@@ -485,11 +487,13 @@ function Features() {
           <span className="inline-block text-sm font-semibold text-purple-600 bg-purple-50 px-4 py-1.5 rounded-full mb-4 border border-purple-100">
             Features
           </span>
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 mb-4 leading-tight">
+          <h2 className="text-2xl sm:text-4xl font-extrabold text-slate-900 mb-4 leading-tight text-balance">
             Everything your church needs in one place
           </h2>
-          <p className="text-lg text-slate-600">
-            Purpose-built tools to help Liberian churches grow, stay organised, and minister effectively.
+          <p className="text-base sm:text-lg text-slate-600 text-pretty">
+            No more scattered notebooks, lost attendance sheets, or guesswork at the offering table.
+            Every tool your ministry relies on lives under one roof — built for the way Liberian
+            churches actually serve, week after week.
           </p>
         </div>
 
@@ -635,12 +639,14 @@ function HowItWorks() {
           <span className="inline-block text-sm font-semibold text-purple-600 bg-purple-50 px-4 py-1.5 rounded-full mb-4 border border-purple-100">
             How It Works
           </span>
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 mb-4 leading-tight">
+          <h2 className="text-2xl sm:text-4xl font-extrabold text-slate-900 mb-4 leading-tight text-balance">
             Designed for Church.{' '}
             <span className="text-purple-600">Built for Impact.</span>
           </h2>
-          <p className="text-base sm:text-lg text-slate-600">
-            Get up and running in under 10 minutes with our simple onboarding process.
+          <p className="text-base sm:text-lg text-slate-600 text-pretty">
+            You don't need to be technical, and you don't need a long setup. In three simple
+            steps — under ten minutes — your church profile is live, your members are in, and
+            you're ready to track attendance, giving, and growth from any phone or computer.
           </p>
         </div>
 
@@ -765,11 +771,13 @@ function Testimonials() {
           <span className="inline-block text-sm font-semibold text-purple-700 bg-white/60 backdrop-blur-sm px-4 py-1.5 rounded-full mb-4 border border-white/70">
             Why ChurchFlow
           </span>
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 mb-4 leading-tight">
+          <h2 className="text-2xl sm:text-4xl font-extrabold text-slate-900 mb-4 leading-tight text-balance">
             A modern foundation for your ministry
           </h2>
-          <p className="text-lg text-slate-600">
-            Replace scattered paper records with one secure, transparent system built for the way Liberian churches serve.
+          <p className="text-base sm:text-lg text-slate-600 text-pretty">
+            Trust is built on transparency and care. ChurchFlow gives your leadership accurate
+            records, your finance team a clear audit trail, and your members the confidence that
+            their church is run with excellence — all on infrastructure secured to bank-level standards.
           </p>
         </div>
 
