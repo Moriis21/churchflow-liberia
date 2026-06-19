@@ -145,15 +145,15 @@ export default function ChangelogPage() {
   return (
     <PublicLayout>
       {/* Hero */}
-      <section className="bg-gradient-to-br from-[#151022] via-[#2A1F4F] to-[#8A19FF] py-20 px-4 text-center">
+      <section className="pastel-canvas py-20 px-4 text-center">
         <div className="max-w-3xl mx-auto">
-          <span className="inline-block px-4 py-1.5 rounded-full bg-white/10 text-[#F59E0B] text-xs font-semibold tracking-widest uppercase mb-6 border border-white/20">
+          <span className="inline-block px-4 py-1.5 rounded-full glass-card text-purple-700 text-xs font-semibold tracking-widest uppercase mb-6 border border-white/70">
             Product Updates
           </span>
-          <h1 className="text-4xl sm:text-5xl font-extrabold text-white leading-tight mb-4">
+          <h1 className="text-4xl sm:text-5xl font-extrabold text-[#111827] leading-tight mb-4">
             Changelog
           </h1>
-          <p className="text-lg text-purple-200 max-w-xl mx-auto leading-relaxed">
+          <p className="text-lg text-slate-600 max-w-xl mx-auto leading-relaxed">
             A complete record of every ChurchFlow release — new features, improvements, and bug fixes.
           </p>
         </div>
@@ -244,10 +244,10 @@ export default function ChangelogPage() {
       </section>
 
       {/* Subscribe nudge */}
-      <section className="bg-[#151022] py-12 px-4 text-center">
+      <section className="pastel-canvas py-12 px-4 text-center">
         <div className="max-w-xl mx-auto">
-          <h2 className="text-2xl font-extrabold text-white mb-3">Stay up to date</h2>
-          <p className="text-purple-300 text-sm leading-relaxed mb-6">
+          <h2 className="text-2xl font-extrabold text-[#111827] mb-3">Stay up to date</h2>
+          <p className="text-purple-700 text-sm leading-relaxed mb-6">
             Subscribe to the ChurchFlow newsletter to receive release notes and product announcements directly in your inbox.
           </p>
           <Link

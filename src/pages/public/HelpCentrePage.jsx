@@ -103,14 +103,14 @@ export default function HelpCentrePage() {
   return (
     <PublicLayout>
       {/* Hero + Search */}
-      <section className="bg-gradient-to-br from-[#151022] via-[#2A1F4F] to-[#8A19FF] py-20 px-4 text-center">
+      <section className="pastel-canvas py-20 px-4 text-center">
         <div className="max-w-2xl mx-auto">
-          <h1 className="text-4xl sm:text-5xl font-extrabold text-white mb-4">How can we help you?</h1>
-          <p className="text-purple-200 text-base mb-8 leading-relaxed">
+          <h1 className="text-4xl sm:text-5xl font-extrabold text-[#111827] mb-4">How can we help you?</h1>
+          <p className="text-slate-600 text-base mb-8 leading-relaxed">
             Search our help articles or browse by category below.
           </p>
           <div className="relative">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
             <input
               type="text"
               value={query}
@@ -120,7 +120,7 @@ export default function HelpCentrePage() {
             />
           </div>
           {query && (
-            <p className="text-purple-200 text-sm mt-3">
+            <p className="text-slate-600 text-sm mt-3">
               {filtered.length} result{filtered.length !== 1 ? 's' : ''} for "{query}"
             </p>
           )}

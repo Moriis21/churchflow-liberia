@@ -85,13 +85,13 @@ export default function TutorialsPage() {
       {/* Hero */}
       <section className="bg-gradient-to-br from-[#151022] to-[#5B00B8] py-20 px-4">
         <div className="max-w-5xl mx-auto text-center">
-          <span className="inline-block px-4 py-1.5 rounded-full bg-white/10 text-amber-400 text-xs font-semibold tracking-widest uppercase mb-5 border border-white/20">
+          <span className="inline-block px-4 py-1.5 rounded-full bg-white/60 text-amber-400 text-xs font-semibold tracking-widest uppercase mb-5 border border-white/70">
             Tutorials
           </span>
-          <h1 className="text-3xl sm:text-5xl font-extrabold text-white leading-tight mb-4">
+          <h1 className="text-3xl sm:text-5xl font-extrabold text-[#111827] leading-tight mb-4">
             Learn ChurchFlow at your own pace
           </h1>
-          <p className="text-base sm:text-lg text-purple-200 max-w-xl mx-auto leading-relaxed">
+          <p className="text-base sm:text-lg text-slate-600 max-w-xl mx-auto leading-relaxed">
             Short, focused video tutorials covering every feature — from your first member to advanced reports.
           </p>
         </div>

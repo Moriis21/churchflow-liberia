@@ -241,15 +241,15 @@ export default function FeaturesPage() {
   return (
     <PublicLayout>
       {/* Hero */}
-      <section className="bg-gradient-to-br from-[#151022] via-[#2A1F4F] to-[#8A19FF] py-20 px-4 text-center">
+      <section className="pastel-canvas py-20 px-4 text-center">
         <div className="max-w-3xl mx-auto">
-          <span className="inline-block px-4 py-1.5 rounded-full bg-white/10 text-[#F59E0B] text-xs font-semibold tracking-widest uppercase mb-6 border border-white/20">
+          <span className="inline-block px-4 py-1.5 rounded-full glass-card text-purple-700 text-xs font-semibold tracking-widest uppercase mb-6 border border-white/70">
             Full Feature Overview
           </span>
-          <h1 className="text-4xl sm:text-5xl font-extrabold text-white leading-tight mb-5">
+          <h1 className="text-4xl sm:text-5xl font-extrabold text-[#111827] leading-tight mb-5">
             Everything Your Ministry Needs
           </h1>
-          <p className="text-lg text-purple-200 max-w-2xl mx-auto leading-relaxed mb-8">
+          <p className="text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed mb-8">
             ChurchFlow brings together 12 powerful modules designed specifically for Liberian churches — from attendance tracking to financial reporting, all in one platform.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
@@ -262,7 +262,7 @@ export default function FeaturesPage() {
             </Link>
             <Link
               to="/pricing"
-              className="inline-flex items-center gap-2 px-7 py-3 rounded-xl border border-white/30 text-white font-semibold text-sm hover:bg-white/10 transition-colors"
+              className="inline-flex items-center gap-2 px-7 py-3 rounded-xl border border-slate-300 text-[#111827] font-semibold text-sm hover:bg-white/60 transition-colors"
             >
               View Pricing
             </Link>
@@ -340,10 +340,10 @@ export default function FeaturesPage() {
       </section>
 
       {/* CTA */}
-      <section className="bg-[#151022] py-16 px-4 text-center">
+      <section className="pastel-canvas py-16 px-4 text-center">
         <div className="max-w-2xl mx-auto">
-          <h2 className="text-3xl font-extrabold text-white mb-4">Ready to transform your church administration?</h2>
-          <p className="text-purple-300 mb-8 leading-relaxed">
+          <h2 className="text-3xl font-extrabold text-[#111827] mb-4">Ready to transform your church administration?</h2>
+          <p className="text-purple-700 mb-8 leading-relaxed">
             Start your 14-day free trial today. No credit card required. Cancel anytime.
           </p>
           <Link

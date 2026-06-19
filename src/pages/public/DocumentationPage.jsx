@@ -357,15 +357,15 @@ export default function DocumentationPage() {
   return (
     <PublicLayout>
       {/* Hero */}
-      <section className="bg-gradient-to-br from-[#151022] to-[#2A1F4F] py-14 px-4">
+      <section className="pastel-canvas py-14 px-4">
         <div className="max-w-7xl mx-auto">
-          <div className="flex items-center gap-2 text-purple-300 text-sm mb-3">
-            <Link to="/landing" className="hover:text-white transition-colors">Home</Link>
+          <div className="flex items-center gap-2 text-purple-700 text-sm mb-3">
+            <Link to="/landing" className="hover:text-[#111827] transition-colors">Home</Link>
             <ChevronRight className="w-3.5 h-3.5" />
-            <span className="text-white">Documentation</span>
+            <span className="text-[#111827]">Documentation</span>
           </div>
-          <h1 className="text-3xl sm:text-4xl font-extrabold text-white mb-3">Documentation</h1>
-          <p className="text-purple-200 text-base max-w-xl">
+          <h1 className="text-3xl sm:text-4xl font-extrabold text-[#111827] mb-3">Documentation</h1>
+          <p className="text-slate-600 text-base max-w-xl">
             Everything you need to get the most out of ChurchFlow. Guides, references, and FAQs.
           </p>
         </div>
@@ -381,7 +381,7 @@ export default function DocumentationPage() {
               const Icon = section.icon
               return (
                 <div key={section.label}>
-                  <div className="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">
+                  <div className="flex items-center gap-2 text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
                     <Icon className="w-3.5 h-3.5" />
                     {section.label}
                   </div>
@@ -418,7 +418,7 @@ export default function DocumentationPage() {
                 <BookOpen className="w-5 h-5 text-[#8A19FF]" />
               </div>
               <div>
-                <p className="text-xs text-slate-400 font-semibold uppercase tracking-wider">Getting Started</p>
+                <p className="text-xs text-slate-500 font-semibold uppercase tracking-wider">Getting Started</p>
                 <h2 className="text-2xl font-extrabold text-[#151022]">Getting Started with ChurchFlow</h2>
               </div>
             </div>
@@ -442,7 +442,7 @@ export default function DocumentationPage() {
               return (
                 <div key={step.anchor} id={step.anchor} className="scroll-mt-20">
                   <div className="flex items-start gap-4 mb-5">
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#8A19FF] to-violet-700 flex items-center justify-center text-white font-black text-sm flex-shrink-0 shadow">
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#8A19FF] to-violet-700 flex items-center justify-center text-[#111827] font-black text-sm flex-shrink-0 shadow">
                       {step.number}
                     </div>
                     <div>
@@ -454,9 +454,9 @@ export default function DocumentationPage() {
                     <p className="text-slate-600 leading-relaxed mb-5">{step.content}</p>
 
                     {step.code && (
-                      <div className="bg-[#151022] rounded-xl overflow-hidden mb-5">
+                      <div className="pastel-canvas rounded-xl overflow-hidden mb-5">
                         <div className="flex items-center justify-between px-4 py-2 bg-white/5 border-b border-white/10">
-                          <span className="text-xs text-slate-400 font-mono">Example</span>
+                          <span className="text-xs text-slate-500 font-mono">Example</span>
                         </div>
                         <pre className="p-4 text-xs text-green-300 font-mono leading-relaxed overflow-x-auto whitespace-pre-wrap">
                           {step.code}

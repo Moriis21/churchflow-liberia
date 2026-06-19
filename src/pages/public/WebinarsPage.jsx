@@ -62,13 +62,13 @@ export default function WebinarsPage() {
       {/* Hero */}
       <section className="bg-gradient-to-br from-[#151022] to-[#5B00B8] py-20 px-4">
         <div className="max-w-5xl mx-auto text-center">
-          <span className="inline-block px-4 py-1.5 rounded-full bg-white/10 text-amber-400 text-xs font-semibold tracking-widest uppercase mb-5 border border-white/20">
+          <span className="inline-block px-4 py-1.5 rounded-full bg-white/60 text-amber-400 text-xs font-semibold tracking-widest uppercase mb-5 border border-white/70">
             Webinars
           </span>
-          <h1 className="text-3xl sm:text-5xl font-extrabold text-white leading-tight mb-4">
+          <h1 className="text-3xl sm:text-5xl font-extrabold text-[#111827] leading-tight mb-4">
             Live training for church leaders
           </h1>
-          <p className="text-base sm:text-lg text-purple-200 max-w-xl mx-auto leading-relaxed">
+          <p className="text-base sm:text-lg text-slate-600 max-w-xl mx-auto leading-relaxed">
             Join live sessions with the ChurchFlow team. Learn best practices, ask questions, and connect with other Liberian church leaders.
           </p>
         </div>
@@ -113,15 +113,15 @@ export default function WebinarsPage() {
       )}
 
       {/* CTA */}
-      <section className="bg-[#151022] py-14 px-4">
+      <section className="pastel-canvas py-14 px-4">
         <div className="max-w-3xl mx-auto text-center">
           <Mic2 className="w-10 h-10 text-amber-400 mx-auto mb-4" />
-          <h2 className="text-2xl font-extrabold text-white mb-2">Want a webinar for your topic?</h2>
-          <p className="text-purple-200 text-sm mb-6">
+          <h2 className="text-2xl font-extrabold text-[#111827] mb-2">Want a webinar for your topic?</h2>
+          <p className="text-slate-600 text-sm mb-6">
             Suggest a topic you'd like covered — we'll add it to the calendar.
           </p>
           <Link to="/contact"
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#8A19FF] text-white text-sm font-semibold shadow-[0_4px_14px_rgba(138,25,255,0.30)] hover:bg-[#5B00B8] transition-colors">
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#8A19FF] text-[#111827] text-sm font-semibold shadow-[0_4px_14px_rgba(138,25,255,0.30)] hover:bg-[#5B00B8] transition-colors">
             Suggest a topic
             <ChevronRight className="w-4 h-4" />
           </Link>
@@ -139,7 +139,7 @@ function UpcomingCard({ webinar }) {
 
   return (
     <article className="bg-white rounded-[20px] border border-[#E4E7EC] p-6 shadow-[0_1px_3px_rgba(21,16,34,0.06)] flex flex-col sm:flex-row gap-5">
-      <div className="flex-shrink-0 w-16 h-16 rounded-2xl bg-gradient-to-br from-[#151022] to-[#5B00B8] text-white flex flex-col items-center justify-center shadow-[0_4px_14px_rgba(138,25,255,0.25)]">
+      <div className="flex-shrink-0 w-16 h-16 rounded-2xl bg-gradient-to-br from-[#151022] to-[#5B00B8] text-[#111827] flex flex-col items-center justify-center shadow-[0_4px_14px_rgba(138,25,255,0.25)]">
         <span className="text-[10px] font-bold uppercase tracking-wider">{monthAb}</span>
         <span className="text-2xl font-extrabold leading-none">{dayNum}</span>
       </div>
@@ -163,7 +163,7 @@ function UpcomingCard({ webinar }) {
         </div>
         {webinar.registration_url ? (
           <a href={webinar.registration_url} target="_blank" rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#8A19FF] text-white text-xs font-semibold shadow-[0_2px_8px_rgba(138,25,255,0.30)] hover:bg-[#5B00B8] transition-colors">
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#8A19FF] text-[#111827] text-xs font-semibold shadow-[0_2px_8px_rgba(138,25,255,0.30)] hover:bg-[#5B00B8] transition-colors">
             Register free <ArrowRight className="w-3.5 h-3.5" />
           </a>
         ) : (
@@ -180,19 +180,19 @@ function UpcomingCard({ webinar }) {
 function PastCard({ webinar }) {
   return (
     <article className="bg-white rounded-[20px] border border-[#E4E7EC] overflow-hidden shadow-[0_1px_3px_rgba(21,16,34,0.06)]">
-      <div className="aspect-video bg-[#151022] relative">
+      <div className="aspect-video pastel-canvas relative">
         {webinar.thumbnail_url ? (
           <img src={webinar.thumbnail_url} alt={webinar.title} className="w-full h-full object-cover" />
         ) : (
           <div className="absolute inset-0 bg-gradient-to-br from-[#151022] to-[#5B00B8] flex items-center justify-center">
-            <Mic2 className="w-10 h-10 text-white/30" />
+            <Mic2 className="w-10 h-10 text-[#111827]/30" />
           </div>
         )}
         {webinar.recording_url && (
           <a href={webinar.recording_url} target="_blank" rel="noopener noreferrer"
             className="absolute inset-0 flex items-center justify-center group">
             <div className="w-14 h-14 rounded-full bg-[#8A19FF] shadow-[0_8px_28px_rgba(138,25,255,0.50)] flex items-center justify-center group-hover:scale-110 transition-transform">
-              <PlayCircle className="w-7 h-7 text-white" />
+              <PlayCircle className="w-7 h-7 text-[#111827]" />
             </div>
           </a>
         )}

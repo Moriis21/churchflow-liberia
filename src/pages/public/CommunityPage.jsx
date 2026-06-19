@@ -142,25 +142,25 @@ export default function CommunityPage() {
   return (
     <PublicLayout>
       {/* Hero */}
-      <section className="bg-gradient-to-br from-[#151022] via-[#2A1F4F] to-[#8A19FF] py-24 px-4 text-center">
+      <section className="pastel-canvas py-24 px-4 text-center">
         <div className="max-w-3xl mx-auto">
-          <span className="inline-block px-4 py-1.5 rounded-full bg-white/10 text-[#F59E0B] text-xs font-semibold tracking-widest uppercase mb-6 border border-white/20">
+          <span className="inline-block px-4 py-1.5 rounded-full glass-card text-purple-700 text-xs font-semibold tracking-widest uppercase mb-6 border border-white/70">
             Community
           </span>
-          <h1 className="text-4xl sm:text-5xl font-extrabold text-white leading-tight mb-5">
+          <h1 className="text-4xl sm:text-5xl font-extrabold text-[#111827] leading-tight mb-5">
             Join the ChurchFlow Community
           </h1>
-          <p className="text-lg text-purple-200 max-w-2xl mx-auto leading-relaxed mb-8">
+          <p className="text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed mb-8">
             Connect with hundreds of church administrators, pastors, and ministry leaders across Liberia. Share knowledge, learn best practices, and grow together.
           </p>
           <div className="flex flex-wrap gap-4 justify-center">
             {STATS.map(stat => {
               const Icon = stat.icon
               return (
-                <div key={stat.label} className="flex items-center gap-2 px-5 py-2.5 bg-white/10 rounded-xl border border-white/20">
-                  <Icon className="w-4 h-4 text-[#F59E0B]" />
-                  <span className="text-white font-bold text-sm">{stat.value}</span>
-                  <span className="text-purple-200 text-sm">{stat.label}</span>
+                <div key={stat.label} className="flex items-center gap-2 px-5 py-2.5 bg-white/60 rounded-xl border border-white/70">
+                  <Icon className="w-4 h-4 text-[#5B00B8]" />
+                  <span className="text-[#111827] font-bold text-sm">{stat.value}</span>
+                  <span className="text-slate-600 text-sm">{stat.label}</span>
                 </div>
               )
             })}
@@ -308,10 +308,10 @@ export default function CommunityPage() {
       </section>
 
       {/* Bottom CTA */}
-      <section className="py-16 px-4 bg-[#151022]">
+      <section className="py-16 px-4 pastel-canvas">
         <div className="max-w-xl mx-auto text-center">
-          <h2 className="text-2xl font-extrabold text-white mb-3">Ready to get started?</h2>
-          <p className="text-purple-300 text-sm leading-relaxed mb-8">
+          <h2 className="text-2xl font-extrabold text-[#111827] mb-3">Ready to get started?</h2>
+          <p className="text-purple-700 text-sm leading-relaxed mb-8">
             Sign up above to join your preferred community channel — email newsletter, WhatsApp, or Facebook — and become part of Liberia's growing church management community.
           </p>
           <a

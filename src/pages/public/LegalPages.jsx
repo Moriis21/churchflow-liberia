@@ -13,22 +13,22 @@ const EFFECTIVE_DATE = 'January 1, 2026'
 function LegalLayout({ icon: Icon, title, subtitle, badge, children }) {
   return (
     <PublicLayout>
-      <section className="bg-gradient-to-br from-[#151022] to-[#2A1F4F] py-16 px-4">
+      <section className="pastel-canvas py-16 px-4">
         <div className="max-w-4xl mx-auto">
-          <div className="flex items-center gap-2 text-purple-300 text-sm mb-3">
-            <Link to="/landing" className="hover:text-white transition-colors">Home</Link>
+          <div className="flex items-center gap-2 text-purple-700 text-sm mb-3">
+            <Link to="/landing" className="hover:text-[#111827] transition-colors">Home</Link>
             <ChevronRight className="w-3.5 h-3.5" />
-            <span className="text-white">{badge}</span>
+            <span className="text-[#111827]">{badge}</span>
           </div>
           <div className="flex items-center gap-4 mb-4">
             <div className="w-12 h-12 rounded-xl bg-[#8A19FF]/30 flex items-center justify-center">
-              <Icon className="w-6 h-6 text-[#F59E0B]" />
+              <Icon className="w-6 h-6 text-[#5B00B8]" />
             </div>
             <div>
-              <h1 className="text-3xl font-extrabold text-white">{title}</h1>
+              <h1 className="text-3xl font-extrabold text-[#111827]">{title}</h1>
             </div>
           </div>
-          <p className="text-purple-200 text-sm">{subtitle}</p>
+          <p className="text-slate-600 text-sm">{subtitle}</p>
         </div>
       </section>
 

@@ -129,15 +129,15 @@ export default function RoadmapPage() {
   return (
     <PublicLayout>
       {/* Hero */}
-      <section className="bg-gradient-to-br from-[#151022] via-[#2A1F4F] to-[#8A19FF] py-20 px-4 text-center">
+      <section className="pastel-canvas py-20 px-4 text-center">
         <div className="max-w-3xl mx-auto">
-          <span className="inline-block px-4 py-1.5 rounded-full bg-white/10 text-[#F59E0B] text-xs font-semibold tracking-widest uppercase mb-6 border border-white/20">
+          <span className="inline-block px-4 py-1.5 rounded-full glass-card text-purple-700 text-xs font-semibold tracking-widest uppercase mb-6 border border-white/70">
             Product Roadmap
           </span>
-          <h1 className="text-4xl sm:text-5xl font-extrabold text-white leading-tight mb-4">
+          <h1 className="text-4xl sm:text-5xl font-extrabold text-[#111827] leading-tight mb-4">
             What We Are Building Next
           </h1>
-          <p className="text-lg text-purple-200 max-w-xl mx-auto leading-relaxed">
+          <p className="text-lg text-slate-600 max-w-xl mx-auto leading-relaxed">
             See what is in progress, what is coming soon, and what is on the horizon for ChurchFlow Liberia.
           </p>
         </div>
