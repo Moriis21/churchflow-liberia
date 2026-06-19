@@ -84,7 +84,7 @@ export default function PressPage() {
       {/* Press contact */}
       <section className="bg-white border-b border-slate-100 py-10 px-4">
         <div className="max-w-4xl mx-auto">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 p-7 bg-slate-50 rounded-2xl border border-slate-200">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 p-7 bg-transparent rounded-2xl border border-slate-200">
             <div className="flex items-start gap-4">
               <div className="w-11 h-11 rounded-xl bg-purple-100 flex items-center justify-center flex-shrink-0">
                 <Mail className="w-5 h-5 text-[#8A19FF]" />
@@ -107,7 +107,7 @@ export default function PressPage() {
       </section>
 
       {/* Logo kit */}
-      <section className="py-16 px-4 bg-slate-50">
+      <section className="py-16 px-4 bg-transparent">
         <div className="max-w-4xl mx-auto">
           <h2 className="text-2xl font-extrabold text-[#151022] mb-8">Logo and Assets</h2>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
@@ -127,7 +127,7 @@ export default function PressPage() {
                     </span>
                   </div>
                 </div>
-                <div className={`px-5 py-3 border-t ${v.bg === 'bg-white' ? 'border-slate-100 bg-slate-50' : 'border-white/10 bg-black/10'} flex items-center justify-between`}>
+                <div className={`px-5 py-3 border-t ${v.bg === 'bg-white' ? 'border-slate-100 bg-transparent' : 'border-white/10 bg-black/10'} flex items-center justify-between`}>
                   <div>
                     <p className={`text-xs font-semibold ${v.bg === 'bg-white' ? 'text-[#151022]' : 'text-white'}`}>{v.label}</p>
                     <p className={`text-xs ${v.bg === 'bg-white' ? 'text-slate-400' : 'text-white/50'}`}>{v.sub}</p>
@@ -189,7 +189,7 @@ export default function PressPage() {
               </div>
               <div className="space-y-3">
                 {TYPOGRAPHY.map(t => (
-                  <div key={t.label} className="flex items-start gap-3 p-3 bg-slate-50 rounded-xl border border-slate-100">
+                  <div key={t.label} className="flex items-start gap-3 p-3 bg-transparent rounded-xl border border-slate-100">
                     <Square className="w-4 h-4 text-slate-300 flex-shrink-0 mt-0.5" />
                     <div>
                       <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-0.5">{t.label}</span>
@@ -218,7 +218,7 @@ export default function PressPage() {
       </section>
 
       {/* Media mentions */}
-      <section className="py-16 px-4 bg-slate-50 border-t border-slate-100">
+      <section className="py-16 px-4 bg-transparent border-t border-slate-100">
         <div className="max-w-4xl mx-auto">
           <h2 className="text-2xl font-extrabold text-[#151022] mb-8">Media Coverage</h2>
           <div className="space-y-4">

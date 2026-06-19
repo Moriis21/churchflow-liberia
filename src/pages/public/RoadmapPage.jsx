@@ -80,7 +80,7 @@ const COLUMNS = [
     label: 'Planned',
     icon: Lightbulb,
     iconClass: 'text-slate-400',
-    headerBg: 'bg-slate-50 border-slate-200',
+    headerBg: 'bg-transparent border-slate-200',
     headerText: 'text-slate-500',
     dotColor: 'bg-slate-300',
     items: [
@@ -160,7 +160,7 @@ export default function RoadmapPage() {
       </div>
 
       {/* 3-column roadmap */}
-      <section className="py-16 px-4 bg-slate-50">
+      <section className="py-16 px-4 bg-transparent">
         <div className="max-w-6xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {COLUMNS.map(col => {

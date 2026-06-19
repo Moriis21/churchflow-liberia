@@ -283,7 +283,7 @@ export default function FeaturesPage() {
       </section>
 
       {/* Features grid */}
-      <section className="py-20 px-4 bg-slate-50">
+      <section className="py-20 px-4 bg-transparent">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-14">
             <h2 className="text-3xl font-extrabold text-[#151022] mb-3">All 12 Modules, Fully Included</h2>

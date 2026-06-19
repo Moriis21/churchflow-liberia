@@ -168,7 +168,7 @@ export default function StatusPage() {
           <button
             onClick={handleRefresh}
             disabled={refreshing}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg border border-slate-200 text-slate-600 text-sm font-medium hover:bg-slate-50 disabled:opacity-50 transition-colors"
+            className="flex items-center gap-2 px-4 py-2 rounded-lg border border-slate-200 text-slate-600 text-sm font-medium hover:bg-transparent disabled:opacity-50 transition-colors"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${refreshing ? 'animate-spin' : ''}`} />
             {refreshing ? 'Checking...' : 'Refresh'}
@@ -177,7 +177,7 @@ export default function StatusPage() {
       </div>
 
       {/* Services table */}
-      <section className="py-16 px-4 bg-slate-50">
+      <section className="py-16 px-4 bg-transparent">
         <div className="max-w-4xl mx-auto">
           <h2 className="text-2xl font-extrabold text-[#151022] mb-8">Service Status</h2>
 
@@ -226,7 +226,7 @@ export default function StatusPage() {
             </span>
           </div>
 
-          <div className="bg-slate-50 rounded-2xl border border-slate-200 p-6">
+          <div className="bg-transparent rounded-2xl border border-slate-200 p-6">
             <UptimeBar blocks={uptimeBlocks} />
             <div className="flex justify-between mt-2 text-xs text-slate-400">
               <span>90 days ago</span>
@@ -251,7 +251,7 @@ export default function StatusPage() {
       </section>
 
       {/* Incident history note */}
-      <section className="py-12 px-4 bg-slate-50 border-t border-slate-100">
+      <section className="py-12 px-4 bg-transparent border-t border-slate-100">
         <div className="max-w-4xl mx-auto">
           <h2 className="text-xl font-bold text-[#151022] mb-5">Recent Incidents</h2>
           <div className="bg-white rounded-2xl border border-slate-200 p-8 text-center">

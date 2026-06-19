@@ -182,7 +182,7 @@ export default function AboutPage() {
       </section>
 
       {/* Our Story */}
-      <section className="py-20 px-4 bg-slate-50">
+      <section className="py-20 px-4 bg-transparent">
         <div className="max-w-4xl mx-auto">
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-amber-50 text-amber-600 text-xs font-semibold mb-5">
             <MapPin className="w-3.5 h-3.5" />
@@ -275,7 +275,7 @@ export default function AboutPage() {
             {VALUES.map(v => {
               const Icon = v.icon
               return (
-                <div key={v.title} className="bg-slate-50 rounded-2xl p-7 border border-slate-100">
+                <div key={v.title} className="bg-transparent rounded-2xl p-7 border border-slate-100">
                   <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-4 ${v.color}`}>
                     <Icon className="w-6 h-6" />
                   </div>
@@ -289,7 +289,7 @@ export default function AboutPage() {
       </section>
 
       {/* Team */}
-      <section className="py-20 px-4 bg-slate-50">
+      <section className="py-20 px-4 bg-transparent">
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-14">
             <h2 className="text-3xl font-extrabold text-[#151022] mb-3">The Team Behind ChurchFlow</h2>

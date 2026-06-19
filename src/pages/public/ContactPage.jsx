@@ -109,7 +109,7 @@ export default function ContactPage() {
       </section>
 
       {/* Main content */}
-      <section className="py-20 px-4 bg-slate-50">
+      <section className="py-20 px-4 bg-transparent">
         <div className="max-w-6xl mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
 
@@ -303,7 +303,7 @@ export default function ContactPage() {
       </section>
 
       {/* Brewerville Map */}
-      <section className="px-4 pb-20 bg-slate-50">
+      <section className="px-4 pb-20 bg-transparent">
         <div className="max-w-6xl mx-auto">
           <div className="mb-5">
             <h3 className="text-xl font-bold text-[#151022] mb-1">Our Location</h3>

@@ -159,7 +159,7 @@ export default function HelpCentrePage() {
       </section>
 
       {/* Popular articles */}
-      <section className="py-16 px-4 bg-slate-50">
+      <section className="py-16 px-4 bg-transparent">
         <div className="max-w-3xl mx-auto">
           <h2 className="text-2xl font-extrabold text-[#151022] mb-8">
             {query ? `Search Results` : 'Popular Articles'}

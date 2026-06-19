@@ -394,7 +394,7 @@ export default function DocumentationPage() {
                           className={`block px-3 py-2 rounded-lg text-sm transition-colors ${
                             activeSection === item.anchor
                               ? 'bg-purple-50 text-[#8A19FF] font-semibold'
-                              : 'text-slate-600 hover:text-[#8A19FF] hover:bg-slate-50'
+                              : 'text-slate-600 hover:text-[#8A19FF] hover:bg-transparent'
                           }`}
                         >
                           {item.label}

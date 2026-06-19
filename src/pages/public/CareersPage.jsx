@@ -122,7 +122,7 @@ export default function CareersPage() {
             {VALUES.map(v => {
               const Icon = v.icon
               return (
-                <div key={v.text} className="flex items-center gap-3 p-5 bg-slate-50 rounded-xl border border-slate-100">
+                <div key={v.text} className="flex items-center gap-3 p-5 bg-transparent rounded-xl border border-slate-100">
                   <div className="w-10 h-10 rounded-xl bg-purple-100 flex items-center justify-center flex-shrink-0">
                     <Icon className="w-5 h-5 text-[#8A19FF]" />
                   </div>
@@ -135,7 +135,7 @@ export default function CareersPage() {
       </section>
 
       {/* Open roles */}
-      <section className="py-16 px-4 bg-slate-50">
+      <section className="py-16 px-4 bg-transparent">
         <div className="max-w-4xl mx-auto">
           <div className="flex items-center justify-between mb-8">
             <h2 className="text-2xl font-extrabold text-[#151022]">Open Positions</h2>
@@ -155,7 +155,7 @@ export default function CareersPage() {
                 >
                   {/* Job header */}
                   <div
-                    className="flex flex-wrap items-start justify-between gap-4 p-6 cursor-pointer hover:bg-slate-50 transition-colors"
+                    className="flex flex-wrap items-start justify-between gap-4 p-6 cursor-pointer hover:bg-transparent transition-colors"
                     onClick={() => setExpanded(isOpen ? null : job.id)}
                   >
                     <div className="flex items-start gap-4">

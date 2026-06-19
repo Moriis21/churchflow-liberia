@@ -226,7 +226,7 @@ export default function CommunityPage() {
       </section>
 
       {/* Why join */}
-      <section className="py-16 px-4 bg-slate-50 border-y border-slate-100">
+      <section className="py-16 px-4 bg-transparent border-y border-slate-100">
         <div className="max-w-4xl mx-auto">
           <div className="flex flex-col lg:flex-row gap-10 items-center">
             <div className="w-full lg:w-1/2">

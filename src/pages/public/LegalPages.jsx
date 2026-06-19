@@ -32,7 +32,7 @@ function LegalLayout({ icon: Icon, title, subtitle, badge, children }) {
         </div>
       </section>
 
-      <section className="py-14 px-4 bg-slate-50">
+      <section className="py-14 px-4 bg-transparent">
         <div className="max-w-4xl mx-auto">
           <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-8 sm:p-12">
             <div className="flex items-center gap-2 text-slate-400 text-sm mb-8 pb-6 border-b border-slate-100">

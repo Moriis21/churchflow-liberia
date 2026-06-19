@@ -174,7 +174,7 @@ export default function ChangelogPage() {
       </div>
 
       {/* Timeline */}
-      <section className="py-16 px-4 bg-slate-50">
+      <section className="py-16 px-4 bg-transparent">
         <div className="max-w-4xl mx-auto">
           <div className="relative">
             {/* Vertical line */}

@@ -251,7 +251,7 @@ function FAQItem({ q, a }) {
   const [open, setOpen] = useState(false)
   return (
     <div className="border border-slate-200 rounded-xl overflow-hidden">
-      <button onClick={() => setOpen(o => !o)} className="w-full flex items-center justify-between px-6 py-5 text-left hover:bg-slate-50 transition-colors">
+      <button onClick={() => setOpen(o => !o)} className="w-full flex items-center justify-between px-6 py-5 text-left hover:bg-transparent transition-colors">
         <span className="font-semibold text-[#151022] text-sm sm:text-base">{q}</span>
         {open ? <ChevronUp className="w-5 h-5 text-slate-400 flex-shrink-0" /> : <ChevronDown className="w-5 h-5 text-slate-400 flex-shrink-0" />}
       </button>
@@ -414,7 +414,7 @@ export default function PricingPage() {
       </section>
 
       {/* ── Why ChurchFlow ── */}
-      <section className="py-16 px-4 bg-slate-50">
+      <section className="py-16 px-4 bg-transparent">
         <div className="max-w-5xl mx-auto">
           <Reveal i={0} className="text-center mb-10">
             <h2 className="text-2xl font-extrabold text-[#151022] mb-2">Why churches choose ChurchFlow</h2>
@@ -457,7 +457,7 @@ export default function PricingPage() {
       </section>
 
       {/* ── Payment methods ── */}
-      <section className="py-10 px-4 bg-slate-50">
+      <section className="py-10 px-4 bg-transparent">
         <div className="max-w-4xl mx-auto text-center">
           <Reveal i={0}>
             <p className="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-5">Accepted payment methods in Liberia</p>

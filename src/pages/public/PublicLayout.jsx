@@ -90,7 +90,7 @@ function PublicNav() {
               className={`block px-4 py-2.5 rounded-lg text-sm font-medium transition-colors ${
                 pathname === link.to
                   ? 'bg-purple-50 text-[#8A19FF]'
-                  : 'text-slate-700 hover:bg-slate-50'
+                  : 'text-slate-700 hover:bg-transparent'
               }`}
             >
               {link.label}
