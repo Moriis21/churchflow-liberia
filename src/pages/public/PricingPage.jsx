@@ -1,8 +1,8 @@
 // ============================================================
-// ChurchFlow Liberia — Pricing Page (/pricing)
+// ChurchFlow Liberia, Pricing Page (/pricing)
 //
 // Visual design: UNCHANGED (dark-purple Growth card, amber badge,
-//   white cards, purple gradients, checkmarks — exactly as before).
+//   white cards, purple gradients, checkmarks, exactly as before).
 //
 // Added from reference component:
 //   • motion/react scroll-reveal (blur→clear, y-slide, opacity)
@@ -55,7 +55,7 @@ function Reveal({ children, i = 0, className = '', as: Tag = 'div' }) {
   )
 }
 
-// ─── Prices — rate $1 = 184 LRD, yearly saves 20% ────────────
+// ─── Prices, rate $1 = 184 LRD, yearly saves 20% ────────────
 const PLANS = [
   {
     name: 'Starter',
@@ -135,20 +135,20 @@ const WHY_FEATURES = [
   { icon: Shield,         title: 'No Hidden Fees',       desc: 'What you see is what you pay. No setup fees, no surprise charges.',          color: 'bg-purple-50 text-[#8A19FF]'  },
   { icon: Zap,            title: 'Instant Setup',         desc: 'Your church is up and running in under 5 minutes. No technical skills needed.', color: 'bg-amber-50 text-amber-600'   },
   { icon: Users,          title: 'Grows With You',        desc: 'Start on Starter and upgrade anytime as your congregation grows.',            color: 'bg-blue-50 text-blue-600'     },
-  { icon: Phone,          title: 'Mobile Money Payments', desc: 'Pay via Orange Money or MTN MoMo — no international card needed.',           color: 'bg-green-50 text-green-600'   },
+  { icon: Phone,          title: 'Mobile Money Payments', desc: 'Pay via Orange Money or MTN MoMo, no international card needed.',           color: 'bg-green-50 text-green-600'   },
   { icon: HeartHandshake, title: 'Local Support',         desc: 'Real support from real people in Liberia who understand your context.',       color: 'bg-rose-50 text-rose-600'     },
   { icon: Globe2,         title: 'Works Offline',         desc: 'Attendance and member lookup work even on slow connections.',                 color: 'bg-indigo-50 text-indigo-600' },
 ]
 
 const FAQS = [
-  { q: 'Is there a free trial?',                       a: 'Yes — all plans include a 14-day free trial with full access. No credit card required.' },
+  { q: 'Is there a free trial?',                       a: 'Yes, all plans include a 14-day free trial with full access. No credit card required.' },
   { q: 'Are prices in LRD or USD?',                    a: 'Both. LRD payments via Orange Money or MTN MoMo. USD via international card or bank transfer.' },
   { q: 'Can I change my plan later?',                  a: 'Yes, upgrade or downgrade at any time. Upgrades take effect immediately.' },
   { q: 'What is the yearly discount?',                 a: 'Yearly billing saves you 20%. Prices shown reflect the discounted annual total.' },
   { q: 'What happens to my data if I cancel?',         a: 'Your data stays accessible for 30 days. Export everything to PDF or Excel before closing.' },
 ]
 
-// ─── Billing toggle — ChurchFlow brand style ─────────────────
+// ─── Billing toggle, ChurchFlow brand style ─────────────────
 function BillingToggle({ isYearly, onChange }) {
   return (
     <div className="flex justify-center">
@@ -196,7 +196,7 @@ function BillingToggle({ isYearly, onChange }) {
   )
 }
 
-// ─── FeyButton — soft radial gradient + inset shadow ─────────
+// ─── FeyButton, soft radial gradient + inset shadow ─────────
 // Adapted from fey-button reference (React version, no next-themes).
 // Pass isDark=true for buttons inside the dark-gradient Growth card.
 function FeyLockIcon({ isDark }) {
@@ -212,7 +212,7 @@ function FeyLockIcon({ isDark }) {
   )
 }
 
-// FeyLink — same visual as FeyButton but renders a react-router Link
+// FeyLink, same visual as FeyButton but renders a react-router Link
 function FeyLink({ to, children, showLock = false, isDark = false }) {
   const base = [
     'group relative flex h-11 w-full items-center justify-center gap-2 overflow-hidden rounded-full px-5 py-3',
@@ -318,7 +318,7 @@ export default function PricingPage() {
             <BillingToggle isYearly={isYearly} onChange={setIsYearly} />
           </Reveal>
 
-          {/* Pricing cards — staggered reveal, UNCHANGED design */}
+          {/* Pricing cards, staggered reveal, UNCHANGED design */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 items-stretch">
             {PLANS.map((plan, i) => {
               const usdPrice = isYearly ? plan.yearlyUsd  : plan.monthlyUsd
@@ -354,7 +354,7 @@ export default function PricingPage() {
                       </p>
                     </div>
 
-                    {/* Price — LRD-first for the Liberian market */}
+                    {/* Price, LRD-first for the Liberian market */}
                     <div className="mb-8">
                       <div className="flex items-end gap-1">
                         <span className={`text-4xl font-extrabold ${plan.popular ? 'text-white' : 'text-slate-900'}`}>
@@ -391,7 +391,7 @@ export default function PricingPage() {
                       ))}
                     </ul>
 
-                    {/* CTA — FeyButton style */}
+                    {/* CTA, FeyButton style */}
                     <FeyLink
                       to={plan.ctaLink}
                       isDark={plan.popular}

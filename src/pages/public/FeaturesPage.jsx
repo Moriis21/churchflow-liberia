@@ -1,5 +1,5 @@
 // ============================================================
-// ChurchFlow Liberia — Features Page (/features)
+// ChurchFlow Liberia, Features Page (/features)
 // ============================================================
 import React from 'react'
 import { Link } from 'react-router-dom'
@@ -35,7 +35,7 @@ const FEATURES = [
     title: 'Attendance Tracking',
     subtitle: 'Know who is present every service',
     description:
-      'Record attendance for every service type — Sunday services, mid-week Bible study, youth programs, special events, and more. Generate QR codes for instant check-in, or use manual roll-call. View trends, identify absentees, and automate follow-up messages for members missing multiple sessions.',
+      'Record attendance for every service type, Sunday services, mid-week Bible study, youth programs, special events, and more. Generate QR codes for instant check-in, or use manual roll-call. View trends, identify absentees, and automate follow-up messages for members missing multiple sessions.',
     highlights: [
       'QR code self-check-in for members',
       'Manual attendance capture by department',
@@ -53,7 +53,7 @@ const FEATURES = [
     title: 'Finance & Offerings',
     subtitle: 'Transparent, organised church finances',
     description:
-      'Record all incoming offerings — tithes, building fund, special offerings, missions giving, and more. Support both Liberian Dollar (LRD) and US Dollar (USD). Automatically generate receipt numbers, track envelopes, and produce monthly finance summaries for church leadership.',
+      'Record all incoming offerings, tithes, building fund, special offerings, missions giving, and more. Support both Liberian Dollar (LRD) and US Dollar (USD). Automatically generate receipt numbers, track envelopes, and produce monthly finance summaries for church leadership.',
     highlights: [
       'Tithe and offering categories',
       'LRD and USD dual-currency support',
@@ -161,7 +161,7 @@ const FEATURES = [
     title: 'Department Management',
     subtitle: 'Organise every arm of your ministry',
     description:
-      'Create and manage all church departments — Choir, Ushers, Youth, Women, Men, Children, Missions, Evangelism, and Media. Assign department leaders, track department-level attendance, and run department-specific reports.',
+      'Create and manage all church departments, Choir, Ushers, Youth, Women, Men, Children, Missions, Evangelism, and Media. Assign department leaders, track department-level attendance, and run department-specific reports.',
     highlights: [
       '9 default department templates',
       'Custom department creation',
@@ -215,7 +215,7 @@ const FEATURES = [
     title: 'PWA Mobile App',
     subtitle: 'Works like a native app on any device',
     description:
-      'ChurchFlow is a Progressive Web App — install it directly from your browser on Android, iPhone, or tablet. No app store needed. Works offline for attendance and member lookup. Fast, lightweight, and optimised for slower mobile networks common in Liberia.',
+      'ChurchFlow is a Progressive Web App, install it directly from your browser on Android, iPhone, or tablet. No app store needed. Works offline for attendance and member lookup. Fast, lightweight, and optimised for slower mobile networks common in Liberia.',
     highlights: [
       'Installable on Android and iPhone',
       'No app store download required',
@@ -250,7 +250,7 @@ export default function FeaturesPage() {
             Everything Your Ministry Needs
           </h1>
           <p className="text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed mb-8">
-            ChurchFlow brings together 12 powerful modules designed specifically for Liberian churches — from attendance tracking to financial reporting, all in one platform.
+            ChurchFlow brings together 12 powerful modules designed specifically for Liberian churches, from attendance tracking to financial reporting, all in one platform.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <Link

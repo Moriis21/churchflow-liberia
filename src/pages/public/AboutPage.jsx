@@ -1,5 +1,5 @@
 // ============================================================
-// ChurchFlow Liberia — About Page (/about)
+// ChurchFlow Liberia, About Page (/about)
 // ============================================================
 import React from 'react'
 import { Link } from 'react-router-dom'
@@ -78,7 +78,7 @@ const TEAM = [
   },
 ]
 
-// ─── Team card — real photo with initials fallback ───────────
+// ─── Team card, real photo with initials fallback ───────────
 function TeamCard({ member }) {
   const [imgErr, setImgErr] = React.useState(false)
   const initials = member.name
@@ -152,10 +152,10 @@ export default function AboutPage() {
                 Technology that serves the church
               </h2>
               <p className="text-slate-600 leading-relaxed mb-5">
-                ChurchFlow exists to help Liberian churches stop losing members, records, and ministry opportunities through modern, affordable technology. We believe that every church — no matter its size or budget — deserves a professional management system.
+                ChurchFlow exists to help Liberian churches stop losing members, records, and ministry opportunities through modern, affordable technology. We believe that every church, no matter its size or budget, deserves a professional management system.
               </p>
               <p className="text-slate-600 leading-relaxed">
-                Too many Liberian churches still rely on paper ledgers, handwritten attendance sheets, and inconsistent member records. We are changing that by providing a platform purpose-built for the Liberian church context — local currencies, local networks, local needs.
+                Too many Liberian churches still rely on paper ledgers, handwritten attendance sheets, and inconsistent member records. We are changing that by providing a platform purpose-built for the Liberian church context, local currencies, local networks, local needs.
               </p>
             </div>
             <div className="w-full lg:w-1/2 bg-gradient-to-br from-purple-50 to-violet-50 rounded-2xl p-8 border border-purple-100">
@@ -192,7 +192,7 @@ export default function AboutPage() {
 
           <div className="space-y-6 text-slate-600 leading-relaxed">
             <p>
-              ChurchFlow is an associate platform built by the <a href="https://www.innova-lib.com" target="_blank" rel="noopener noreferrer" className="text-[#8A19FF] font-semibold hover:underline">Innova-Liberia team</a> — Liberia's leading creative tech agency. Founded in 2026 in Brewerville City, Liberia, ChurchFlow was born out of a need witnessed firsthand in local churches.
+              ChurchFlow is an associate platform built by the <a href="https://www.innova-lib.com" target="_blank" rel="noopener noreferrer" className="text-[#8A19FF] font-semibold hover:underline">Innova-Liberia team</a>, Liberia's leading creative tech agency. Founded in 2026 in Brewerville City, Liberia, ChurchFlow was born out of a need witnessed firsthand in local churches.
             </p>
             <p>
               Darius Paye, CEO & Founder of Innova-Liberia, and lead developer Morris L. Dorley Jr spent years watching Liberian congregations struggle with paper attendance sheets, lost member records, and manual offering tracking that made it nearly impossible to understand where the ministry stood financially or pastorally.
@@ -201,7 +201,7 @@ export default function AboutPage() {
               After conversations with pastors and church administrators across Montserrado County, a common picture emerged: churches were growing, but their administrative systems were not keeping up. Members were falling through the cracks. Offerings were unaccounted for. Visitors never heard from the church again after their first Sunday.
             </p>
             <p>
-              ChurchFlow was the answer — a dedicated, affordable, locally-tailored church management system that works on the mobile networks Liberians actually use, priced in a currency Liberian churches actually earn, and designed to be simple enough for any church secretary to learn on day one.
+              ChurchFlow was the answer, a dedicated, affordable, locally-tailored church management system that works on the mobile networks Liberians actually use, priced in a currency Liberian churches actually earn, and designed to be simple enough for any church secretary to learn on day one.
             </p>
           </div>
 
@@ -294,7 +294,7 @@ export default function AboutPage() {
           <div className="text-center mb-14">
             <h2 className="text-3xl font-extrabold text-[#151022] mb-3">The Team Behind ChurchFlow</h2>
             <p className="text-slate-500 max-w-xl mx-auto">
-              Built by the Innova-Liberia team — people who love the church and technology, with deep roots in Liberian ministry.
+              Built by the Innova-Liberia team, people who love the church and technology, with deep roots in Liberian ministry.
             </p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">

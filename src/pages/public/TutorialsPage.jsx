@@ -1,5 +1,5 @@
 // ============================================================
-// ChurchFlow Liberia — Tutorials (/tutorials)
+// ChurchFlow Liberia, Tutorials (/tutorials)
 // Public-facing video tutorial gallery managed by Super Admin.
 // ============================================================
 import React, { useEffect, useMemo, useState } from 'react'
@@ -92,7 +92,7 @@ export default function TutorialsPage() {
             Learn ChurchFlow at your own pace
           </h1>
           <p className="text-base sm:text-lg text-slate-600 max-w-xl mx-auto leading-relaxed">
-            Short, focused video tutorials covering every feature — from your first member to advanced reports.
+            Short, focused video tutorials covering every feature, from your first member to advanced reports.
           </p>
         </div>
       </section>
@@ -140,7 +140,7 @@ export default function TutorialsPage() {
               <p className="text-sm text-[#98A4B3]">
                 {query || cat !== 'all'
                   ? 'Nothing matches your search. Try a different keyword or category.'
-                  : 'Check back soon — new tutorials are added regularly.'}
+                  : 'Check back soon, new tutorials are added regularly.'}
               </p>
             </div>
           ) : (

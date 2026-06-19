@@ -1,5 +1,5 @@
 // ============================================================
-// ChurchFlow Liberia — Public Landing / Marketing Page
+// ChurchFlow Liberia, Public Landing / Marketing Page
 // ============================================================
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
@@ -70,7 +70,7 @@ const GLOBAL_STYLES = `
   }
 `
 
-// ─── Navbar — polished mobile-first ──────────────────────────
+// ─── Navbar, polished mobile-first ──────────────────────────
 function Navbar() {
   const [open, setOpen] = useState(false)
 
@@ -84,7 +84,7 @@ function Navbar() {
   return (
     <nav className="sticky top-0 z-50 bg-white/97 backdrop-blur-lg border-b border-slate-100/80 shadow-[0_1px_12px_rgba(0,0,0,0.06)]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Bar — 52px mobile, 60px desktop */}
+        {/* Bar, 52px mobile, 60px desktop */}
         <div className="flex items-center justify-between h-[52px] sm:h-[60px]">
 
           {/* Logo */}
@@ -120,7 +120,7 @@ function Navbar() {
             </Link>
           </div>
 
-          {/* Mobile hamburger — perfectly centred */}
+          {/* Mobile hamburger, perfectly centred */}
           <button
             className="md:hidden flex items-center justify-center w-9 h-9 rounded-lg text-slate-600 hover:bg-slate-100 active:bg-slate-200 transition-colors"
             onClick={() => setOpen(!open)}
@@ -130,7 +130,7 @@ function Navbar() {
           </button>
         </div>
 
-        {/* Mobile drawer — animated */}
+        {/* Mobile drawer, animated */}
         <AnimatePresence>
           {open && (
             <motion.div
@@ -202,7 +202,7 @@ function DemoModal({ isOpen, onClose }) {
           </div>
         </div>
 
-        {/* YouTube embed — 16:9 */}
+        {/* YouTube embed, 16:9 */}
         <div className="relative w-full bg-black" style={{ paddingBottom: '56.25%' }}>
           <iframe
             className="absolute inset-0 w-full h-full"
@@ -231,7 +231,7 @@ function DemoModal({ isOpen, onClose }) {
   )
 }
 
-// ─── Hero — polished mobile-first ─────────────────────────────
+// ─── Hero, polished mobile-first ─────────────────────────────
 // Branding, colors, and structure: UNCHANGED.
 // Improvements: tighter mobile spacing, motion fade-ups,
 // better line-breaks, reduced button height, floating badges.
@@ -262,7 +262,7 @@ function Hero() {
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center max-w-4xl mx-auto">
 
-          {/* Top badge — frosted glass on light */}
+          {/* Top badge, frosted glass on light */}
           <motion.div {...fadeUp(0)}
             className="inline-flex items-center gap-1.5 glass-card text-slate-700 text-xs sm:text-sm font-medium px-3 sm:px-4 py-1 sm:py-1.5 rounded-full mb-5 sm:mb-8"
           >
@@ -270,12 +270,12 @@ function Hero() {
             Built specifically for Liberian churches
           </motion.div>
 
-          {/* Headline — dark text on pastel */}
+          {/* Headline, dark text on pastel */}
           <motion.h1 {...fadeUp(0.08)}
             className="text-[1.65rem] xs:text-3xl sm:text-5xl lg:text-6xl font-extrabold text-[#111827] leading-[1.18] tracking-tight mb-4 sm:mb-6 px-2 sm:px-0 text-balance"
           >
-            Stop Losing Church Records.{' '}
-            <span className="bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent">
+            <span className="block">Stop Losing Church Records.</span>
+            <span className="block bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent">
               Start Building a Smarter Ministry.
             </span>
           </motion.h1>
@@ -286,11 +286,11 @@ function Hero() {
           >
             From the smallest fellowship in Monrovia to multi-branch ministries across
             Liberia, ChurchFlow brings your members, attendance, giving, and communication
-            into one secure place — so you can spend less time on paperwork and more time
+            into one secure place, so you can spend less time on paperwork and more time
             shepherding your congregation.
           </motion.p>
 
-          {/* CTA Buttons — shorter on mobile, reduced shadow */}
+          {/* CTA Buttons, shorter on mobile, reduced shadow */}
           <motion.div {...fadeUp(0.24)}
             className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 mb-8 sm:mb-14"
           >
@@ -312,7 +312,7 @@ function Hero() {
             </button>
           </motion.div>
 
-          {/* Trust badges — floating, smaller on mobile */}
+          {/* Trust badges, floating, smaller on mobile */}
           <motion.div {...fadeUp(0.32)}
             className="flex flex-wrap items-center justify-center gap-2 sm:gap-4 mb-8 sm:mb-16"
           >
@@ -413,7 +413,7 @@ const FEATURES = [
     icon: Users,
     title: 'Member Management',
     tint: 'tint-lavender',
-    desc: 'Maintain complete profiles for every member — contact details, departments, and spiritual records in one place.',
+    desc: 'Maintain complete profiles for every member, contact details, departments, and spiritual records in one place.',
   },
   {
     icon: CheckSquare,
@@ -492,12 +492,12 @@ function Features() {
           </h2>
           <p className="text-base sm:text-lg text-slate-600 text-pretty">
             No more scattered notebooks, lost attendance sheets, or guesswork at the offering table.
-            Every tool your ministry relies on lives under one roof — built for the way Liberian
+            Every tool your ministry relies on lives under one roof, built for the way Liberian
             churches actually serve, week after week.
           </p>
         </div>
 
-        {/* Grid — 3×2 frosted-glass cards with pastel tints */}
+        {/* Grid, 3×2 frosted-glass cards with pastel tints */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {FEATURES.map(({ icon: Icon, title, desc, tint }, i) => (
             <div
@@ -525,7 +525,7 @@ function Features() {
   )
 }
 
-// ─── Stats Bar — value-based proof points ─────────────────────
+// ─── Stats Bar, value-based proof points ─────────────────────
 // We deliberately show capability/trust signals rather than live
 // church/member counts: a new platform showing "0 churches" destroys
 // credibility. These are always true and speak to the value prop.
@@ -640,13 +640,13 @@ function HowItWorks() {
             How It Works
           </span>
           <h2 className="text-2xl sm:text-4xl font-extrabold text-slate-900 mb-4 leading-tight text-balance">
-            Designed for Church.{' '}
-            <span className="text-purple-600">Built for Impact.</span>
+            <span className="block">Designed for Church.</span>
+            <span className="block text-purple-600">Built for Impact.</span>
           </h2>
           <p className="text-base sm:text-lg text-slate-600 text-pretty">
-            You don't need to be technical, and you don't need a long setup. In three simple
-            steps — under ten minutes — your church profile is live, your members are in, and
-            you're ready to track attendance, giving, and growth from any phone or computer.
+            You do not need to be technical, and you do not need a long setup. Three simple
+            steps take you from an empty page to a live church in about ten minutes, ready to
+            track attendance, giving, and growth from any phone or computer.
           </p>
         </div>
 
@@ -710,7 +710,7 @@ function HowItWorks() {
           ))}
         </div>
 
-        {/* Bottom CTA nudge — no emojis */}
+        {/* Bottom CTA nudge, no emojis */}
         <div
           className="mt-16 text-center"
           style={{
@@ -724,7 +724,7 @@ function HowItWorks() {
             to="/register"
             className="inline-flex items-center gap-2 text-sm font-semibold text-white bg-[#111111] px-6 py-3 rounded-full shadow-md shadow-black/25 hover:bg-black hover:-translate-y-0.5 transition-all"
           >
-            Start your free church account today — no credit card required
+            Start your free church account today, no credit card required
             <ArrowRight className="w-4 h-4" />
           </Link>
         </div>
@@ -733,19 +733,19 @@ function HowItWorks() {
   )
 }
 
-// ─── Why ChurchFlow — honest value pillars (no fabricated quotes) ──
+// ─── Why ChurchFlow, honest value pillars (no fabricated quotes) ──
 const PILLARS = [
   {
     icon: ShieldCheck,
     tint: 'tint-lavender',
     title: 'Built for accountability',
-    desc: 'Every tithe, offering, and expense is logged with a full audit trail in LRD and USD — so leadership and congregation can trust the numbers.',
+    desc: 'Every tithe, offering, and expense is logged with a full audit trail in LRD and USD, so leadership and congregation can trust the numbers.',
   },
   {
     icon: Clock,
     tint: 'tint-mint',
     title: 'Hours back every week',
-    desc: 'Attendance, member records, and reports that used to take hours of paperwork now take minutes — from any phone or computer.',
+    desc: 'Attendance, member records, and reports that used to take hours of paperwork now take minutes, from any phone or computer.',
   },
   {
     icon: Heart,
@@ -777,7 +777,7 @@ function Testimonials() {
           <p className="text-base sm:text-lg text-slate-600 text-pretty">
             Trust is built on transparency and care. ChurchFlow gives your leadership accurate
             records, your finance team a clear audit trail, and your members the confidence that
-            their church is run with excellence — all on infrastructure secured to bank-level standards.
+            their church is run with excellence, all on infrastructure secured to bank-level standards.
           </p>
         </div>
 
@@ -985,13 +985,13 @@ function CTABanner() {
           Ready to transform your ministry?
         </h2>
         <p className="text-lg text-amber-800 mb-8">
-          Join ChurchFlow Liberia — the smart way to manage your ministry, members, and finances.
+          Join ChurchFlow Liberia, the smart way to manage your ministry, members, and finances.
         </p>
         <Link
           to="/register"
           className="inline-flex items-center gap-2 text-base font-bold text-white bg-gradient-to-r from-[#5B00B8] to-[#3D108A] px-10 py-4 rounded-2xl shadow-xl shadow-purple-900/30 hover:from-violet-800 hover:to-purple-900 transition-all hover:-translate-y-1 hover:shadow-purple-900/50"
         >
-          Get Started Free — It&apos;s Free for 14 Days
+          Get Started Free, It&apos;s Free for 14 Days
           <ArrowRight className="w-5 h-5" />
         </Link>
       </div>
@@ -1064,7 +1064,7 @@ function Footer() {
               </span>
             </div>
             <p className="text-sm text-white/55 leading-relaxed max-w-xs mb-6">
-              The number-one church management platform built for Liberian churches. Manage members, offerings, and growth — all in one place.
+              The number-one church management platform built for Liberian churches. Manage members, offerings, and growth, all in one place.
             </p>
             {/* Socials */}
             <div className="flex items-center gap-3">
@@ -1144,7 +1144,7 @@ export default function Landing() {
       <Pricing />
       <CTABanner />
       <Footer />
-      {/* AI Assistant — floats on all public pages */}
+      {/* AI Assistant, floats on all public pages */}
       <FloatingAIAssistant />
     </div>
   )

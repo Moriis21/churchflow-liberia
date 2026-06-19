@@ -1,5 +1,5 @@
 // ============================================================
-// ChurchFlow Liberia — Status Page (/status)
+// ChurchFlow Liberia, Status Page (/status)
 // ============================================================
 import React, { useEffect, useState } from 'react'
 import { CheckCircle, AlertCircle, Clock, RefreshCw, Shield } from 'lucide-react'
@@ -77,7 +77,7 @@ const STATUS_CONFIG = {
   },
 }
 
-// Generate 90 uptime blocks — all green
+// Generate 90 uptime blocks, all green
 function generateUptimeBlocks() {
   return Array.from({ length: 90 }, (_, i) => ({
     day: i,

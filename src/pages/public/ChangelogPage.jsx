@@ -1,5 +1,5 @@
 // ============================================================
-// ChurchFlow Liberia — Changelog Page (/changelog)
+// ChurchFlow Liberia, Changelog Page (/changelog)
 // ============================================================
 import React from 'react'
 import { Link } from 'react-router-dom'
@@ -26,10 +26,10 @@ const RELEASES = [
           'Attendance tracking for Sunday services, mid-week Bible study, youth, and custom service types',
           'Finance and offerings module with LRD and USD support and automatic receipt generation',
           'Events management with RSVP, registration tracking, and automated SMS reminders',
-          'Progressive Web App (PWA) — installable on Android and iPhone without an app store',
+          'Progressive Web App (PWA), installable on Android and iPhone without an app store',
           'Church profile setup wizard for first-time onboarding',
           'Role-based access control for admin, pastor, and staff roles',
-          'Multi-branch architecture — manage multiple campus branches from one account',
+          'Multi-branch architecture, manage multiple campus branches from one account',
           'Reports dashboard with PDF and Excel export',
           'Visitor follow-up pipeline with automated welcome SMS',
           'Prayer requests module with public, private, and pastor-only visibility levels',
@@ -64,7 +64,7 @@ const RELEASES = [
         icon: Rocket,
         color: 'text-green-600',
         items: [
-          'Prayer requests module launched — submit, assign, and mark as answered',
+          'Prayer requests module launched, submit, assign, and mark as answered',
           'Department management module with per-department attendance',
           'Reports and analytics dashboard with 6 chart types',
           'Member profile photo upload capability',
@@ -100,15 +100,15 @@ const RELEASES = [
     type: 'minor',
     label: 'Alpha Release',
     badge: null,
-    summary: 'Internal alpha release introducing multi-branch support and visitor follow-up — tested with 10 pilot churches.',
+    summary: 'Internal alpha release introducing multi-branch support and visitor follow-up, tested with 10 pilot churches.',
     sections: [
       {
         heading: 'New Features',
         icon: Rocket,
         color: 'text-green-600',
         items: [
-          'Multi-branch support — create and manage multiple church campuses',
-          'Visitor follow-up pipeline — capture visitors and track conversion to membership',
+          'Multi-branch support, create and manage multiple church campuses',
+          'Visitor follow-up pipeline, capture visitors and track conversion to membership',
           'Automated birthday SMS notifications for members',
           'Branch-level admin permissions and isolated dashboards',
           'Cross-branch attendance and finance comparison reports',
@@ -154,7 +154,7 @@ export default function ChangelogPage() {
             Changelog
           </h1>
           <p className="text-lg text-slate-600 max-w-xl mx-auto leading-relaxed">
-            A complete record of every ChurchFlow release — new features, improvements, and bug fixes.
+            A complete record of every ChurchFlow release, new features, improvements, and bug fixes.
           </p>
         </div>
       </section>

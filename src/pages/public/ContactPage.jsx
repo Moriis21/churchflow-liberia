@@ -1,5 +1,5 @@
 // ============================================================
-// ChurchFlow Liberia — Contact Page (/contact)
+// ChurchFlow Liberia, Contact Page (/contact)
 // ============================================================
 import React, { useState } from 'react'
 import { Mail, Phone, MapPin, Clock, Send, CheckCircle, AlertCircle, ExternalLink } from 'lucide-react'

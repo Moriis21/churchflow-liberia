@@ -1,5 +1,5 @@
 // ============================================================
-// ChurchFlow Liberia — Blog Page (/blog)
+// ChurchFlow Liberia, Blog Page (/blog)
 // Loads posts from the blog_posts DB table (super admin managed).
 // ============================================================
 import React, { useEffect, useState } from 'react'

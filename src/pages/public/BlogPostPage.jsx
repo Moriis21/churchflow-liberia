@@ -1,5 +1,5 @@
 // ============================================================
-// ChurchFlow Liberia — Individual Blog Post Page (/blog/:slug)
+// ChurchFlow Liberia, Individual Blog Post Page (/blog/:slug)
 // ============================================================
 import React, { useEffect, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
@@ -21,7 +21,7 @@ function formatDate(iso) {
 }
 
 // Markdown renderer: #/##/###/####, **bold**, *italic*, [links], --- hr,
-// - bullet lists. Any heading level renders cleanly — no raw '#' ever shows.
+// - bullet lists. Any heading level renders cleanly, no raw '#' ever shows.
 // Strip emoji / pictographs for a clean, professional look
 const EMOJI_RE = /[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\u{2190}-\u{21FF}\u{2B00}-\u{2BFF}\u{2700}-\u{27BF}\u{FE0F}\u{1F1E6}-\u{1F1FF}]/gu
 

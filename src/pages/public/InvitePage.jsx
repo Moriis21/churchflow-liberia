@@ -1,5 +1,5 @@
 // ============================================================
-// ChurchFlow Liberia — Invite Acceptance Page  (/invite/:token)
+// ChurchFlow Liberia, Invite Acceptance Page  (/invite/:token)
 //
 // Flow:
 //   1. Validate token via validate_church_invite RPC
@@ -124,7 +124,7 @@ export default function InvitePage() {
         churchName: church?.name || '',
       }).catch(() => {})
 
-      // e) Done — sign-in happens automatically when verification is off
+      // e) Done, sign-in happens automatically when verification is off
       setPhase('done')
       toast.success(`Welcome to ${church?.name || 'the church'}!`)
       setTimeout(() => navigate('/app/dashboard', { replace: true }), 1200)

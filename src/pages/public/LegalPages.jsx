@@ -1,5 +1,5 @@
 // ============================================================
-// ChurchFlow Liberia — Legal Pages
+// ChurchFlow Liberia, Legal Pages
 // PrivacyPolicy | TermsOfService | CookiePolicy | GDPRPage
 // ============================================================
 import React from 'react'
@@ -94,8 +94,8 @@ export function PrivacyPolicy() {
           <li><strong>Church account information:</strong> Church name, denomination, address, contact details, and billing information.</li>
           <li><strong>Member profile data:</strong> Full names, phone numbers, email addresses, dates of birth, gender, membership status, baptism records, and department affiliations entered by church administrators.</li>
           <li><strong>Attendance records:</strong> Service attendance logs tied to member profiles, timestamps, and service types.</li>
-          <li><strong>Financial records:</strong> Offering amounts, categories, currency, dates, and optional donor identification — used strictly for church financial reporting.</li>
-          <li><strong>Usage data:</strong> Pages visited, features used, browser type, device information, and session duration — collected to improve our service.</li>
+          <li><strong>Financial records:</strong> Offering amounts, categories, currency, dates, and optional donor identification, used strictly for church financial reporting.</li>
+          <li><strong>Usage data:</strong> Pages visited, features used, browser type, device information, and session duration, collected to improve our service.</li>
           <li><strong>Communication data:</strong> Messages sent through our contact forms or support channels.</li>
         </ul>
       </Section>
@@ -144,7 +144,7 @@ export function PrivacyPolicy() {
           <li>Withdraw consent for communications at any time.</li>
         </ul>
         <p>
-          You can exercise your <strong>right to export</strong> and <strong>right to erasure</strong> directly inside ChurchFlow at any time — no need to email us first. Once logged in, go to <strong>Settings → Privacy &amp; Data</strong> (or <strong>Profile → Privacy &amp; Your Data</strong>) and click <em>Download my data</em> or <em>Delete my account</em>. For all other requests, contact us at <a href="mailto:privacy@churchflow.lr" className="text-purple-600 underline">privacy@churchflow.lr</a>.
+          You can exercise your <strong>right to export</strong> and <strong>right to erasure</strong> directly inside ChurchFlow at any time, no need to email us first. Once logged in, go to <strong>Settings → Privacy &amp; Data</strong> (or <strong>Profile → Privacy &amp; Your Data</strong>) and click <em>Download my data</em> or <em>Delete my account</em>. For all other requests, contact us at <a href="mailto:privacy@churchflow.lr" className="text-purple-600 underline">privacy@churchflow.lr</a>.
         </p>
       </Section>
 

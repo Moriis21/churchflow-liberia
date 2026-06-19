@@ -1,5 +1,5 @@
 // ============================================================
-// ChurchFlow Liberia — Roadmap Page (/roadmap)
+// ChurchFlow Liberia, Roadmap Page (/roadmap)
 // ============================================================
 import React from 'react'
 import { Link } from 'react-router-dom'
@@ -62,14 +62,14 @@ const COLUMNS = [
       {
         icon: Globe2,
         title: 'Church Website Builder',
-        description: 'A simple drag-and-drop website builder so every church can have a professional public website linked to their ChurchFlow account — with service times, location, and giving links.',
+        description: 'A simple drag-and-drop website builder so every church can have a professional public website linked to their ChurchFlow account, with service times, location, and giving links.',
         eta: 'Q4 2026',
         tags: ['Website', 'Marketing'],
       },
       {
         icon: DollarSign,
         title: 'Multi-Currency Giving',
-        description: 'Support for giving in multiple currencies simultaneously — LRD, USD, and EUR. Useful for diaspora church members sending offerings from abroad.',
+        description: 'Support for giving in multiple currencies simultaneously, LRD, USD, and EUR. Useful for diaspora church members sending offerings from abroad.',
         eta: 'Q1 2027',
         tags: ['Finance', 'Diaspora'],
       },
@@ -101,7 +101,7 @@ const COLUMNS = [
       {
         icon: Megaphone,
         title: 'Giving Campaigns',
-        description: 'Create and manage fundraising campaigns — building projects, missions trips, disaster relief. Set goals, track progress, and accept donations online with donor leaderboards.',
+        description: 'Create and manage fundraising campaigns, building projects, missions trips, disaster relief. Set goals, track progress, and accept donations online with donor leaderboards.',
         eta: 'Q3 2027',
         tags: ['Finance', 'Campaigns'],
       },
@@ -147,9 +147,9 @@ export default function RoadmapPage() {
       <div className="bg-white border-b border-slate-100 py-4 px-4">
         <div className="max-w-6xl mx-auto flex flex-wrap items-center justify-center gap-6">
           {[
-            { dot: 'bg-[#8A19FF]', label: 'In Progress — actively being built' },
-            { dot: 'bg-amber-500', label: 'Coming Soon — designed, planned for release' },
-            { dot: 'bg-slate-300', label: 'Planned — on the roadmap, not yet started' },
+            { dot: 'bg-[#8A19FF]', label: 'In Progress, actively being built' },
+            { dot: 'bg-amber-500', label: 'Coming Soon, designed, planned for release' },
+            { dot: 'bg-slate-300', label: 'Planned, on the roadmap, not yet started' },
           ].map(item => (
             <div key={item.label} className="flex items-center gap-2 text-sm text-slate-600">
               <span className={`w-2.5 h-2.5 rounded-full ${item.dot}`} />

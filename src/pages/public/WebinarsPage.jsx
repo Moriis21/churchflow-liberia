@@ -1,5 +1,5 @@
 // ============================================================
-// ChurchFlow Liberia — Webinars (/webinars)
+// ChurchFlow Liberia, Webinars (/webinars)
 // Public-facing list of upcoming and past webinars, managed by Super Admin.
 // ============================================================
 import React, { useEffect, useMemo, useState } from 'react'
@@ -104,7 +104,7 @@ export default function WebinarsPage() {
       {past.length > 0 && (
         <section className="py-14 px-4 bg-[#F7F8FA] border-t border-[#E4E7EC]">
           <div className="max-w-6xl mx-auto">
-            <h2 className="text-xl font-extrabold text-[#151022] mb-6">Past webinars — recordings</h2>
+            <h2 className="text-xl font-extrabold text-[#151022] mb-6">Past webinars, recordings</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
               {past.map(w => <PastCard key={w.id} webinar={w} />)}
             </div>
@@ -118,7 +118,7 @@ export default function WebinarsPage() {
           <Mic2 className="w-10 h-10 text-amber-400 mx-auto mb-4" />
           <h2 className="text-2xl font-extrabold text-[#111827] mb-2">Want a webinar for your topic?</h2>
           <p className="text-slate-600 text-sm mb-6">
-            Suggest a topic you'd like covered — we'll add it to the calendar.
+            Suggest a topic you'd like covered, we'll add it to the calendar.
           </p>
           <Link to="/contact"
             className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#8A19FF] text-[#111827] text-sm font-semibold shadow-[0_4px_14px_rgba(138,25,255,0.30)] hover:bg-[#5B00B8] transition-colors">

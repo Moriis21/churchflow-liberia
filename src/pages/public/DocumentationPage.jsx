@@ -1,5 +1,5 @@
 // ============================================================
-// ChurchFlow Liberia — Documentation Page (/docs)
+// ChurchFlow Liberia, Documentation Page (/docs)
 // ============================================================
 import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
@@ -58,7 +58,7 @@ const FULL_GUIDES = [
     sections: [
       {
         h: 'Adding a single member',
-        p: 'Go to Members → "Add Member". Fill in the required fields (full name, phone, gender) and any optional ones (email, date of birth, address, baptism date, department). Click Save — the member is immediately available across attendance, offerings, and prayer requests.',
+        p: 'Go to Members → "Add Member". Fill in the required fields (full name, phone, gender) and any optional ones (email, date of birth, address, baptism date, department). Click Save, the member is immediately available across attendance, offerings, and prayer requests.',
       },
       {
         h: 'Importing members in bulk',
@@ -73,7 +73,7 @@ const FULL_GUIDES = [
         p: 'Set each member as Active, Inactive, Visitor, or Transferred. Inactive members stay in your records but don\'t count in active membership totals. Use the bulk-edit tool to reclassify many members at once after an annual review.',
       },
     ],
-    tip: 'Keep phone numbers in international format (+231...) — this lets the SMS feature work without extra cleanup.',
+    tip: 'Keep phone numbers in international format (+231...), this lets the SMS feature work without extra cleanup.',
   },
   {
     anchor: 'g-attendance',
@@ -87,18 +87,18 @@ const FULL_GUIDES = [
       },
       {
         h: 'Roll call (member-by-member)',
-        p: 'Go to Attendance → "Roll Call". Select the date and service type. ChurchFlow shows your full member list — tick the ones present. The system saves automatically as you go.',
+        p: 'Go to Attendance → "Roll Call". Select the date and service type. ChurchFlow shows your full member list, tick the ones present. The system saves automatically as you go.',
       },
       {
         h: 'QR code check-in',
-        p: 'Each member gets a unique QR code under their profile. Print on a card or save to phone. Set up a tablet at the entrance running ChurchFlow in QR Check-in mode — members scan as they walk in.',
+        p: 'Each member gets a unique QR code under their profile. Print on a card or save to phone. Set up a tablet at the entrance running ChurchFlow in QR Check-in mode, members scan as they walk in.',
       },
       {
         h: 'Service types',
         p: 'Standard service types: Sunday Morning, Sunday Evening, Mid-week, Youth, Women\'s, Men\'s, Choir Rehearsal, Special Event. Customize the list in Settings → Attendance.',
       },
     ],
-    tip: 'Assign a department leader to take attendance for their group — distributes the work and improves accuracy.',
+    tip: 'Assign a department leader to take attendance for their group, distributes the work and improves accuracy.',
   },
   {
     anchor: 'g-offerings',
@@ -116,7 +116,7 @@ const FULL_GUIDES = [
       },
       {
         h: 'Currency (LRD ↔ USD)',
-        p: 'Set your church\'s default currency in Settings. Individual entries can override — useful for missionary support tracked in USD. Reports can be filtered by currency.',
+        p: 'Set your church\'s default currency in Settings. Individual entries can override, useful for missionary support tracked in USD. Reports can be filtered by currency.',
       },
       {
         h: 'Receipts',
@@ -141,7 +141,7 @@ const FULL_GUIDES = [
       },
       {
         h: 'Accepting RSVPs',
-        p: 'Toggle "Accept RSVPs" on the event. Share the event URL via WhatsApp or SMS — members tap the link and confirm attendance from their phone. You see live RSVP counts.',
+        p: 'Toggle "Accept RSVPs" on the event. Share the event URL via WhatsApp or SMS, members tap the link and confirm attendance from their phone. You see live RSVP counts.',
       },
       {
         h: 'Event reminders',
@@ -152,7 +152,7 @@ const FULL_GUIDES = [
         p: 'On the event day, mark attendance directly from the event page. Records flow into the main attendance database.',
       },
     ],
-    tip: 'Create recurring events (Sunday service, mid-week prayer) once with "Repeat weekly" — ChurchFlow generates the future instances automatically.',
+    tip: 'Create recurring events (Sunday service, mid-week prayer) once with "Repeat weekly", ChurchFlow generates the future instances automatically.',
   },
   {
     anchor: 'g-sms',
@@ -162,7 +162,7 @@ const FULL_GUIDES = [
     sections: [
       {
         h: 'Setting up SMS',
-        p: 'Go to Settings → SMS. Add your SMS provider credentials (Orange, MTN, or international). Top up your SMS balance — pricing varies by provider and message length.',
+        p: 'Go to Settings → SMS. Add your SMS provider credentials (Orange, MTN, or international). Top up your SMS balance, pricing varies by provider and message length.',
       },
       {
         h: 'Sending a one-time blast',
@@ -170,14 +170,14 @@ const FULL_GUIDES = [
       },
       {
         h: 'Using AI to draft messages',
-        p: 'Click the AI Assistant icon next to the message box. Ask "Draft a Sunday service reminder" — the AI writes warm, on-brand SMS copy you can edit and send.',
+        p: 'Click the AI Assistant icon next to the message box. Ask "Draft a Sunday service reminder", the AI writes warm, on-brand SMS copy you can edit and send.',
       },
       {
         h: 'Visitor follow-ups',
-        p: 'Mark a visitor in attendance. ChurchFlow can auto-send a welcome SMS Sunday evening — configure the template under Settings → SMS → Auto-replies.',
+        p: 'Mark a visitor in attendance. ChurchFlow can auto-send a welcome SMS Sunday evening, configure the template under Settings → SMS → Auto-replies.',
       },
     ],
-    tip: 'Keep SMS under 160 characters when possible — single-part messages cost half of multi-part ones.',
+    tip: 'Keep SMS under 160 characters when possible, single-part messages cost half of multi-part ones.',
   },
   {
     anchor: 'g-sermons',
@@ -191,28 +191,28 @@ const FULL_GUIDES = [
       },
       {
         h: 'Live streaming',
-        p: 'Set up Live Streams to broadcast Sunday service. ChurchFlow integrates with YouTube Live and Facebook Live — paste the stream URL and members watch directly from the app.',
+        p: 'Set up Live Streams to broadcast Sunday service. ChurchFlow integrates with YouTube Live and Facebook Live, paste the stream URL and members watch directly from the app.',
       },
       {
         h: 'AI sermon builder',
-        p: 'In the Pastor dashboard, use Sermon Builder AI. Give it a scripture and a theme — it produces a full outline with main points, applications, and altar call direction. Edit to fit your style.',
+        p: 'In the Pastor dashboard, use Sermon Builder AI. Give it a scripture and a theme, it produces a full outline with main points, applications, and altar call direction. Edit to fit your style.',
       },
       {
         h: 'Sermon series',
-        p: 'Group related sermons into series (e.g., "Walking by Faith — 6-week series"). Members can binge the whole series from one place.',
+        p: 'Group related sermons into series (e.g., "Walking by Faith, 6-week series"). Members can binge the whole series from one place.',
       },
     ],
-    tip: 'Add a 1-sentence sermon summary for every upload — it dramatically improves search and lets members find old sermons.',
+    tip: 'Add a 1-sentence sermon summary for every upload, it dramatically improves search and lets members find old sermons.',
   },
   {
     anchor: 'g-portal',
     icon: Smartphone,
     title: 'The Member Portal',
-    intro: 'Every member can log in to their personal portal — view sermons, submit prayer requests, give online, and update their own profile.',
+    intro: 'Every member can log in to their personal portal, view sermons, submit prayer requests, give online, and update their own profile.',
     sections: [
       {
         h: 'Inviting members to register',
-        p: 'Share your church join link (Settings → Church Profile → Copy invite link). Members open it, create a password, and they\'re in — automatically linked to your church.',
+        p: 'Share your church join link (Settings → Church Profile → Copy invite link). Members open it, create a password, and they\'re in, automatically linked to your church.',
       },
       {
         h: 'What members can do',
@@ -220,14 +220,14 @@ const FULL_GUIDES = [
       },
       {
         h: 'Privacy controls',
-        p: 'Prayer requests can be marked "Pastor only" — only pastors and admins see them. Personal data (DOB, address) is never visible to other members.',
+        p: 'Prayer requests can be marked "Pastor only", only pastors and admins see them. Personal data (DOB, address) is never visible to other members.',
       },
       {
         h: 'Mobile app',
-        p: 'ChurchFlow works as a Progressive Web App. Members can install it to their home screen from any browser — looks and behaves like a native app, no app store needed.',
+        p: 'ChurchFlow works as a Progressive Web App. Members can install it to their home screen from any browser, looks and behaves like a native app, no app store needed.',
       },
     ],
-    tip: 'Print the join link as a QR code on bulletin handouts — easiest way to get visitors registered after their first Sunday.',
+    tip: 'Print the join link as a QR code on bulletin handouts, easiest way to get visitors registered after their first Sunday.',
   },
   {
     anchor: 'g-export',
@@ -241,7 +241,7 @@ const FULL_GUIDES = [
       },
       {
         h: 'What you get',
-        p: 'CSV files with one row per record and a header row of column names. Open directly in Excel — no formatting issues. Dates are in YYYY-MM-DD format for easy sorting.',
+        p: 'CSV files with one row per record and a header row of column names. Open directly in Excel, no formatting issues. Dates are in YYYY-MM-DD format for easy sorting.',
       },
       {
         h: 'Regular backups',
@@ -258,7 +258,7 @@ const FULL_GUIDES = [
     sections: [
       {
         h: 'The plans',
-        p: 'Starter ($15/mo, LRD 2,760) — up to 100 members, 1 branch. Growth ($45/mo, LRD 8,280) — up to 500 members, 3 branches. Ministry Pro ($120/mo, LRD 22,080) — unlimited everything.',
+        p: 'Starter ($15/mo, LRD 2,760), up to 100 members, 1 branch. Growth ($45/mo, LRD 8,280), up to 500 members, 3 branches. Ministry Pro ($120/mo, LRD 22,080), unlimited everything.',
       },
       {
         h: 'How to pay',
@@ -273,7 +273,7 @@ const FULL_GUIDES = [
         p: 'Email morrisldorleyjr21@gmail.com to cancel. Your data stays in ChurchFlow for 30 days after cancellation so you can export it. After that, it\'s permanently deleted.',
       },
     ],
-    tip: 'Yearly billing saves 20% — that\'s nearly 3 free months. Most growing churches save by paying upfront.',
+    tip: 'Yearly billing saves 20%, that\'s nearly 3 free months. Most growing churches save by paying upfront.',
   },
 ]
 
@@ -285,7 +285,7 @@ const GETTING_STARTED_STEPS = [
     anchor: 'create',
     content: `Navigate to churchflow.lr and click "Get Started". You will be asked to enter your church name, denomination, city, country, and an admin email address. A verification email will be sent to confirm your account. Once verified, you are in.`,
     code: null,
-    tip: 'Use an email address that your church leadership team can access — this will be the primary admin account.',
+    tip: 'Use an email address that your church leadership team can access, this will be the primary admin account.',
   },
   {
     number: '02',
@@ -315,7 +315,7 @@ Grace Flomo, +231770005678, , Female, 1985-08-22, Ushers, Active`,
     anchor: 'attendance',
     content: `Open the Attendance module and click "New Attendance Record". Select the service type (Sunday Service, Mid-week, Youth, etc.), the date, and the branch. You can then mark attendance by ticking member names from the list, or scanning QR codes if members have their codes printed or saved. Hit "Save Record" when done.`,
     code: null,
-    tip: 'Assign a department leader to take attendance for their group — this distributes the work and improves accuracy.',
+    tip: 'Assign a department leader to take attendance for their group, this distributes the work and improves accuracy.',
   },
   {
     number: '05',

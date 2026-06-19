@@ -1,5 +1,5 @@
 // ============================================================
-// ChurchFlow Liberia — Join Church Page (/join/:churchId)
+// ChurchFlow Liberia, Join Church Page (/join/:churchId)
 // ============================================================
 import { useEffect, useState } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'

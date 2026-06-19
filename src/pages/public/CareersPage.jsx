@@ -1,5 +1,5 @@
 // ============================================================
-// ChurchFlow Liberia — Careers Page (/careers)
+// ChurchFlow Liberia, Careers Page (/careers)
 // ============================================================
 import React, { useState } from 'react'
 import { Link } from 'react-router-dom'

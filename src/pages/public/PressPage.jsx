@@ -1,5 +1,5 @@
 // ============================================================
-// ChurchFlow Liberia — Press Page (/press)
+// ChurchFlow Liberia, Press Page (/press)
 // ============================================================
 import React from 'react'
 import { Link } from 'react-router-dom'
@@ -112,9 +112,9 @@ export default function PressPage() {
           <h2 className="text-2xl font-extrabold text-[#151022] mb-8">Logo and Assets</h2>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
             {[
-              { bg: 'bg-white',       label: 'Logo — Dark Variant',   sub: 'For light backgrounds',  border: 'border-slate-200' },
-              { bg: 'bg-[#151022]',  label: 'Logo — Light Variant',  sub: 'For dark backgrounds',   border: 'border-[#151022]' },
-              { bg: 'bg-[#8A19FF]',  label: 'Logo — Purple Variant', sub: 'For branded backgrounds', border: 'border-[#8A19FF]' },
+              { bg: 'bg-white',       label: 'Logo, Dark Variant',   sub: 'For light backgrounds',  border: 'border-slate-200' },
+              { bg: 'bg-[#151022]',  label: 'Logo, Light Variant',  sub: 'For dark backgrounds',   border: 'border-[#151022]' },
+              { bg: 'bg-[#8A19FF]',  label: 'Logo, Purple Variant', sub: 'For branded backgrounds', border: 'border-[#8A19FF]' },
             ].map(v => (
               <div key={v.label} className={`rounded-2xl border ${v.border} ${v.bg} overflow-hidden`}>
                 <div className="h-40 flex items-center justify-center">

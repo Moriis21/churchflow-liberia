@@ -1,5 +1,5 @@
 // ============================================================
-// ChurchFlow Liberia — Community Page (/community)
+// ChurchFlow Liberia, Community Page (/community)
 // Waitlist forms save to InsForge community_waitlist table.
 // ============================================================
 import React, { useState } from 'react'
@@ -33,7 +33,7 @@ const WEBINARS = [
     time: '3:00 PM WAT',
     speaker: 'Morris L. Dorley Jr, Founder',
     description:
-      'A live walkthrough of every Finance module feature — recording offerings, generating receipts, building monthly reports, and exporting to Excel. Q&A included.',
+      'A live walkthrough of every Finance module feature, recording offerings, generating receipts, building monthly reports, and exporting to Excel. Q&A included.',
     seats: 12,
     icon: Video,
     color: 'bg-purple-50 border-purple-200',
@@ -168,7 +168,7 @@ export default function CommunityPage() {
         </div>
       </section>
 
-      {/* Community channels — waitlist forms */}
+      {/* Community channels, waitlist forms */}
       <section className="py-20 px-4 bg-white">
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-12">
@@ -312,7 +312,7 @@ export default function CommunityPage() {
         <div className="max-w-xl mx-auto text-center">
           <h2 className="text-2xl font-extrabold text-[#111827] mb-3">Ready to get started?</h2>
           <p className="text-purple-700 text-sm leading-relaxed mb-8">
-            Sign up above to join your preferred community channel — email newsletter, WhatsApp, or Facebook — and become part of Liberia's growing church management community.
+            Sign up above to join your preferred community channel, email newsletter, WhatsApp, or Facebook, and become part of Liberia's growing church management community.
           </p>
           <a
             href="/register"

@@ -1,5 +1,5 @@
 // ============================================================
-// ChurchFlow Liberia — Help Centre Page (/help)
+// ChurchFlow Liberia, Help Centre Page (/help)
 // ============================================================
 import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
@@ -68,13 +68,13 @@ const POPULAR_ARTICLES = [
   { title: 'Sending SMS messages to your congregation',            category: 'Communications',  href: '/docs#g-sms'        },
   { title: 'Creating events and accepting RSVPs',                  category: 'Events',          href: '/docs#g-events'     },
   { title: 'Uploading sermons and live streaming',                 category: 'Sermons',         href: '/docs#g-sermons'    },
-  { title: 'The member portal — what members can do',              category: 'Members',         href: '/docs#g-portal'     },
+  { title: 'The member portal, what members can do',              category: 'Members',         href: '/docs#g-portal'     },
   { title: 'Exporting your church data to CSV',                    category: 'Settings',        href: '/docs#g-export'          },
   { title: 'How to export your personal data (GDPR Article 15)',  category: 'Privacy & Data',  href: '/docs#g-export-personal' },
   { title: 'How to delete your account permanently',              category: 'Privacy & Data',  href: '/docs#g-delete-account'  },
-  { title: 'Your data rights — what ChurchFlow stores about you', category: 'Privacy & Data',  href: '/gdpr'                   },
+  { title: 'Your data rights, what ChurchFlow stores about you', category: 'Privacy & Data',  href: '/gdpr'                   },
   { title: 'Billing, plans, and how to pay',                       category: 'Billing',         href: '/docs#g-billing'         },
-  { title: 'Getting started — your first 15 minutes',              category: 'Getting Started', href: '/docs#intro'              },
+  { title: 'Getting started, your first 15 minutes',              category: 'Getting Started', href: '/docs#intro'              },
 ]
 
 const CATEGORY_COLORS = {
@@ -212,7 +212,7 @@ export default function HelpCentrePage() {
                 <MessageSquare className="w-6 h-6 text-[#8A19FF]" />
               </div>
               <h3 className="font-bold text-[#151022] text-sm mb-2">Live Chat</h3>
-              <p className="text-slate-500 text-xs leading-relaxed mb-4">Chat with the ChurchFlow Assistant — instant answers about features, pricing, and setup.</p>
+              <p className="text-slate-500 text-xs leading-relaxed mb-4">Chat with the ChurchFlow Assistant, instant answers about features, pricing, and setup.</p>
               <button
                 onClick={() => window.dispatchEvent(new Event('churchflow:open-ai-chat'))}
                 className="px-4 py-2 rounded-lg bg-[#8A19FF] text-white text-xs font-semibold hover:bg-[#5B00B8] transition-colors">
