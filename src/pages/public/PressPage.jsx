@@ -18,7 +18,7 @@ const BRAND_COLORS = [
 ]
 
 const TYPOGRAPHY = [
-  { label: 'Primary Font',      value: 'Inter',             usage: 'All body text, UI elements'          },
+  { label: 'Primary Font',      value: 'Poppins',             usage: 'All body text, UI elements'          },
   { label: 'Heading Weight',    value: 'Extra Bold (800)',   usage: 'Page headings and feature titles'    },
   { label: 'Body Weight',       value: 'Regular (400)',      usage: 'Paragraphs and descriptions'         },
   { label: 'Button Weight',     value: 'Semi Bold (600)',    usage: 'CTA buttons and navigation links'    },

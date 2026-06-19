@@ -90,18 +90,18 @@ export default function AuthCallback() {
   }, [navigate])
 
   return (
-    <div className="min-h-screen bg-[#151022] flex flex-col items-center justify-center px-4">
+    <div className="min-h-screen pastel-canvas flex flex-col items-center justify-center px-4">
       {/* Logo */}
       <div className="flex items-center gap-3 mb-10">
         <img src="/logo.png" alt="ChurchFlow" className="w-12 h-12 rounded-xl object-contain"
           onError={e => e.currentTarget.style.display = 'none'} />
         <div>
-          <p className="text-white text-xl font-extrabold tracking-tight">ChurchFlow</p>
-          <p className="text-amber-400 text-xs font-semibold tracking-widest uppercase">Liberia</p>
+          <p className="text-[#111827] text-xl font-extrabold tracking-tight">ChurchFlow</p>
+          <p className="text-[#5B00B8] text-xs font-semibold tracking-widest uppercase">Liberia</p>
         </div>
       </div>
 
-      <div className="bg-white/10 backdrop-blur-sm rounded-2xl border border-white/15 p-8 w-full max-w-sm text-center">
+      <div className="glass-card rounded-3xl p-8 w-full max-w-sm text-center">
         {error ? (
           <>
             <div className="w-14 h-14 rounded-2xl bg-red-500/20 flex items-center justify-center mx-auto mb-4">
@@ -110,8 +110,8 @@ export default function AuthCallback() {
                   d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
               </svg>
             </div>
-            <h2 className="text-white text-lg font-bold mb-3">Problem Signing In</h2>
-            <p className="text-white/60 text-sm mb-6 leading-relaxed">{error}</p>
+            <h2 className="text-[#111827] text-lg font-bold mb-3">Problem Signing In</h2>
+            <p className="text-slate-600 text-sm mb-6 leading-relaxed">{error}</p>
             <a href="/login"
               className="block w-full py-2.5 bg-purple-600 hover:bg-purple-700 text-white rounded-xl
                 text-sm font-semibold transition-colors">
@@ -123,8 +123,8 @@ export default function AuthCallback() {
             <div className="w-14 h-14 rounded-2xl bg-purple-500/20 flex items-center justify-center mx-auto mb-4">
               <div className="w-7 h-7 border-2 border-purple-400 border-t-transparent rounded-full animate-spin" />
             </div>
-            <h2 className="text-white text-lg font-bold mb-2">Almost there!</h2>
-            <p className="text-white/60 text-sm">{status}</p>
+            <h2 className="text-[#111827] text-lg font-bold mb-2">Almost there!</h2>
+            <p className="text-slate-600 text-sm">{status}</p>
             <div className="flex justify-center gap-1.5 mt-5">
               {[0,1,2].map(i => (
                 <span key={i} className="w-2 h-2 rounded-full bg-purple-400/50 animate-bounce"
@@ -135,7 +135,7 @@ export default function AuthCallback() {
         )}
       </div>
 
-      <p className="text-white/30 text-xs mt-6">
+      <p className="text-slate-400 text-xs mt-6">
         &copy; {new Date().getFullYear()} ChurchFlow Liberia
       </p>
     </div>

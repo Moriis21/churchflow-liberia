@@ -71,17 +71,17 @@ const GDPRPage        = React.lazy(() => import('./pages/public/LegalPages').the
 // ─── Suspense fallback spinner ────────────────────────────────
 function PageSpinner() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-50">
-      <div className="flex flex-col items-center gap-4">
+    <div className="min-h-screen flex items-center justify-center pastel-canvas">
+      <div className="glass-card rounded-3xl px-10 py-9 flex flex-col items-center gap-4">
         {/* Animated cross + spinner */}
         <div className="relative w-16 h-16">
-          <div className="absolute inset-0 rounded-full border-4 border-purple-100" />
-          <div className="absolute inset-0 rounded-full border-4 border-t-purple-600 animate-spin" />
+          <div className="absolute inset-0 rounded-full border-4 border-white/70" />
+          <div className="absolute inset-0 rounded-full border-4 border-t-[#5B00B8] animate-spin" />
           <div className="absolute inset-0 flex items-center justify-center">
-            <span className="text-purple-600 font-black text-xl leading-none">✝</span>
+            <span className="text-[#5B00B8] font-black text-xl leading-none">✝</span>
           </div>
         </div>
-        <p className="text-slate-400 text-sm font-medium tracking-wide">Loading ChurchFlow…</p>
+        <p className="text-slate-600 text-sm font-semibold tracking-wide">Loading ChurchFlow…</p>
       </div>
     </div>
   )
@@ -90,14 +90,14 @@ function PageSpinner() {
 // ─── Auth loading skeleton ────────────────────────────────────
 function AuthSkeleton() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-50">
-      <div className="flex flex-col items-center gap-3">
+    <div className="min-h-screen flex items-center justify-center pastel-canvas">
+      <div className="glass-card rounded-3xl px-10 py-9 flex flex-col items-center gap-3">
         <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#151022] to-[#5B00B8] flex items-center justify-center shadow-lg animate-pulse">
           <span className="text-white font-black text-xl leading-none">✝</span>
         </div>
         <div className="space-y-2 text-center">
-          <div className="h-3 w-32 bg-slate-200 rounded-full animate-pulse mx-auto" />
-          <div className="h-2.5 w-20 bg-slate-100 rounded-full animate-pulse mx-auto" />
+          <div className="h-3 w-32 bg-white/70 rounded-full animate-pulse mx-auto" />
+          <div className="h-2.5 w-20 bg-white/50 rounded-full animate-pulse mx-auto" />
         </div>
       </div>
     </div>

@@ -300,8 +300,8 @@ export default function Login() {
   // ONLY the code-entry screen. No nav, no other auth options.
   if (pendingTwoFactor) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#151022] via-[#2D1B69] to-[#5B00B8] p-4">
-        <div className="w-full max-w-md bg-white rounded-2xl shadow-2xl p-8">
+      <div className="min-h-screen flex items-center justify-center pastel-canvas p-4">
+        <div className="w-full max-w-md glass-card rounded-3xl p-8">
           <div className="text-center mb-6">
             <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#151022] to-[#5B00B8] mx-auto flex items-center justify-center mb-3">
               <span className="text-white font-black text-xl">2FA</span>
@@ -399,7 +399,7 @@ export default function Login() {
       </div>
 
       {/* ════════════ RIGHT PANEL ════════════ */}
-      <div className="flex-1 flex flex-col justify-center bg-[#F5F4FF] min-h-screen md:min-h-0 overflow-y-auto">
+      <div className="flex-1 flex flex-col justify-center pastel-canvas min-h-screen md:min-h-0 overflow-y-auto">
         <div className="w-full max-w-[420px] mx-auto px-4 py-6 sm:px-6 sm:py-8">
 
           {/* ── Mobile header ─────────────────────────────── */}

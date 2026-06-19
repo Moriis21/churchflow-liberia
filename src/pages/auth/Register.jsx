@@ -239,7 +239,7 @@ function MemberRegisterForm({ pendingChurchName, pendingChurchId }) {
   // OTP verification screen
   if (verifyStep) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#F5F3FF] to-[#EDE9FE] px-4 py-8">
+      <div className="min-h-screen flex items-center justify-center pastel-canvas px-4 py-8">
         <div className="w-full max-w-md bg-white rounded-2xl shadow-xl p-8 text-center">
           <div className="w-16 h-16 rounded-full bg-purple-100 flex items-center justify-center mx-auto mb-4">
             <Mail className="w-8 h-8 text-purple-600" />
@@ -284,7 +284,7 @@ function MemberRegisterForm({ pendingChurchName, pendingChurchId }) {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#F5F3FF] to-[#EDE9FE] px-4 py-8">
+    <div className="min-h-screen flex items-center justify-center pastel-canvas px-4 py-8">
       {/* Decorative blobs */}
       <div className="fixed -top-32 -left-32 w-96 h-96 rounded-full bg-purple-400/10 blur-3xl pointer-events-none" />
       <div className="fixed -bottom-24 -right-24 w-80 h-80 rounded-full bg-indigo-400/10 blur-3xl pointer-events-none" />
@@ -667,7 +667,7 @@ export default function Register() {
   // ── OTP Verification Screen ─────────────────────────────
   if (verifyStep) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#F5F3FF] to-[#EDE9FE] px-4 py-8">
+      <div className="min-h-screen flex items-center justify-center pastel-canvas px-4 py-8">
         <div className="w-full max-w-md bg-white rounded-2xl shadow-xl p-8 text-center animate-fade-in">
           <div className="w-16 h-16 rounded-full bg-purple-100 flex items-center justify-center mx-auto mb-4">
             <Mail className="w-8 h-8 text-purple-600" />
