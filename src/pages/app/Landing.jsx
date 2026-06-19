@@ -445,19 +445,26 @@ const FEATURES = [
   },
 ]
 
-function useInView(threshold = 0.15) {
+function useInView() {
   const ref = React.useRef(null)
   const [visible, setVisible] = React.useState(false)
   React.useEffect(() => {
     const el = ref.current
     if (!el) return
+    // If already within (or above) the viewport on mount, reveal now.
+    const r = el.getBoundingClientRect()
+    if (r.top < window.innerHeight) { setVisible(true); return }
+    // threshold 0 + bottom rootMargin: fires as soon as the section enters
+    // the viewport. Reliable even for sections taller than the screen.
     const obs = new IntersectionObserver(
       ([entry]) => { if (entry.isIntersecting) { setVisible(true); obs.disconnect() } },
-      { threshold }
+      { threshold: 0, rootMargin: '0px 0px -80px 0px' }
     )
     obs.observe(el)
-    return () => obs.disconnect()
-  }, [threshold])
+    // Safety net: never leave content stuck invisible.
+    const t = setTimeout(() => setVisible(true), 1500)
+    return () => { obs.disconnect(); clearTimeout(t) }
+  }, [])
   return [ref, visible]
 }
 
@@ -556,24 +563,27 @@ function StatsBar() {
 }
 
 // ─── How It Works ─────────────────────────────────────────────
-function useStepInView(threshold = 0.2) {
+function useStepInView() {
   const ref = React.useRef(null)
   const [visible, setVisible] = React.useState(false)
   React.useEffect(() => {
     const el = ref.current
     if (!el) return
+    const r = el.getBoundingClientRect()
+    if (r.top < window.innerHeight) { setVisible(true); return }
     const obs = new IntersectionObserver(
       ([entry]) => { if (entry.isIntersecting) { setVisible(true); obs.disconnect() } },
-      { threshold }
+      { threshold: 0, rootMargin: '0px 0px -80px 0px' }
     )
     obs.observe(el)
-    return () => obs.disconnect()
-  }, [threshold])
+    const t = setTimeout(() => setVisible(true), 1500)
+    return () => { obs.disconnect(); clearTimeout(t) }
+  }, [])
   return [ref, visible]
 }
 
 function HowItWorks() {
-  const [sectionRef, sectionVisible] = useStepInView(0.15)
+  const [sectionRef, sectionVisible] = useStepInView()
 
   const steps = [
     {
@@ -606,13 +616,13 @@ function HowItWorks() {
   ]
 
   return (
-    <section id="about" className="py-24 bg-white overflow-hidden" ref={sectionRef}>
+    <section id="about" className="py-16 sm:py-24 pastel-canvas overflow-hidden" ref={sectionRef}>
       <style>{GLOBAL_STYLES}</style>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
         {/* Section header */}
         <div
-          className="text-center max-w-2xl mx-auto mb-20 transition-all duration-700"
+          className="text-center max-w-2xl mx-auto mb-12 sm:mb-20 transition-all duration-700"
           style={{
             opacity: sectionVisible ? 1 : 0,
             transform: sectionVisible ? 'translateY(0)' : 'translateY(32px)',
@@ -625,29 +635,18 @@ function HowItWorks() {
             Designed for Church.{' '}
             <span className="text-purple-600">Built for Impact.</span>
           </h2>
-          <p className="text-lg text-slate-500">
+          <p className="text-base sm:text-lg text-slate-600">
             Get up and running in under 10 minutes with our simple onboarding process.
           </p>
         </div>
 
         {/* Steps */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-10 lg:gap-16 relative">
-
-          {/* Animated connector line (desktop only) */}
-          <div className="hidden md:block absolute top-14 left-[20%] right-[20%] h-1 bg-slate-100 rounded-full overflow-hidden">
-            <div
-              className="h-full bg-gradient-to-r from-violet-400 via-purple-500 to-amber-400 rounded-full transition-all duration-1000 ease-out"
-              style={{
-                width: sectionVisible ? '100%' : '0%',
-                transitionDelay: '300ms',
-              }}
-            />
-          </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8 lg:gap-12 relative max-w-md md:max-w-none mx-auto">
 
           {steps.map(({ num, title, Icon, color, glow, desc, delay }) => (
             <div
               key={num}
-              className="flex flex-col items-center text-center relative"
+              className="glass-card rounded-3xl p-6 sm:p-7 flex flex-col items-center text-center relative"
               style={{
                 opacity: sectionVisible ? 1 : 0,
                 transform: sectionVisible ? 'translateY(0) scale(1)' : 'translateY(40px) scale(0.95)',
@@ -657,44 +656,18 @@ function HowItWorks() {
             >
               {/* Step circle */}
               <div
-                className={`w-28 h-28 rounded-3xl bg-gradient-to-br ${color} flex flex-col items-center justify-center mb-6 shadow-2xl ${glow} relative z-10`}
+                className={`w-20 h-20 sm:w-24 sm:h-24 rounded-3xl bg-gradient-to-br ${color} flex flex-col items-center justify-center mb-4 sm:mb-5 shadow-2xl ${glow} relative z-10`}
                 style={{
                   animation: sectionVisible ? `stepPulse 2s ease-in-out ${delay + 600}ms 1` : 'none',
                 }}
               >
-                <Icon className="w-7 h-7 text-white mb-1" />
-                <span className="text-xl font-black text-white/80 leading-none">{num}</span>
+                <Icon className="w-6 h-6 sm:w-7 sm:h-7 text-white mb-1" />
+                <span className="text-lg sm:text-xl font-black text-white/80 leading-none">{num}</span>
               </div>
-
-              {/* Arrow between steps on mobile */}
-              {num !== '03' && (
-                <div className="md:hidden flex justify-center my-2">
-                  <div
-                    className="flex flex-col items-center gap-1"
-                    style={{
-                      opacity: sectionVisible ? 1 : 0,
-                      transition: 'opacity 0.5s ease',
-                      transitionDelay: `${delay + 300}ms`,
-                    }}
-                  >
-                    {[0, 1, 2].map(i => (
-                      <div
-                        key={i}
-                        className="w-1 h-3 rounded-full bg-purple-300"
-                        style={{
-                          opacity: sectionVisible ? (1 - i * 0.25) : 0,
-                          transition: `opacity 0.4s ease`,
-                          transitionDelay: `${delay + 350 + i * 60}ms`,
-                        }}
-                      />
-                    ))}
-                  </div>
-                </div>
-              )}
 
               {/* Text */}
               <h3
-                className="text-xl font-bold text-slate-800 mb-3"
+                className="text-lg sm:text-xl font-bold text-slate-900 mb-2 sm:mb-3"
                 style={{
                   opacity: sectionVisible ? 1 : 0,
                   transform: sectionVisible ? 'translateY(0)' : 'translateY(16px)',
@@ -705,7 +678,7 @@ function HowItWorks() {
                 {title}
               </h3>
               <p
-                className="text-sm text-slate-500 leading-relaxed max-w-xs"
+                className="text-sm text-slate-600 leading-relaxed max-w-xs"
                 style={{
                   opacity: sectionVisible ? 1 : 0,
                   transition: 'opacity 0.5s ease',
