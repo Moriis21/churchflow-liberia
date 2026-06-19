@@ -8,10 +8,11 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   CalendarDays, HandHeart, PlaySquare, Radio,
-  User, ChevronRight, Clock, Users, Loader2, ClipboardCheck,
+  User, ChevronRight, Clock, Users, Loader2, ClipboardCheck, HeartHandshake,
 } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { useChurch } from '../../context/ChurchContext'
+import GiveModal from '../../components/payments/GiveModal'
 import { insforge } from '../../lib/insforge'
 import { formatDate } from '../../utils/helpers'
 import { ScriptureOfTheDayCard } from '../../components/ui'
@@ -99,6 +100,7 @@ export default function MemberDashboard() {
   const [events,  setEvents]  = useState([])
   const [sermons, setSermons] = useState([])
   const [loading, setLoading] = useState(true)
+  const [giveOpen, setGiveOpen] = useState(false)
 
   const name     = user?.profile?.full_name || user?.name || user?.email?.split('@')[0] || 'Friend'
   const greeting = getGreeting()
@@ -153,14 +155,30 @@ export default function MemberDashboard() {
             <h1 className="text-2xl sm:text-3xl font-extrabold text-white mb-1">{name} 👋</h1>
             <p className="text-purple-200 text-sm">{churchName}</p>
           </div>
-          {/* Member badge */}
-          <div className="relative mt-4">
+          {/* Member badge + Give */}
+          <div className="relative mt-4 flex items-center gap-3 flex-wrap">
             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-white/15 text-white border border-white/20">
               <Users className="w-3 h-3" />
               Church Member
             </span>
+            <button
+              onClick={() => setGiveOpen(true)}
+              className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-bold bg-white text-[#5B00B8] hover:bg-amber-50 transition-colors shadow-sm"
+            >
+              <HeartHandshake className="w-3.5 h-3.5" />
+              Give Now
+            </button>
           </div>
         </div>
+
+        <GiveModal
+          open={giveOpen}
+          onClose={() => setGiveOpen(false)}
+          churchId={church?.id || user?.profile?.church_id || null}
+          userId={user?.id || null}
+          defaultName={name}
+          defaultEmail={user?.email || ''}
+        />
 
         {/* ── Scripture of the Day (member-focused, daily) ── */}
         <ScriptureOfTheDayCard />
