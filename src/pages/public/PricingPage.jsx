@@ -20,21 +20,21 @@ import {
 } from 'lucide-react'
 import PublicLayout from './PublicLayout'
 
-// ─── Animation variants (from reference component) ───────────
+// ─── Animation variants ──────────────────────────────────────
+// Matches the landing page pricing section: simple staggered fade-up
+// (no blur), so both pricing presentations animate identically.
 const revealVariants = {
   hidden: {
-    filter: 'blur(10px)',
-    y: -20,
+    y: 32,
     opacity: 0,
   },
   visible: (i = 0) => ({
     y: 0,
     opacity: 1,
-    filter: 'blur(0px)',
     transition: {
-      delay: i * 0.15,
-      duration: 0.55,
-      ease: [0.22, 1, 0.36, 1],
+      delay: i * 0.1,
+      duration: 0.5,
+      ease: 'easeOut',
     },
   }),
 }

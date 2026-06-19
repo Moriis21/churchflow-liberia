@@ -160,8 +160,9 @@ export default function BlogPostPage() {
             {/* Cover image */}
             {post.cover_url && (
               <img
-                src={post.cover_url} alt={post.title}
+                src={post.cover_url} alt={post.title} loading="lazy"
                 className="w-full rounded-2xl mb-8 object-cover max-h-80"
+                onError={(e) => { e.currentTarget.style.display = 'none' }}
               />
             )}
 

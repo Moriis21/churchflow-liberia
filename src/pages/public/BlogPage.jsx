@@ -39,7 +39,7 @@ function PostCard({ post, featured = false }) {
       <div className="bg-white rounded-2xl border border-slate-100 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07)] overflow-hidden hover:shadow-[0_8px_30px_-4px_rgba(124,58,237,0.18)] transition-all duration-300 lg:flex">
         <div className="lg:w-2/5 min-h-[220px] bg-gradient-to-br from-[#151022] to-[#5B00B8] flex items-center justify-center flex-shrink-0">
           {post.cover_url
-            ? <img src={post.cover_url} alt={post.title} className="w-full h-full object-cover" />
+            ? <img src={post.cover_url} alt={post.title} loading="lazy" className="w-full h-full object-cover" onError={(e)=>{e.currentTarget.style.display="none"}} />
             : <BookOpen className="w-16 h-16 text-white/20" />}
         </div>
         <div className="p-6 lg:p-8 flex flex-col justify-center">
@@ -69,7 +69,7 @@ function PostCard({ post, featured = false }) {
     <div className="bg-white rounded-2xl border border-slate-100 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07)] overflow-hidden hover:-translate-y-1 hover:shadow-[0_8px_30px_-4px_rgba(124,58,237,0.12)] transition-all duration-300 flex flex-col">
       <div className="h-36 bg-gradient-to-br from-[#151022] to-[#5B00B8] flex items-center justify-center flex-shrink-0">
         {post.cover_url
-          ? <img src={post.cover_url} alt={post.title} className="w-full h-full object-cover" />
+          ? <img src={post.cover_url} alt={post.title} loading="lazy" className="w-full h-full object-cover" onError={(e)=>{e.currentTarget.style.display="none"}} />
           : <BookOpen className="w-10 h-10 text-white/20" />}
       </div>
       <div className="p-5 flex flex-col flex-1">

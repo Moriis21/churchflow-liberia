@@ -526,32 +526,36 @@ function Features() {
 // church/member counts: a new platform showing "0 churches" destroys
 // credibility. These are always true and speak to the value prop.
 function StatsBar() {
-  const [ref, visible] = useInView(0.2)
+  const [ref, visible] = useInView()
 
   const stats = [
-    { value: 'LRD + USD', label: 'Dual-Currency Giving' },
-    { value: 'Bank-Level', label: 'Security & Encryption' },
-    { value: '99.9%',      label: 'Uptime Guaranteed' },
-    { value: '24/7',       label: 'Support Available' },
+    { value: 'LRD + USD', label: 'Dual-Currency Giving',  Icon: DollarSign, tint: 'tint-cream' },
+    { value: 'Bank-Level', label: 'Security & Encryption', Icon: ShieldCheck, tint: 'tint-lavender' },
+    { value: '99.9%',      label: 'Uptime Guaranteed',     Icon: TrendingUp, tint: 'tint-mint' },
+    { value: '24/7',       label: 'Support Available',     Icon: MessageCircle, tint: 'tint-blue' },
   ]
 
   return (
-    <section className="bg-gradient-to-r from-violet-700 via-purple-700 to-indigo-700 py-14" ref={ref}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 text-center">
-          {stats.map(({ value, label }, i) => (
+    <section className="pastel-canvas py-12 sm:py-16" ref={ref}>
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+          {stats.map(({ value, label, Icon, tint }, i) => (
             <div
               key={label}
-              className="flex flex-col items-center gap-1"
+              className={`${tint} glass-card rounded-2xl p-5 sm:p-6 flex flex-col items-center text-center`}
               style={{
-                animation: visible ? `countUp 0.5s ease ${i * 100}ms both` : 'none',
                 opacity: visible ? 1 : 0,
+                transform: visible ? 'translateY(0)' : 'translateY(20px)',
+                transition: `opacity 0.5s ease ${i * 90}ms, transform 0.5s ease ${i * 90}ms`,
               }}
             >
-              <span className="text-4xl sm:text-5xl font-extrabold text-white tracking-tight">
+              <span className="flex items-center justify-center w-10 h-10 rounded-xl bg-white/70 border border-white/80 mb-3 shadow-sm">
+                <Icon className="w-5 h-5 text-purple-700" />
+              </span>
+              <span className="text-lg sm:text-2xl font-extrabold text-slate-900 tracking-tight leading-none">
                 {value}
               </span>
-              <span className="text-sm font-medium text-white/70 uppercase tracking-widest">
+              <span className="text-[11px] sm:text-xs font-semibold text-slate-500 uppercase tracking-wider mt-1.5">
                 {label}
               </span>
             </div>
