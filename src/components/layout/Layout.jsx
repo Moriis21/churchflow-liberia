@@ -6,6 +6,7 @@ import { Outlet, Navigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import Sidebar from './Sidebar'
 import Header from './Header'
+import MobileBottomNav from './MobileBottomNav'
 
 // ─── Loading spinner ──────────────────────────────────────
 function LoadingScreen() {
@@ -127,9 +128,9 @@ export default function Layout() {
         {/* Sticky top header */}
         <Header onMenuToggle={() => setSidebarOpen((v) => !v)} />
 
-        {/* Page content — padded below header */}
+        {/* Page content — padded below header, and above mobile nav */}
         <main
-          className="flex-1 pt-16"
+          className="flex-1 pt-16 pb-20 md:pb-0"
           id="main-content"
           tabIndex={-1}
         >
@@ -145,6 +146,9 @@ export default function Layout() {
           </p>
         </footer>
       </div>
+
+      {/* Mobile bottom navigation */}
+      <MobileBottomNav onMenu={() => setSidebarOpen((v) => !v)} />
     </div>
   )
 }

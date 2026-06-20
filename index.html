@@ -113,6 +113,12 @@
   </script>
 </head>
   <body>
+    <!-- Apply saved theme before render to avoid a flash -->
+    <script>
+      try {
+        if (localStorage.getItem('cf_theme') === 'dark') document.documentElement.classList.add('dark')
+      } catch (e) {}
+    </script>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
     <script>

@@ -4,6 +4,7 @@
 import React, { useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { Menu, X } from 'lucide-react'
+import ThemeToggle from './../../components/ui/ThemeToggle'
 
 const NAV_LINKS = [
   { label: 'Features',  to: '/features'  },
@@ -54,6 +55,7 @@ function PublicNav() {
 
           {/* Desktop CTA */}
           <div className="hidden md:flex items-center gap-3">
+            <ThemeToggle />
             <Link
               to="/login"
               className="px-4 py-2 text-sm font-semibold text-[#151022] hover:text-[#8A19FF] transition-colors"

@@ -190,13 +190,6 @@
     to   { opacity: 1; transform: translateX(0); }
   }
 
-  /* ── Glass effect (modals, top bars) ──────────────────── */
-  .glass-card {
-    background: rgba(255, 255, 255, 0.85);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-  }
-
   /* ── Sidebar active item ──────────────────────────────── */
   .sidebar-active {
     background: rgba(138, 25, 255, 0.18);
@@ -214,3 +207,62 @@
     box-shadow: 0 12px 24px rgba(21, 16, 34, 0.10);
   }
 }
+
+/* ════════════════════════════════════════════════════════════
+   DARK MODE — scoped overrides (toggled by .dark on <html>)
+   Retrofits dark mode onto the light palette by remapping the
+   shared glass tokens + the most common Tailwind colour utilities.
+   ════════════════════════════════════════════════════════════ */
+html.dark body { background-color: #0E0B18; color: #E5E7EB; }
+
+/* Canvas + glass surfaces */
+html.dark .pastel-canvas {
+  background: linear-gradient(135deg, #161226 0%, #14182A 45%, #101C20 100%);
+}
+html.dark .glass-card,
+html.dark .glass-panel {
+  background: rgba(30, 27, 48, 0.55);
+  border-color: rgba(255, 255, 255, 0.10);
+  box-shadow: 0 8px 32px -8px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.06);
+}
+html.dark .glass-nav {
+  background: rgba(20, 17, 34, 0.70);
+  border-bottom-color: rgba(255, 255, 255, 0.08);
+}
+
+/* Pastel tints → muted dark tints */
+html.dark .tint-mint     { background: rgba(34,80,60,0.40);  box-shadow: 0 10px 30px -14px rgba(40,160,110,0.35); }
+html.dark .tint-blue     { background: rgba(34,55,95,0.40);  box-shadow: 0 10px 30px -14px rgba(60,120,220,0.35); }
+html.dark .tint-lavender,
+html.dark .tint-violet,
+html.dark .tint-rose     { background: rgba(55,45,95,0.40);  box-shadow: 0 10px 30px -14px rgba(140,110,240,0.35); }
+html.dark .tint-cream    { background: rgba(85,70,30,0.35);  box-shadow: 0 10px 30px -14px rgba(220,180,90,0.30); }
+html.dark .tint-aqua     { background: rgba(30,75,72,0.40);  box-shadow: 0 10px 30px -14px rgba(60,200,180,0.30); }
+
+/* Common surface utilities */
+html.dark .bg-white { background-color: #1B1830 !important; }
+html.dark .bg-slate-50, html.dark .bg-slate-100 { background-color: #15121F !important; }
+html.dark .bg-purple-50, html.dark .bg-violet-50, html.dark .bg-amber-50,
+html.dark .bg-emerald-50, html.dark .bg-blue-50, html.dark .bg-rose-50, html.dark .bg-green-50 {
+  background-color: rgba(255,255,255,0.06) !important;
+}
+
+/* Text utilities */
+html.dark .text-slate-900, html.dark .text-slate-800, html.dark .text-\[\#111827\],
+html.dark .text-\[\#151022\] { color: #F3F4F6 !important; }
+html.dark .text-slate-700, html.dark .text-slate-600 { color: #C7CBD3 !important; }
+html.dark .text-slate-500, html.dark .text-slate-400 { color: #9CA3AF !important; }
+
+/* Borders */
+html.dark .border-slate-100, html.dark .border-slate-200,
+html.dark .border-\[\#E4E7EC\], html.dark .border-white\/70, html.dark .border-white\/80 {
+  border-color: rgba(255,255,255,0.10) !important;
+}
+
+/* Inputs */
+html.dark input, html.dark textarea, html.dark select {
+  background-color: rgba(255,255,255,0.05);
+  color: #E5E7EB;
+  border-color: rgba(255,255,255,0.12);
+}
+html.dark input::placeholder, html.dark textarea::placeholder { color: #6B7280; }

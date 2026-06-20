@@ -8,6 +8,7 @@ import { Menu, Bell, ChevronDown, User, Settings, LogOut, MapPin, Check } from '
 import { useAuth } from '../../context/AuthContext'
 import { useChurch } from '../../context/ChurchContext'
 import { insforge } from '../../lib/insforge'
+import ThemeToggle from './../ui/ThemeToggle'
 import Avatar from '../ui/Avatar'
 import SearchBar from '../ui/SearchBar'
 
@@ -353,6 +354,9 @@ export default function Header({ onMenuToggle }) {
               <span className="truncate max-w-[100px]">{currentBranch.name}</span>
             </div>
           )}
+
+          {/* Theme toggle */}
+          <ThemeToggle />
 
           {/* Currency toggle (church users only) */}
           <CurrencyToggle />
