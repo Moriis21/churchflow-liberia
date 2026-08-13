@@ -267,6 +267,16 @@ html.dark input, html.dark textarea, html.dark select {
 }
 html.dark input::placeholder, html.dark textarea::placeholder { color: #6B7280; }
 
+/* Respect reduced-motion preference */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
 /* ── Dashboard polish ─────────────────────────────────────── */
 /* Coloured "-100" icon tiles → soft translucent accents */
 html.dark .bg-purple-100, html.dark .bg-violet-100, html.dark .bg-indigo-100,

@@ -27,6 +27,10 @@ import {
   Clock,
   Heart,
   Zap,
+  LayoutDashboard,
+  BarChart3,
+  Settings,
+  Church,
   Globe2,
   MessageCircle,
   Camera,
@@ -231,6 +235,122 @@ function DemoModal({ isOpen, onClose }) {
   )
 }
 
+// ─── Hero dashboard preview (marketing mockup) ───────────────
+// A realistic, simplified product shot: left sidebar + summary
+// cards + attendance line chart + offerings bar chart.
+function HeroDashboardPreview() {
+  const NAV = [
+    { icon: LayoutDashboard, label: 'Dashboard', active: true },
+    { icon: Users,           label: 'Members' },
+    { icon: CheckSquare,     label: 'Attendance' },
+    { icon: DollarSign,      label: 'Giving' },
+    { icon: MessageSquare,   label: 'Communication' },
+    { icon: BarChart3,       label: 'Reports' },
+    { icon: Settings,        label: 'Settings' },
+  ]
+  const CARDS = [
+    { label: 'Total Members',      value: '248',         sub: '+12 this month',    up: true,  tint: 'tint-lavender' },
+    { label: "Today's Attendance", value: '186',         sub: '78% of members',    up: null,  tint: 'tint-mint' },
+    { label: 'Total Offerings',    value: 'LRD 125,750', sub: '+18% vs last week', up: true,  tint: 'tint-cream' },
+    { label: 'Visitors Today',     value: '4',           sub: 'New visitors',      up: null,  tint: 'tint-blue' },
+  ]
+  // Attendance line chart points (0..100 scaled), 7 days
+  const line = [52, 68, 60, 84, 72, 90, 82]
+  const pts = line.map((v, i) => `${(i / (line.length - 1)) * 100},${100 - v}`).join(' ')
+  const offerings = [55, 70, 48, 82, 64, 90]
+
+  return (
+    <div className="relative bg-white/90 backdrop-blur-xl border border-white/80 rounded-2xl sm:rounded-3xl shadow-[0_24px_70px_-20px_rgba(91,0,184,0.4)] overflow-hidden">
+      {/* Browser chrome */}
+      <div className="flex items-center gap-2 px-4 py-2.5 border-b border-slate-100 bg-white/70">
+        <span className="w-2.5 h-2.5 rounded-full bg-red-400" />
+        <span className="w-2.5 h-2.5 rounded-full bg-amber-400" />
+        <span className="w-2.5 h-2.5 rounded-full bg-emerald-400" />
+        <span className="ml-3 hidden sm:block text-[11px] text-slate-400 font-medium">churchflow.innova-lib.com/app/dashboard</span>
+      </div>
+
+      <div className="flex">
+        {/* Sidebar (hidden on small screens) */}
+        <aside className="hidden md:flex w-48 flex-shrink-0 flex-col gap-1 p-3 border-r border-slate-100 bg-white/60">
+          <div className="flex items-center gap-2 px-2 py-2 mb-2">
+            <span className="flex items-center justify-center w-7 h-7 rounded-lg bg-gradient-to-br from-[#151022] to-[#5B00B8]">
+              <Church className="w-4 h-4 text-white" />
+            </span>
+            <span className="text-sm font-extrabold text-slate-900">ChurchFlow</span>
+          </div>
+          {NAV.map(({ icon: Icon, label, active }) => (
+            <div key={label}
+              className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] font-medium ${
+                active ? 'bg-purple-50 text-[#5B00B8]' : 'text-slate-500'
+              }`}>
+              <Icon className="w-4 h-4 flex-shrink-0" />
+              {label}
+            </div>
+          ))}
+        </aside>
+
+        {/* Main */}
+        <div className="flex-1 min-w-0 p-4 sm:p-5">
+          {/* Header row */}
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-base sm:text-lg font-extrabold text-slate-900">Dashboard</h3>
+            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-xs font-semibold text-slate-600">
+              <Calendar className="w-3.5 h-3.5 text-purple-600" />
+              This Week
+            </span>
+          </div>
+
+          {/* Summary cards */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3 mb-4">
+            {CARDS.map((c) => (
+              <div key={c.label} className={`${c.tint} border border-white/80 rounded-xl p-3 shadow-sm`}>
+                <p className="text-slate-500 text-[10px] sm:text-[11px] mb-1 leading-tight">{c.label}</p>
+                <p className="text-slate-900 font-extrabold text-sm sm:text-lg leading-none mb-1.5">{c.value}</p>
+                <p className={`inline-flex items-center gap-1 text-[9px] sm:text-[10px] font-semibold ${c.up ? 'text-emerald-600' : 'text-slate-500'}`}>
+                  {c.up && <TrendingUp className="w-2.5 h-2.5" />}
+                  {c.sub}
+                </p>
+              </div>
+            ))}
+          </div>
+
+          {/* Charts */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3">
+            {/* Attendance line chart */}
+            <div className="sm:col-span-2 border border-slate-100 rounded-xl p-3 sm:p-4 bg-white/70">
+              <p className="text-slate-500 text-[11px] font-semibold mb-3">Attendance Overview</p>
+              <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="w-full h-16 sm:h-24">
+                <defs>
+                  <linearGradient id="attnFill" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#8A19FF" stopOpacity="0.28" />
+                    <stop offset="100%" stopColor="#8A19FF" stopOpacity="0" />
+                  </linearGradient>
+                </defs>
+                <polygon points={`0,100 ${pts} 100,100`} fill="url(#attnFill)" />
+                <polyline points={pts} fill="none" stroke="#8A19FF" strokeWidth="2.5"
+                  strokeLinecap="round" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
+              </svg>
+              <div className="flex justify-between mt-1 text-[8px] sm:text-[9px] text-slate-400">
+                {['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].map((d) => <span key={d}>{d}</span>)}
+              </div>
+            </div>
+            {/* Offerings bar chart */}
+            <div className="border border-slate-100 rounded-xl p-3 sm:p-4 bg-white/70">
+              <p className="text-slate-500 text-[11px] font-semibold mb-3">Offerings Overview</p>
+              <div className="flex items-end gap-1.5 h-16 sm:h-24">
+                {offerings.map((h, i) => (
+                  <div key={i} className="flex-1 rounded-t bg-gradient-to-t from-[#5B00B8] to-[#A855F7]"
+                    style={{ height: `${h}%` }} />
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 // ─── Hero, polished mobile-first ─────────────────────────────
 // Branding, colors, and structure: UNCHANGED.
 // Improvements: tighter mobile spacing, motion fade-ups,
@@ -282,12 +402,10 @@ function Hero() {
 
           {/* Subtext */}
           <motion.p {...fadeUp(0.16)}
-            className="text-sm sm:text-lg text-slate-600 leading-[1.7] max-w-[86%] sm:max-w-2xl mx-auto mb-7 sm:mb-10 text-pretty"
+            className="text-base sm:text-lg text-slate-600 leading-[1.7] max-w-[90%] sm:max-w-2xl mx-auto mb-7 sm:mb-10 text-pretty"
           >
-            From the smallest fellowship in Monrovia to multi-branch ministries across
-            Liberia, ChurchFlow brings your members, attendance, giving, and communication
-            into one secure place, so you can spend less time on paperwork and more time
-            shepherding your congregation.
+            Members, attendance, giving, and communication, organized in one secure place
+            for churches across Liberia.
           </motion.p>
 
           {/* CTA Buttons, shorter on mobile, reduced shadow */}
@@ -334,68 +452,13 @@ function Hero() {
             ))}
           </motion.div>
 
-          {/* Dashboard mockup */}
+          {/* Dashboard preview */}
           <motion.div {...fadeUp(0.4)}
-            className="relative mx-auto max-w-4xl overflow-hidden sm:overflow-visible"
+            className="relative mx-auto max-w-5xl"
           >
             {/* Soft pastel glow behind the panel */}
-            <div className="absolute -inset-2 bg-gradient-to-r from-violet-400/30 via-fuchsia-300/25 to-blue-400/30 rounded-[2rem] blur-2xl" />
-            <div className="relative bg-white/80 backdrop-blur-2xl border border-white/80 rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-[0_24px_70px_-20px_rgba(91,0,184,0.45)]">
-
-              {/* Browser-style header bar */}
-              <div className="flex items-center justify-between mb-4 sm:mb-5">
-                <div className="flex items-center gap-1.5 sm:gap-2">
-                  <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-red-400" />
-                  <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-amber-400" />
-                  <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-emerald-400" />
-                </div>
-                <div className="bg-slate-100/80 border border-white rounded-lg px-3 sm:px-6 py-1 sm:py-1.5 text-slate-500 text-[10px] sm:text-xs font-medium">
-                  churchflow.innova-lib.com/app/dashboard
-                </div>
-                <div className="w-12 sm:w-16" />
-              </div>
-
-              {/* Pastel-tinted stat cards */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 mb-3 sm:mb-5">
-                {[
-                  { label: 'Total Members',      value: '248',         tint: 'tint-lavender', bar: 'from-violet-500 to-purple-600' },
-                  { label: "Today's Attendance", value: '186',         tint: 'tint-mint',     bar: 'from-emerald-400 to-teal-500'  },
-                  { label: 'Total Offerings',    value: 'LRD 125,750', tint: 'tint-cream',    bar: 'from-amber-400 to-yellow-500'  },
-                  { label: 'Visitors Today',     value: '4',           tint: 'tint-blue',     bar: 'from-blue-500 to-indigo-500'   },
-                ].map((stat) => (
-                  <div key={stat.label} className={`${stat.tint} border border-white/80 rounded-xl p-3 sm:p-4 shadow-sm`}>
-                    <p className="text-slate-500 text-[10px] sm:text-xs mb-1 leading-tight">{stat.label}</p>
-                    <p className="text-slate-900 font-extrabold text-sm sm:text-lg leading-none">{stat.value}</p>
-                    <div className={`mt-1.5 sm:mt-2 h-0.5 sm:h-1 rounded-full bg-gradient-to-r ${stat.bar} w-3/4`} />
-                  </div>
-                ))}
-              </div>
-
-              {/* Charts row */}
-              <div className="grid grid-cols-3 gap-2 sm:gap-3">
-                <div className="col-span-2 tint-blue border border-white/80 rounded-xl p-3 sm:p-4 h-24 sm:h-32 shadow-sm">
-                  <p className="text-slate-500 text-[10px] sm:text-xs mb-2 sm:mb-3 font-medium">Attendance Overview</p>
-                  <div className="flex items-end gap-1 sm:gap-1.5 h-12 sm:h-16">
-                    {[60, 75, 50, 90, 70, 85, 80].map((h, i) => (
-                      <div key={i} className="flex-1 rounded-sm bg-gradient-to-t from-violet-600 to-purple-400"
-                        style={{ height: `${h}%` }} />
-                    ))}
-                  </div>
-                </div>
-                <div className="tint-mint border border-white/80 rounded-xl p-3 sm:p-4 h-24 sm:h-32 shadow-sm">
-                  <p className="text-slate-500 text-[10px] sm:text-xs mb-2 sm:mb-3 font-medium">Offerings</p>
-                  <div className="flex items-center justify-center h-12 sm:h-16">
-                    <div className="relative w-10 h-10 sm:w-14 sm:h-14">
-                      <div className="w-10 h-10 sm:w-14 sm:h-14 rounded-full border-4 border-violet-300" />
-                      <div className="absolute inset-0 rounded-full border-4 border-transparent border-t-amber-400 border-r-amber-400 rotate-45" />
-                      <div className="absolute inset-2 flex items-center justify-center">
-                        <span className="text-slate-700 text-[8px] sm:text-[9px] font-bold">62%</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <div className="absolute -inset-2 bg-gradient-to-r from-violet-400/25 via-fuchsia-300/20 to-blue-400/25 rounded-[2rem] blur-2xl" />
+            <HeroDashboardPreview />
           </motion.div>
 
         </div>
@@ -532,36 +595,33 @@ function Features() {
 function StatsBar() {
   const [ref, visible] = useInView()
 
-  const stats = [
-    { value: 'LRD + USD', label: 'Dual-Currency Giving',  Icon: DollarSign, tint: 'tint-cream' },
-    { value: 'Bank-Level', label: 'Security & Encryption', Icon: ShieldCheck, tint: 'tint-lavender' },
-    { value: '99.9%',      label: 'Uptime Guaranteed',     Icon: TrendingUp, tint: 'tint-mint' },
-    { value: '24/7',       label: 'Support Available',     Icon: MessageCircle, tint: 'tint-blue' },
+  const chips = [
+    { Icon: Church,      title: 'Built for Liberian Churches', text: 'Designed to fit how churches in Liberia serve.' },
+    { Icon: DollarSign,  title: 'LRD + USD Giving',            text: 'Accept and track offerings in LRD or USD.' },
+    { Icon: ShieldCheck, title: 'Bank-Level Security',         text: 'Your church data is encrypted and protected.' },
   ]
 
   return (
     <section className="pastel-canvas py-12 sm:py-16" ref={ref}>
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
-          {stats.map(({ value, label, Icon, tint }, i) => (
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5">
+          {chips.map(({ Icon, title, text }, i) => (
             <div
-              key={label}
-              className={`${tint} glass-card rounded-2xl p-5 sm:p-6 flex flex-col items-center text-center`}
+              key={title}
+              className="bg-white/90 border border-white/80 rounded-2xl p-5 flex items-start gap-3.5 shadow-[0_8px_28px_-12px_rgba(91,0,184,0.18)] hover:-translate-y-1 transition-transform duration-300"
               style={{
                 opacity: visible ? 1 : 0,
                 transform: visible ? 'translateY(0)' : 'translateY(20px)',
                 transition: `opacity 0.5s ease ${i * 90}ms, transform 0.5s ease ${i * 90}ms`,
               }}
             >
-              <span className="flex items-center justify-center w-10 h-10 rounded-xl bg-white/70 border border-white/80 mb-3 shadow-sm">
-                <Icon className="w-5 h-5 text-purple-700" />
+              <span className="flex-shrink-0 flex items-center justify-center w-11 h-11 rounded-full bg-purple-100">
+                <Icon className="w-5 h-5 text-[#5B00B8]" />
               </span>
-              <span className="text-lg sm:text-2xl font-extrabold text-slate-900 tracking-tight leading-none">
-                {value}
-              </span>
-              <span className="text-[11px] sm:text-xs font-semibold text-slate-500 uppercase tracking-wider mt-1.5">
-                {label}
-              </span>
+              <div>
+                <p className="text-sm font-bold text-slate-900 leading-snug">{title}</p>
+                <p className="text-xs text-slate-500 leading-relaxed mt-1">{text}</p>
+              </div>
             </div>
           ))}
         </div>
