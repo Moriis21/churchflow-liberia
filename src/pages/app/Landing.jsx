@@ -96,17 +96,17 @@ function Navbar() {
             <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-[10px] overflow-hidden bg-[#151022] flex items-center justify-center shadow-sm shadow-purple-500/20 flex-shrink-0">
               <img src="/logo.png" alt="ChurchFlow Liberia" className="w-7 h-7 sm:w-8 sm:h-8 object-contain" />
             </div>
-            <span className="font-bold text-sm sm:text-base leading-tight text-slate-900">
+            <span className="font-bold text-[13px] sm:text-sm leading-tight text-slate-900">
               Church<span className="text-purple-600">Flow</span>{' '}
               <span className="text-amber-500">Liberia</span>
             </span>
           </a>
 
           {/* Desktop nav links */}
-          <div className="hidden md:flex items-center gap-7">
+          <div className="hidden md:flex items-center gap-6">
             {navLinks.map(link => (
               <a key={link.label} href={link.href}
-                className="text-sm font-medium text-slate-600 hover:text-purple-600 transition-colors">
+                className="text-[13px] font-medium text-slate-600 hover:text-purple-600 transition-colors">
                 {link.label}
               </a>
             ))}
@@ -115,11 +115,11 @@ function Navbar() {
           {/* Desktop buttons */}
           <div className="hidden md:flex items-center gap-2.5">
             <Link to="/login"
-              className="text-sm font-semibold text-slate-700 hover:text-purple-700 px-4 py-1.5 rounded-lg hover:bg-purple-50 transition-colors">
+              className="text-[13px] font-semibold text-slate-700 hover:text-purple-700 px-3.5 py-1.5 rounded-lg hover:bg-purple-50 transition-colors">
               Login
             </Link>
             <Link to="/register"
-              className="text-sm font-semibold text-white bg-[#111111] px-4 py-1.5 rounded-lg hover:bg-black shadow-sm shadow-black/20 transition-all hover:-translate-y-px">
+              className="text-[13px] font-semibold text-white bg-[#111111] px-4 py-1.5 rounded-lg hover:bg-black shadow-sm shadow-black/20 transition-all hover:-translate-y-px">
               Get Started
             </Link>
           </div>
@@ -426,7 +426,7 @@ function Hero() {
               <span className="flex items-center justify-center w-6 h-6 rounded-full bg-purple-100">
                 <Video className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-purple-700" fill="currentColor" />
               </span>
-              Watch Demo
+              Try Demo
             </button>
           </motion.div>
 
