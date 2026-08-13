@@ -23,9 +23,9 @@ function functionsBase() {
 const GROQ_API_URL = `${functionsBase()}/groq-proxy`
 
 export const GROQ_MODELS = {
-  FAST:     'llama-3.1-8b-instant',    // Simple queries, landing page (replaces decommissioned llama3-8b-8192)
-  SMART:    'llama-3.3-70b-versatile', // Sermons, Bible study, analysis
-  BALANCED: 'llama-3.1-8b-instant',   // Admin summaries, SMS drafts
+  FAST:     'openai/gpt-oss-20b',   // Simple queries, landing page (was llama-3.1-8b-instant)
+  SMART:    'openai/gpt-oss-120b',  // Sermons, Bible study, analysis (was llama-3.3-70b-versatile)
+  BALANCED: 'openai/gpt-oss-20b',   // Admin summaries, SMS drafts (was llama-3.1-8b-instant)
 }
 
 const IS_DEV = import.meta.env.DEV

@@ -22,8 +22,8 @@ const GROQ_URL      = 'https://api.groq.com/openai/v1/chat/completions'
 // Models the frontend is allowed to request (prevents abuse of the key
 // to call arbitrary/expensive models).
 const ALLOWED_MODELS = new Set([
-  'llama-3.1-8b-instant',
-  'llama-3.3-70b-versatile',
+  'openai/gpt-oss-20b',
+  'openai/gpt-oss-120b',
 ])
 
 const cors = {
@@ -61,7 +61,7 @@ export default async function handler(req: Request): Promise<Response> {
     return json({ error: '`messages` array is required' }, 400)
   }
 
-  const useModel = ALLOWED_MODELS.has(model) ? model : 'llama-3.1-8b-instant'
+  const useModel = ALLOWED_MODELS.has(model) ? model : 'openai/gpt-oss-20b'
 
   const upstreamBody = JSON.stringify({
     model:       useModel,
