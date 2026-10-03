@@ -1,16 +1,85 @@
-# React + Vite
+# ChurchFlow Liberia
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Church management platform for maintaining member records, ministry operations, media resources, invitations, payments, and church communications.
 
-Currently, two official plugins are available:
+Live application: [https://churchflow-liberia.vercel.app](https://churchflow-liberia.vercel.app)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Status
 
-## React Compiler
+Active web application
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Key capabilities
 
-## Expanding the ESLint configuration
+- Member and ministry administration
+- Church invitations and two factor authentication support
+- Media resources, blog content, and daily scriptures
+- Payment records, reporting, and GDPR data workflows
+- InsForge backend integration
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Technology
+
+- React
+- Vite
+- Tailwind CSS
+- InsForge
+- Framer Motion
+- Recharts
+
+## Local development
+
+Requirements: Node.js and npm.
+
+```bash
+npm install
+npm run dev
+```
+
+### Available commands
+
+| Command | Purpose |
+| --- | --- |
+| `npm run dev` | `vite` |
+| `npm run sitemap` | `node scripts/generate-sitemap.mjs` |
+| `npm run prebuild` | `node scripts/generate-sitemap.mjs` |
+| `npm run build` | `vite build` |
+| `npm run lint` | `eslint .` |
+| `npm run preview` | `vite preview` |
+
+## Configuration
+
+Copy the provided environment template to a local environment file, then supply values for the variables required by your deployment.
+
+Variables documented in `.env.example`:
+
+- `CHURCHFLOW_LOGIN_URL`
+- `FROM_EMAIL`
+- `RESEND_API_KEY`
+- `VITE_INSFORGE_ANON_KEY`
+- `VITE_INSFORGE_URL`
+
+Never commit production credentials or private keys.
+
+## Project structure
+
+| Path | Purpose |
+| --- | --- |
+| `insforge/` | InsForge backend configuration and functions |
+| `migrations/` | Database migrations |
+| `public/` | Static assets |
+| `scripts/` | Maintenance and build scripts |
+| `src/` | Primary application source code |
+
+## Security
+
+- Keep credentials and production environment files out of version control.
+- Review authentication, authorization, database policies, and input validation before production use.
+- Run the available lint, type checking, test, and build commands before deployment.
+
+## License
+
+No license file is currently included. All rights are reserved unless the repository owner states otherwise.
+
+## Maintainer
+
+Morris L. Dorley Jr, [@Moriis21](https://github.com/Moriis21)
+
